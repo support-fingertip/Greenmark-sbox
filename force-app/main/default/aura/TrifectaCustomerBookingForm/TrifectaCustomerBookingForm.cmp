@@ -1,0 +1,909 @@
+<aura:component controller="TrifectaCustomerBookingFormController"
+                implements="force:appHostable,lightning:isUrlAddressable,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,lightning:actionOverride,force:lightningquickAction" access="global" >
+    <aura:attribute name="recordId" type="string" />
+    <aura:attribute name="Booking" type="Object"/>
+    <aura:attribute name="spinner" type="boolean" default="false"/>
+    <aura:attribute name="IsSaveDisabled" type="boolean" default="false"/>
+    <aura:attribute name="isResponded" type="boolean" default="false"/>
+    <aura:attribute name="reRender" type="String" default=""/>
+    <aura:attribute name="coApplicants" type="object[]" default="[]"/>
+    <aura:attribute name="receiptLineItems" type="object[]" default="[]"/>
+    <aura:attribute name="paymentSchdules" type="object[]" default="[]"/>
+    <aura:attribute name="isRecepitsExisted" type="boolean" default="false"/>
+    <aura:attribute name="approvalComments" type="String" default=""/>
+    <aura:attribute name="projectType" type="String" />
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
+    
+    <lightning:messages />
+    
+    <aura:html tag="style">
+        .booking-container {
+        font-family: 'Salesforce Sans', 'Segoe UI', Arial, sans-serif;
+        background: white;
+        padding: 16px;
+        max-width: 1000px;
+        margin: 0 auto;
+        }
+        
+        .header-section {
+        text-align: center;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .logo-title-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        margin-bottom: 8px;
+        }
+        
+        .company-logo {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        }
+        
+        .title-text {
+        font-size: 24px;
+        font-weight: 700;
+        color: #2e5aa5;
+        }
+        
+        .section-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e2e8f0;
+        }
+        
+        .section-header {
+        color: #2e5aa5;
+        font-weight: 600;
+        font-size: 18px;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        }
+        
+        .section-header-icon {
+        color: #0176d3;
+        font-size: 20px;
+        }
+        
+        .details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 10px;
+        }
+        
+        .detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        }
+        
+        .detail-label {
+        font-size: 12px;
+        color: #64748b;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        }
+        
+        .detail-value {
+        font-size: 16px;
+        color: #0f172a;
+        font-weight: 500;
+        }
+        
+        .highlight-value {
+        color: #0176d3;
+        font-weight: 600;
+        }
+        
+        .form-label {
+        font-size: 14px;
+        color: #334155;
+        font-weight: 600;
+        }
+        
+        .form-input {
+        width: 100%;
+        padding: 13px 16px;
+        font-size: 14.5px;
+        font-weight: 400;
+        color: #334155;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        transition: all 0.25s ease;
+        outline: none;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+        }
+        
+        .form-input:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15);
+        background-color: #fafeff;
+        }
+        
+        textarea.form-input {
+        min-height: 100px;
+        resize: vertical;
+        line-height: 1.6;
+        padding: 15px 16px;
+        }
+        
+        .button-group {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 20px;
+        }
+        
+        
+        .spinner-container {
+        display: flex;
+        justify-content: center;
+        padding: 24px;
+        }
+        
+        @media (max-width: 768px) {
+        .details-grid {
+        grid-template-columns: 1fr;
+        }
+        
+        .button-group {
+        flex-direction: column;
+        }
+        }
+        .cost-table td,
+        .payment-table td,
+        .payment-cheque-table td {
+        padding: 5px;
+        border-bottom: 1px dashed #ccc;
+        font-size: 14px;
+        }
+        
+        .cost-table th,
+        .payment-table th,
+        .payment-cheque-table th {
+        text-align: left;
+        font-weight: bold;
+        padding: 5px;
+        background-color: #f5f5f5;
+        font-size: 14px;
+        }
+        
+        .status-message {
+        text-align: center;
+        padding: 24px;
+        font-size: 16px;
+        font-weight: 600;
+        border-radius: 12px;
+        margin: 16px 0;
+        }
+        
+        .status-success {
+        background: #f0fdf4;
+        color: #15803d;
+        border: 1px solid #bbf7d0;
+        }
+        
+        .total-row {
+        font-weight: bold;
+        font-size: 12pt;
+        padding: 10px 0;
+        }
+        
+        
+    </aura:html>    
+    
+    <div class="booking-container">
+        
+        <!-- Spinner -->
+        <aura:if isTrue="{!v.spinner}">
+            <c:loadingScreen size="8" />
+            
+            <aura:set attribute="else">
+                <!-- Header Section -->
+                <div class="header-section">
+                    <div class="logo-title-container">
+                        <img class="company-logo" src="{!$Resource.TrifectaLogo}" alt="Jain Housing" />
+                        <div class="title-text">Booking Approval Form ({!v.projectType})</div>
+                    </div>
+                </div>
+                
+                <aura:if isTrue="{!v.projectType == 'Apartments'}">
+                    <div class="section-card">
+                        <div class="section-header">
+                            <lightning:icon iconName="standard:contract_line_item" size="small" class="section-header-icon" />
+                            Basic Information
+                        </div>
+                        <table style="width:100%; border-collapse: separate; border-spacing: 0 10px;">
+                            <tr>
+                                
+                                <!-- LEFT SIDE: FLAT DETAILS -->
+                                <td style="width:50%; vertical-align: top;">
+                                    <table style="width:100%; border-collapse: separate; border-spacing: 0 15px;">
+                                        <tr>
+                                            <td colspan="2" class="detail-value">
+                                                <span style="display:inline-block; border-bottom:2px solid #e2e8f0; padding-bottom:4px;">
+                                                    Flat Details:
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        
+                                        <tr>
+                                            <td>
+                                                <div class="detail-item">
+                                                    <span class="detail-label">BHK Type</span>
+                                                </div>
+                                            </td>
+                                            
+                                            <td>
+                                                <div class="detail-item">
+                                                    <span class="detail-value">{!v.Booking.BHK_Type__c}</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        
+                                        <tr>
+                                            <td>
+                                                <div class="detail-item">
+                                                    <span class="detail-label">Super Built Up Area</span>
+                                                </div>
+                                            </td>
+                                            
+                                            <td>
+                                                <div class="detail-item">
+                                                    
+                                                    <span class="detail-value">{!v.Booking.Super_Built_UpArea__c}</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        
+                                    </table>
+                                </td>
+                                
+                                <!-- RIGHT SIDE: AGREEMENT DETAILS -->
+                                <td style="width:50%; vertical-align: top;">
+                                    <table style="width:100%; border-collapse: separate; border-spacing: 0 15px;">
+                                        <tr>
+                                            <td colspan="2" class="detail-value">
+                                                <span style="display:inline-block; border-bottom:2px solid #e2e8f0; padding-bottom:4px;">
+                                                    Agreement Details:
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        
+                                        <tr>
+                                            <td>
+                                                <div class="detail-item">
+                                                    <span class="detail-label">Unit Number</span>
+                                                    
+                                                </div>
+                                            </td>
+                                            
+                                            <td>
+                                                <div class="detail-item">
+                                                    <span class="detail-value">{!v.Booking.Plot__r.Name}</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="detail-item">
+                                                    <span class="detail-label">Type of Agreement</span>
+                                                </div>
+                                            </td>
+                                            
+                                            <td>
+                                                <div class="detail-item">
+                                                    
+                                                    <span class="detail-value">{!v.Booking.Type_of_Aggrement__c}</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        
+                                    </table>
+                                </td>
+                                
+                            </tr>
+                        </table>
+                    </div>
+                </aura:if>
+                <aura:if isTrue="{!v.projectType == 'Row House'}">
+                    <div class="section-card">
+                        <div class="section-header">
+                            <lightning:icon iconName="standard:contract_line_item" size="small" class="section-header-icon" />
+                            Basic Information
+                        </div>
+                        <table style="width:100%; border-collapse: separate; border-spacing: 0 10px;">
+                            <tr>
+                                
+                                <!-- LEFT SIDE: FLAT DETAILS -->
+                                <td style="width:50%; vertical-align: top;">
+                                    <table style="width:100%; border-collapse: separate; border-spacing: 0 15px;">
+                                        <tr>
+                                            <td colspan="2" class="detail-value">
+                                                <span style="display:inline-block; border-bottom:2px solid #e2e8f0; padding-bottom:4px;">
+                                                    Row House Details:
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        
+                                        <tr>
+                                            <td>
+                                                <div class="detail-item">
+                                                    <span class="detail-label">BHK Type</span>
+                                                </div>
+                                            </td>
+                                            
+                                            <td>
+                                                <div class="detail-item">
+                                                    <span class="detail-value">{!v.Booking.BHK_Type__c}</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        
+                                        <tr>
+                                            <td>
+                                                <div class="detail-item">
+                                                    <span class="detail-label">Super Built Up Area</span>
+                                                </div>
+                                            </td>
+                                            
+                                            <td>
+                                                <div class="detail-item">
+                                                    
+                                                    <span class="detail-value">{!v.Booking.Super_Built_UpArea__c}</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        
+                                    </table>
+                                </td>
+                                
+                                <!-- RIGHT SIDE: AGREEMENT DETAILS -->
+                                <td style="width:50%; vertical-align: top;">
+                                    <table style="width:100%; border-collapse: separate; border-spacing: 0 15px;">
+                                        <tr>
+                                            <td colspan="2" class="detail-value">
+                                                <span style="display:inline-block; border-bottom:2px solid #e2e8f0; padding-bottom:4px;">
+                                                    Agreement Details:
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        
+                                        <tr>
+                                            <td>
+                                                <div class="detail-item">
+                                                    <span class="detail-label">Unit Number</span>
+                                                    
+                                                </div>
+                                            </td>
+                                            
+                                            <td>
+                                                <div class="detail-item">
+                                                    <span class="detail-value">{!v.Booking.Plot__r.Name}</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="detail-item">
+                                                    <span class="detail-label">Type of Agreement</span>
+                                                </div>
+                                            </td>
+                                            
+                                            <td>
+                                                <div class="detail-item">
+                                                    
+                                                    <span class="detail-value">{!v.Booking.Type_of_Aggrement__c}</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        
+                                    </table>
+                                </td>
+                                
+                            </tr>
+                        </table>
+                    </div>
+                </aura:if>
+                <aura:if isTrue="{!v.projectType == 'Land'}">
+                    <div class="section-card">
+                        <div class="section-header">
+                            <lightning:icon iconName="standard:contract_line_item" size="small" class="section-header-icon" />
+                            Basic Information
+                        </div>
+                        <table style="width:100%; border-collapse: separate; border-spacing: 0 10px;">
+                            <tr>
+                                
+                                <!-- LEFT SIDE: FLAT DETAILS -->
+                                <td style="width:50%; vertical-align: top;">
+                                    <table style="width:100%; border-collapse: separate; border-spacing: 0 15px;">
+                                        <tr>
+                                            <td colspan="2" class="detail-value">
+                                                <span style="display:inline-block; border-bottom:2px solid #e2e8f0; padding-bottom:4px;">
+                                                    Plot Details:
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        
+                                        <tr>
+                                            <td>
+                                                <div class="detail-item">
+                                                    <span class="detail-label">Villa Plot Number</span>
+                                                    
+                                                </div>
+                                            </td>
+                                            
+                                            <td>
+                                                <div class="detail-item">
+                                                    <span class="detail-value">{!v.Booking.Plot__r.Name}</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="detail-item">
+                                                    <span class="detail-label">Villa Plot Cost</span>
+                                                </div>
+                                            </td>
+                                            
+                                            <td>
+                                                <div class="detail-item">
+                                                    
+                                                    <span class="detail-value">{!v.Booking.Total_Land_Amount__c}</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        
+                                    </table>
+                                </td>
+                                
+                                <!-- RIGHT SIDE: AGREEMENT DETAILS -->
+                                <td style="width:50%; vertical-align: top;">
+                                    <table style="width:100%; border-collapse: separate; border-spacing: 0 15px;">
+                                        <tr>
+                                            <td colspan="2" class="detail-value">
+                                                <span style="display:inline-block; border-bottom:2px solid #e2e8f0; padding-bottom:4px;">
+                                                    Agreement Details:
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        
+                                        <tr>
+                                            <td>
+                                                <div class="detail-item">
+                                                    <span class="detail-label">Villa Plot (Area/Sq. Ft)</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="detail-item">
+                                                    <span class="detail-value">{!v.Booking.Plot_Land_Area__c}</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </aura:if>
+                <aura:if isTrue="{!v.projectType == 'Construction'}">
+                    <div class="section-card">
+                        <div class="section-header">
+                            <lightning:icon iconName="standard:contract_line_item" size="small" class="section-header-icon" />
+                            Basic Information
+                        </div>
+                        <table style="width:100%; border-collapse: separate; border-spacing: 0 10px;">
+                            <tr>
+                                
+                                <!-- LEFT SIDE: FLAT DETAILS -->
+                                <td style="width:50%; vertical-align: top;">
+                                    <table style="width:100%; border-collapse: separate; border-spacing: 0 15px;">
+                                        <tr>
+                                            <td colspan="2" class="detail-value">
+                                                <span style="display:inline-block; border-bottom:2px solid #e2e8f0; padding-bottom:4px;">
+                                                    Villa Details:
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        
+                                        <tr>
+                                            <td>
+                                                <div class="detail-item">
+                                                    <span class="detail-label">Villa Plot Number</span>
+                                                    
+                                                </div>
+                                            </td>
+                                            
+                                            <td>
+                                                <div class="detail-item">
+                                                    <span class="detail-value">{!v.Booking.Plot__r.Name}</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        
+                                        <tr>
+                                            <td>
+                                                <div class="detail-item">
+                                                    <span class="detail-label">Villa Plot Construction Cost (incl. of GST)</span>
+                                                </div>
+                                            </td>
+                                            
+                                            <td>
+                                                <div class="detail-item">
+                                                    <span class="detail-value">{!v.Booking.Construction_Cost__c}</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        
+                                    </table>
+                                </td>
+                                
+                                <!-- RIGHT SIDE: AGREEMENT DETAILS -->
+                                <td style="width:50%; vertical-align: top;">
+                                    <table style="width:100%; border-collapse: separate; border-spacing: 0 15px;">
+                                        <tr>
+                                            <td colspan="2" class="detail-value">
+                                                <span style="display:inline-block; border-bottom:2px solid #e2e8f0; padding-bottom:4px;">
+                                                    Agreement Details:
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        
+                                        <tr>
+                                            <td>
+                                                <div class="detail-item">
+                                                    <span class="detail-label">SBA (Sq.Ft)</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="detail-item">
+                                                    <span class="detail-value">{!v.Booking.Super_Built_UpArea__c}</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </aura:if>
+                
+                
+                <!-- Customer Details Section -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <lightning:icon iconName="standard:contact" size="small" class="section-header-icon" />
+                        Customer Details
+                    </div>
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">Customer Name</span>
+                            <span class="detail-value highlight-value">{!v.Booking.First_Applicant_Name__c}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Mobile</span>
+                            <span class="detail-value">{!v.Booking.Mobile__c}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">S/O</span>
+                            <span class="detail-value">{!v.Booking.Son_Daughter_Wife_of1__c}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Email</span>
+                            <span class="detail-value">{!v.Booking.Email__c}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Occupation</span>
+                            <span class="detail-value">{!v.Booking.Occupation__c}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">PAN</span>
+                            <span class="detail-value">{!v.Booking.PAN_Number__c}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Co Applicant Details -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <lightning:icon iconName="standard:contact" size="small" class="section-header-icon" />
+                        Co Applicant Details
+                    </div>
+                    <aura:iteration items="{!v.coApplicants}" var="coAp" indexVar="index">
+                        <div  class="section-header" style="padding-top: 8px;">
+                            Co-Applicant {!index + 1}
+                        </div>
+                        <div class="details-grid">
+                            
+                            <div class="detail-item">
+                                <span class="detail-label">Customer Name</span>
+                                <span class="detail-value highlight-value">{!coAp.Name}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Age</span>
+                                <span class="detail-value">{!coAp.Age__c}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Mobile</span>
+                                <span class="detail-value">{!coAp.Primary_Phone__c}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">S/O</span>
+                                <span class="detail-value">{!coAp.Son_Daughter_Wife_of__c}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Email</span>
+                                <span class="detail-value">{!coAp.Email__c}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Occupation</span>
+                                <span class="detail-value">{!coAp.Occupation__c}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">PAN</span>
+                                <span class="detail-value">{!coAp.PAN_Number__c}</span>
+                            </div>
+                        </div>
+                        
+                    </aura:iteration>
+                    
+                </div>
+                
+                <!-- Address Details Section -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <lightning:icon  iconName="standard:address" size="small" class="section-header-icon" />
+                        Address Information
+                    </div>
+                    <!-- ADDRESSES -->
+                    <table style="margin-top: 25px;">
+                        <tr>
+                            <td style="width: 50%; vertical-align: top; padding-right: 2%;">
+                                <table>
+                                    <tr>
+                                        <td class="detail-label"  >CURRENT ADDRESS:</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="detail-value" 
+                                            style="padding-top: 3px; font-size: 11pt; color: #444; white-space: normal; word-wrap: break-word;">
+                                            {!v.Booking.Address__c} - {!v.Booking.Pincode1__c}
+                                        </td>
+                                        
+                                    </tr>
+                                </table>
+                            </td>
+                            <td style="width: 50%; vertical-align: top; padding-left: 2%;">
+                                <table>
+                                    <tr>
+                                        <td class="detail-label" >PERMANENT ADDRESS:</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="detail-value"  style="padding-top: 3px; font-size: 11pt; color: #444; white-space: normal; word-wrap: break-word;">
+                                            {!v.Booking.Permanent_Address1__c} - {!v.Booking.Pincode__c}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <!-- Cost Sheet Break Up Details Section -->
+                <aura:if isTrue="{!v.projectType == 'Apartments'}">
+                    <div class="section-card">
+                        <div class="section-header">
+                            <lightning:icon iconName="standard:price_books" size="small" class="section-header-icon" />
+                            Cost Breakdown:
+                        </div>
+                        <table class="cost-table" style="margin-top:5px; border-collapse: separate; border-spacing: 0 13px;">
+                            <tr>
+                                <th style="width: 25%;">PARTICULARS</th>
+                                <th style="width: 25%;">AMOUNT</th>
+                                <th style="width: 25%;">PARTICULARS</th>
+                                <th style="width: 25%;">AMOUNT</th>
+                            </tr>
+                            
+                            <tr>
+                                <td class="detail-label">
+                                    Basic Cost at:<br/>
+                                    {!v.Booking.Rate_per_sqft__c} / sq.ft.
+                                </td>
+                                <td class="detail-value"><br/>{!v.Booking.Basic_Cost__c}</td>
+                                
+                                <td class="detail-label">BESCOM, STP<br/>and GENERATOR:</td>
+                                <td class="detail-value">{!v.Booking.Bescom_STP_and_Generator_Changes__c}</td>
+                            </tr>
+                            
+                            <tr>
+                                <td class="detail-label">Car Parking</td>
+                                <td class="detail-value">{!v.Booking.Car_Parking__c}</td>
+                                
+                                <td class="detail-label">Legal Charges</td>
+                                <td class="detail-value">{!v.Booking.Legal_Charges__c}</td>
+                            </tr>
+                            
+                            <tr>
+                                <td class="detail-label">Amenities</td>
+                                <td class="detail-value">{!v.Booking.Amenities__c}</td>
+                                
+                                <td class="detail-label">GST</td>
+                                <td class="detail-value">{!v.Booking.GST_Amount__c}</td>
+                            </tr>
+                        </table>
+                        <table>
+                            <tr>
+                                <td class="total-row">
+                                    TOTAL (Excluding Registration):  {!v.Booking.Total_Amount__c}
+                                    
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </aura:if>
+                <aura:if isTrue="{!v.projectType == 'Row House'}">
+                    <div class="section-card">
+                        <div class="section-header">
+                            <lightning:icon iconName="standard:price_books" size="small" class="section-header-icon" />
+                            Cost Breakdown:
+                        </div>
+                        <table class="cost-table" style="margin-top:5px; border-collapse: separate; border-spacing: 0 13px;">
+                            <tr>
+                                <th style="width: 25%;">PARTICULARS</th>
+                                <th style="width: 25%;">AMOUNT</th>
+                                <th style="width: 25%;">PARTICULARS</th>
+                                <th style="width: 25%;">AMOUNT</th>
+                            </tr>
+                            
+                            <tr>
+                                <td class="detail-label">
+                                    Basic Cost at:<br/>
+                                    {!v.Booking.Rate_per_sqft__c} / sq.ft.
+                                </td>
+                                <td class="detail-value"><br/>{!v.Booking.Basic_Cost__c}</td>
+                                
+                                <td class="detail-label">BESCOM, STP<br/>and GENERATOR:</td>
+                                <td class="detail-value">{!v.Booking.Bescom_STP_and_Generator_Changes__c}</td>
+                            </tr>
+                            
+                            <tr>
+                                <td class="detail-label">Legal Charges</td>
+                                <td class="detail-value">{!v.Booking.Legal_Charges__c}</td>
+                                
+                                <td class="detail-label">GST</td>
+                                <td class="detail-value">{!v.Booking.GST_Amount__c}</td>
+                            </tr>
+                        </table>
+                        <table>
+                            <tr>
+                                <td class="total-row">
+                                    TOTAL (Excluding Registration):  {!v.Booking.Total_Amount__c}
+                                    
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </aura:if>
+                
+                <!--Payments-->
+                <aura:if isTrue="{!v.isRecepitsExisted}">
+                    <div class="section-card">                      
+                        <div class="section-header">
+                            <lightning:icon iconName="standard:price_books" size="small" class="section-header-icon" />
+                            Payments:
+                        </div>
+                        
+                        <table class="payment-cheque-table" style="margin-top:15px; width:100%; border-collapse:collapse;">
+                            <tr>
+                                <th style="width: 15%;">Date</th>
+                                <th style="width: 15%;">Mode of Pay</th>
+                                <th style="width: 30%;">Cheque No/Transaction No</th>
+                                <th style="width: 20%;">Amount</th>
+                                <th style="width: 20%;">Bank</th>
+                            </tr>
+                            <aura:iteration items="{!v.receiptLineItems}" var="receipt" indexVar="index">
+                                
+                                <tr >
+                                    <td>
+                                        {!receipt.Receipt_Date__c}
+                                    </td>
+                                    <td>
+                                        {!receipt.Mode_of_Payment__c}
+                                    </td>
+                                    
+                                    <td >{!receipt.Cheque_no_Transaction_Number__c} </td>
+                                    <td >
+                                        {!receipt.Received_Amount__c}
+                                    </td>
+                                    <td >{!receipt.Bank_Name__c} </td>
+                                </tr>
+                            </aura:iteration>
+                        </table>
+                        
+                    </div>
+                </aura:if>
+                
+                <!--Payment Schdules-->
+                <div class="section-card">                      
+                    <div class="section-header">
+                        <lightning:icon iconName="standard:price_books" size="small" class="section-header-icon" />
+                        Payment Schdules:
+                    </div>
+                    <table class="payment-table" style="margin-top: 10px;width:100%; ">
+                        <tr>
+                            <th style="width: 40%;">PARTICULARS:</th>
+                            <th style="width: 30%;">% Payable:</th>
+                            <th style="width: 30%;">Amount:</th>
+                            
+                        </tr>
+                        <aura:iteration items="{!v.paymentSchdules}" var="p" indexVar="index">
+                            
+                            <tr >
+                                <td>{!p.Name} </td>
+                                <td>
+                                    {!p.Payment_percent__c}  %
+                                </td>
+                                <td>
+                                    {!p.Amount1__c} 
+                                </td>
+                                
+                            </tr>
+                        </aura:iteration>
+                    </table>
+                </div>
+                
+                <!--Approval Buttons-->
+                <div class="section-card">
+                    <aura:if isTrue="{!!v.isResponded}">
+                        <div>
+                            <br/>
+                            <label class="form-label">Comments</label>
+                            <lightning:textarea 
+                                                name="comments"
+                                                aura:id="masterCmt"
+                                                value="{!v.approvalComments}"
+                                                placeholder="Your valuable Comments"
+                                                class="form-input"
+                                                />
+                        </div>
+                        
+                        <div class="button-group">
+                            <lightning:button 
+                                              label="Approve" 
+                                              class="btnAccept" 
+                                              onclick="{!c.approve}" 
+                                              disabled="{!v.IsSaveDisabled}"/>
+                            
+                            <lightning:button 
+                                              label="Reject" 
+                                              class="btnReject" 
+                                              onclick="{!c.reject}"
+                                              disabled="{!v.IsSaveDisabled}"/>
+                        </div>
+                    </aura:if>
+                    <aura:if isTrue="{!v.isResponded}">
+                        <div class="status-message status-success">
+                            Thank you! Your response has been submitted.
+                        </div>
+                    </aura:if>
+                </div>
+            </aura:set>
+        </aura:if>
+        
+    </div>
+</aura:component>

@@ -1,0 +1,8 @@
+<apex:page standardController="Booking__c"  showHeader="false" sidebar="false" standardStylesheets="false" docType="html-5.0" renderAs="pdf">
+    
+    
+    <div class="container" style="max-width:800px; margin:40px auto; padding:10px 20px; border:1.5px solid #000; font-family:'Times New Roman', serif; background:#fff; font-size:13px;">
+        Not in Use
+    </div>
+    
+</apex:page>

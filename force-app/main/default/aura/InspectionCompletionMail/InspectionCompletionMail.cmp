@@ -1,0 +1,62 @@
+<aura:component controller="InspectionCompletionMailController" 
+                implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader" 
+                access="global">
+    
+    <aura:attribute name="recordId" type="Id" />
+    <aura:attribute name="emailContent" type="String" />
+    <aura:attribute name="subject" type="String" />
+    <aura:attribute name="customerEmail" type="String" />
+    <aura:attribute name="customerName" type="String" />
+    <aura:attribute name="filesIDS" type="List" />
+    <aura:attribute name="isSending" type="Boolean" default="false" />
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler name="fileUploadEvent" event="c:fileUploadEvent" action="{!c.handleFileUpload}" />
+    
+    <aura:html tag="style">
+        .slds-modal__container{ 
+        max-width: 85rem !important;
+        width:90% !important;
+        } 
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+        .slds-p-around--medium {
+        padding: 0rem !important;
+        }
+        .slds-modal__content{
+        height:unset !important;
+        max-height:unset !important;
+        }
+        .closeIcon{
+        display:none;
+        }
+        .slds-col{
+        margin-left:5px;
+        }
+    </aura:html>
+    
+    <div role="dialog" tabindex="-1" aria-labelledby="header43" aura:id="Modalbox" class="slds-modal slds-fade-in-open">
+        <div class="slds-modal__container">
+            <header class="slds-modal__header">
+                <h2 id="modal-heading-01" class="slds-text-heading--medium">Inspection Completion Mail</h2>
+            </header>
+            
+            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1" style="min-height:230px">
+                <lightning:inputRichText class="custom-textarea" aura:id="emailContent"
+                                         placeholder="Review and edit email content"
+                                         value="{!v.emailContent}" />
+                <c:photoUploadComponent recordId="{!v.recordId}" filesIds="{!v.filesIDS}" />
+            </div>
+            
+            <footer class="slds-modal__footer">
+                <lightning:button variant="neutral" label="Cancel" title="Cancel"
+                                  onclick="{!c.Cancel}" />
+                <lightning:button variant="brand" label="Send" title="Send Email"
+                                  onclick="{!c.sendEmail}"
+                                  disabled="{!v.isSending}" />
+            </footer>
+        </div>
+    </div>
+    
+</aura:component>

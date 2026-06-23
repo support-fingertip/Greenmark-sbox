@@ -1,0 +1,67 @@
+<aura:component controller="ProjectStatusReportController" 
+    implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId" 
+    access="global">
+
+    <aura:attribute name="showPopup" type="boolean" default="false" />
+    <aura:attribute name="showPaymentSchduleEdit" type="boolean" default="false" />
+    <aura:attribute name="showDemandPopup" type="boolean" default="false" />
+    <aura:attribute name="showPenaltyPopup" type="boolean" default="false" />
+    <aura:attribute name="recordId" type="Id" />
+    <aura:attribute name="bookingRecord" type="Object" />
+    <aura:attribute name="currentMilestone" type="Payment_schedule__c" />
+    
+    <aura:attribute name="showCustomButtons" type="boolean" default="false" />
+    <aura:attribute name="showAdjustLandAmount" type="boolean" default="false" />
+    
+    <aura:attribute name="showAdjustLandAmountButton" type="boolean" default="false" />
+    
+    <!--  force:recordData to load record fields directly -->
+    <force:recordData 
+        aura:id="bookingLoader"
+        recordId="{!v.recordId}"
+        targetRecord="{!v.bookingRecord}"
+        fields="Id,Show_Custom_Buttons__c,Project_Type__c"
+        recordUpdated="{!c.handleRecordLoaded}"
+        mode="VIEW"
+    />
+    <aura:if isTrue="{!v.showCustomButtons}">
+        <div class="slds-grid slds-grid_align-end">
+            <div class="slds-col">
+                <lightning:button variant="brand" label="Project Status Report" onclick="{!c.handleClick}" />
+            </div>
+            <div class="slds-col" style="margin-left:4px;">
+                <lightning:button variant="brand" label="Revised Demand" onclick="{!c.handleDemandClick}" />
+            </div>
+            <div class="slds-col" style="margin-left:4px;">
+                <lightning:button variant="brand" label="Penalty Demand" onclick="{!c.handlePenaltyClick}" />
+            </div>
+            <div class="slds-col" style="margin-left:4px;">
+                <lightning:button variant="brand" label="Edit Payment Schedules" onclick="{!c.paymentSchduleEdit}" />
+            </div>
+            <aura:if isTrue="{!v.showAdjustLandAmountButton}">
+                <div class="slds-col" style="margin-left:4px;">
+                    <lightning:button variant="brand" label="Adjust Land Amount" onclick="{!c.landAmountEditClick}" />
+                </div>
+            </aura:if>
+        </div>
+    </aura:if>
+    
+    <aura:if isTrue="{!v.showPopup}">
+        <c:ProjectStatusReportQuickAction visible="{!v.showPopup}" recordId="{!v.recordId}" />
+    </aura:if>
+    <aura:if isTrue="{!v.showDemandPopup}">
+        <c:RevisiedDemand visible="{!v.showDemandPopup}" recordId="{!v.recordId}" />
+    </aura:if>
+    <aura:if isTrue="{!v.showPenaltyPopup}">
+        <c:PenaltyDemand visible="{!v.showPenaltyPopup}" recordId="{!v.recordId}" />
+    </aura:if>
+    <aura:if isTrue="{!v.showPaymentSchduleEdit}">
+        <c:paymentSchedulePercentEdit recordId="{!v.recordId}" onclose="{!c.handlePaymentScheduleClose}" />
+    </aura:if>
+
+    <aura:if isTrue="{!v.showAdjustLandAmount}">
+        <c:bookingAmountAdjustment recordId="{!v.recordId}" onclose="{!c.landAmountEditClickClose}"/>
+    </aura:if>
+
+
+</aura:component>

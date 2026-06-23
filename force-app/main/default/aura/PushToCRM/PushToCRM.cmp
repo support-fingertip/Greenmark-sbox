@@ -1,0 +1,78 @@
+<aura:component controller="PushToCrmController"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickActionWithoutHeader" access="global" >
+        
+    
+    
+    <aura:attribute name="LeadRecord" type="Object"/>
+    <aura:attribute name="newNote" type="String" />
+    <aura:attribute name="selectedProject" type="String"/>
+    <aura:attribute name="selectedProjectType" type="String"/>
+    <aura:attribute name="recordLoadError" type="String"/>
+    <aura:attribute name="isButtonDisabled" type="Boolean" default="false"/>
+
+    
+    <aura:html tag="style">
+        .slds-modal__container{ 
+        max-width: 75rem !important;
+        width:75% !important;
+        } 
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+        .slds-p-around--medium {
+        padding: 0rem !important;
+        }
+        .slds-modal__content{
+        height:unset !important;
+        max-height:unset !important;
+        }
+        .closeIcon{
+        display:none;
+        }
+        .slds-col{
+        margin-left:5px;
+        }
+    </aura:html>
+    
+    <div class="slds-modal slds-fade-in-open" >
+        <div class="slds-modal__container" style="width:800px;">
+            <header class="slds-modal__header">
+                <lightning:buttonIcon iconName="utility:close"
+                                      onclick="{! c.closeModel }"
+                                      alternativeText="close"
+                                      variant="bare-inverse"
+                                      class="slds-modal__close"/>
+                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Push To CRM</h2>
+            </header>
+            <div class="slds-modal__content " id="modal-content-id-1">
+                <aura:if isTrue="{!v.isButtonDisabled}">
+                    <!-- Centered Processing Text -->
+                    <div style="width: 100%;">
+                        <c:loadingScreen size="1" />
+                    </div>
+                    
+                    <aura:set attribute="else">
+                        <div class="slds-form-element slds-m-bottom--medium" style="padding:10px">
+                            <lightning:textarea  label="Comments" value="{!v.newNote}" required="true" placeholder="Type Here ..."/>
+                        </div>    
+                    </aura:set>
+                </aura:if>
+           
+            </div>
+            
+            <footer class="slds-modal__footer">
+                <lightning:button variant="neutral"
+                                  label="Cancel"
+                                  title="Cancel"
+                                  onclick="{!c.closeModel}"/>
+                 
+                <lightning:button variant="brand" 
+                                  label="Push To CRM"
+                                  title="Push To CRM"
+                                  disabled="{!v.isButtonDisabled}"
+                                  onclick="{!c.pushToCRMComp}"/>
+                
+            </footer>
+        </div>
+    </div>
+</aura:component>

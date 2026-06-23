@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Restrict_Customer_Details_After_Agreemen</fullName>
+    <active>true</active>
+    <description>Restricts editing of Customer Details section fields (from Booking_Record_Page Lightning page) once Stage_Status__c is Completed and Stage1__c is Agreement.</description>
+    <errorConditionFormula>AND(
+    OR(
+        AND(
+            ISPICKVAL(Stage_Status__c, &quot;Completed&quot;),
+            ISPICKVAL(Stage__c, &quot;Agreement&quot;)
+        ),
+        ISPICKVAL(Stage__c, &quot;Demands &amp; Progressive Collections&quot;),
+        ISPICKVAL(Stage__c, &quot;Registration&quot;),
+        ISPICKVAL(Stage__c, &quot;Customer Service &amp; Complaints&quot;),
+        ISPICKVAL(Stage__c, &quot;Maintenance&quot;),
+        ISPICKVAL(Stage__c, &quot;Possession / Handover&quot;),
+        ISPICKVAL(Stage__c, &quot;Cancellation&quot;)
+    ),
+    OR(
+        ISCHANGED(S__c),
+        ISCHANGED(Age__c),
+        ISCHANGED(Occupation__c),
+        ISCHANGED(First_Applicant_Name__c),
+        ISCHANGED(Son_Daughter_Wife_of1__c),
+        ISCHANGED(PAN_Number__c)
+    )
+)</errorConditionFormula>
+    <errorMessage>Customer Details cannot be modified once the Agreement stage is marked as Completed.</errorMessage>
+</ValidationRule>

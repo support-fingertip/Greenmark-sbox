@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Welcome_Mail_Validation_CRM_Exectuive</fullName>
+    <active>true</active>
+    <errorConditionFormula>ISCHANGED(Stage_Status__c)
+    &amp;&amp; TEXT(Stage_Status__c) = &apos;Completed&apos;
+    &amp;&amp; TEXT(Stage__c) = &apos;Booked&apos;
+    &amp;&amp; Welcome_Email_Sent_to_Customer__c = false</errorConditionFormula>
+    <errorMessage>Welcome mail was not sent to the customer. Please send the welcome mail to mark the Booked stage as completed</errorMessage>
+</ValidationRule>

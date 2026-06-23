@@ -1,0 +1,103 @@
+<aura:component controller="CancelDemandNoteController" 
+               implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader" 
+                access="global">
+    
+    <aura:attribute name="recordId" type="Id" />
+    <aura:attribute name="reason" type="String" />
+
+    <aura:html tag="style">
+        .slds-modal__container { 
+            max-width: 85rem !important;
+            width: 60% !important;
+        } 
+        .cuf-content {
+            padding: 0 !important;
+        }
+        .slds-p-around--medium {
+            padding: 0 !important;
+        }
+        .slds-modal__content {
+            height: unset !important;
+            max-height: unset !important;
+            overflow: visible !important;
+        }
+        .closeIcon {
+            display: none;
+        }
+        .slds-modal__footer {
+            text-align: center;
+            justify-content: flex-end;
+            display: flex;
+        }
+        @media screen and (max-width: 768px) {
+            .slds-modal__container {
+                max-width: 100% !important;
+                width: 100% !important;
+                position: relative;
+                max-height: 100% !important;
+                left: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .slds-modal__content {
+                height: 100% !important;
+                max-height: 100% !important;
+                padding: 0.5rem;
+            }
+            .slds-modal__header {
+                text-align: center;
+            }
+            .slds-modal__footer {
+                justify-content: center;
+            }
+        }
+    </aura:html>
+
+  
+    <section role="dialog" 
+             tabindex="-1" 
+             aria-labelledby="modal-heading-01" 
+             aria-modal="true" 
+             aria-describedby="modal-content-id-1" 
+             class="slds-modal slds-fade-in-open">
+
+        <div class="slds-modal__container">
+
+            <!-- Header -->
+            <div class="slds-modal__header" style="background: #f3f3f3; padding: 1rem; border-bottom: 1px solid #dddbda;">
+                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Cancel Demand</h2>
+            </div>
+
+            <!-- Body -->
+            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                <div class="slds-form slds-form_stacked">
+                    <div class="slds-form-element slds-m-top_small">
+                        <lightning:textArea 
+                            name="Reason" 
+                            aura:id="mandateFields" 
+                            label="Reason" 
+                            value="{!v.reason}" 
+                            maxlength="500"
+                            required="true" /> 
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="slds-modal__footer" style="padding: 0.75rem 1rem; border-top: 1px solid #dddbda; background: #f3f3f3;">
+                <lightning:button 
+                    variant="neutral" 
+                    label="Cancel" 
+                    title="Cancel" 
+                    onclick="{!c.handleCancel}" />
+                <lightning:button 
+                    variant="brand" 
+                    label="Save" 
+                    title="Save" 
+                    onclick="{!c.save}" />
+            </div>
+
+        </div>
+    </section>
+
+</aura:component>

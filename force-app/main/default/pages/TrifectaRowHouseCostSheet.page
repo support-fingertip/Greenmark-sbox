@@ -1,0 +1,290 @@
+<apex:page standardController="Quote__c"
+           showHeader="false"
+           standardStylesheets="false"
+           applyBodyTag="false"
+           applyHtmlTag="false"
+           extensions="getQuoteData"
+           renderAs="pdf">
+    <html>
+        <head>
+            <style type="text/css">
+                @page {
+                size: A4;
+                margin: 20mm;
+                border: 1px solid #000;
+                }
+                
+                body {
+                font-family: Arial, sans-serif;
+                font-size: 13px;
+                margin: 0;
+                padding: 15px;
+                }
+                
+                table {
+                border-collapse: collapse;
+                width: 100%;
+                margin-bottom: 10px;
+                }
+                
+                td, th {
+                border: 0.5px solid #000;
+                padding: 8px;
+                padding: 4px 6px; /* Reduce vertical and horizontal padding */
+                vertical-align: middle;
+                }
+                
+                tr {
+                page-break-inside: avoid;
+                }
+                
+                .header-row {
+                background-color: #f5f5f5;
+                }
+                
+                .header-title {
+                font-size: 18px;
+                font-weight: bold;
+                text-align: center;
+                }
+                
+                .section-header {
+                background-color: #d3d3d3;
+                font-weight: bold;
+                }
+                
+                .right {
+                text-align: right;
+                }
+                
+                .center {
+                text-align: center;
+                }
+                
+                .bold {
+                font-weight: bold;
+                }
+                
+                .page-break {
+                page-break-before: always;
+                }
+                
+                h5 {
+                margin: 10px 0 5px 0;
+                font-size: 14px;
+                }
+                /* Outer border only */
+                .outer-border-table {
+                border: 1px solid #000;        /* Adds outside border */
+                border-collapse: collapse;
+                width: 100%;
+                }
+                
+                /* Remove inside borders */
+                .outer-border-table td,
+                .outer-border-table th {
+                border: none !important;       /* No inner lines */
+                padding: 4px 8px;
+                vertical-align: middle;
+                }
+                
+                .header-title {
+                font-size: 18px;
+                font-weight: bold;
+                text-align: center;
+                }
+            </style>
+        </head>
+        <body>
+            <!-- Header -->
+            <table class="outer-border-table">
+                <tr >
+                    <td style="width: 20%;"></td>
+                    <td style="width: 60%;">
+                        <div class="header-title">Trifecta Projects - Cost Sheet</div>
+                    </td>
+                    <td style="width: 20%; text-align: right;">
+                        <apex:image url="{!URLFOR($Resource.TrifectaLogo)}" style="height:45px; width:45px;"/>
+                    </td>
+                </tr>
+            </table>
+            <!-- Row House Details -->
+            <table>
+                <tr>
+                    <td colspan="3"><b>RERA - {!qout.RERA__c}</b></td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="width: 60%;"><b>Unit No:</b></td>
+                    <td colspan="2" class="right" style="width: 40%;">{!qout.Unit__r.Name}</td>
+                </tr>
+                <tr>
+                    <td colspan="2">Unit Facing Direction</td>
+                    <td class="right" style="width: 40%;">{!qout.Unit__r.Unit_Facing_Direction__c}</td>
+                </tr>
+                <tr>
+                    <td colspan="2">Carpet Area (in sqft)</td>
+                    <td class="right">{!qout.Carpet_Area__c}</td>
+                </tr>
+                <tr>
+                    <td colspan="2">Super Builtup area in Sq ft</td>
+                    <td class="right">{!qout.Super_Built_UpArea__c}</td>
+                </tr>
+                <tr>
+                    <td colspan="2">Rate per Sq.ft</td>
+                    <td class="right">
+                        <apex:outputText value="{0, number, ##,##,###.00}">
+                            <apex:param value="{!qout.Rate_sq_Ft_Discount__c}" /> 
+                        </apex:outputText>  
+                    </td>
+                </tr>
+                <tr >
+                    <td  style="width: 10%;">Basic Cost</td>
+                    <td style="width: 20%;"></td>
+                    <td class="right">
+                        <apex:outputText value="{0, number, ##,##,###.00}">
+                            <apex:param value="{!qout.Base_Value__c}" />
+                        </apex:outputText>
+                    </td>
+                </tr>
+                <tr class="bold" >
+                    <td style="width: 40%;background-color: #d3d3d3;">Sub Total (A)</td>
+                    <td style="width: 20%;background-color: #d3d3d3;"></td>  
+                    <td class="right" style="width: 40%;background-color: #d3d3d3;">
+                        <apex:outputText value="{0, number, ##,##,###.00}">
+                            <apex:param value="{!subtotalRowHouseA}" /> 
+                        </apex:outputText>  
+                    </td>
+                </tr>
+            </table>
+            <!-- Other Charges -->
+            <table>
+                <tr>
+                    <td colspan="3"><b>Other Charges</b></td>
+                </tr>
+                <tr>
+                    <td style="width: 40%;">PLC</td>
+                    <td class="right" style="width: 20%;">    
+                        <!-- Show 0 when NULL or 0 -->
+                        <apex:outputText value="0"
+                                         rendered="{!OR(
+                                                   qout.PLC__c == null,
+                                                   qout.PLC__c == 0
+                                                   )}" />
+                        
+                        <!-- Show formatted value when > 0 -->
+                        <apex:outputText value="{0, number, ##,##,###.00}"
+                                         rendered="{!AND(qout.PLC__c !=null ,qout.PLC__c > 0)}">
+                            <apex:param value="{!qout.PLC__c}" />
+                        </apex:outputText>
+                    </td>
+                    <td class="right" style="width: 40%;">
+                        <!-- Show 0 when NULL or 0 -->
+                        <apex:outputText value="0"
+                                         rendered="{!OR(
+                                                   qout.PLC_Amount__c == null,
+                                                   qout.PLC_Amount__c == 0
+                                                   )}" />
+                        
+                        <!-- Show formatted value when > 0 -->
+                        <apex:outputText value="{0, number, ##,##,###.00}"
+                                         rendered="{!AND(qout.PLC_Amount__c !=null,qout.PLC_Amount__c > 0)}">
+                            <apex:param value="{!qout.PLC_Amount__c}" />
+                        </apex:outputText>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width: 40%;">Bescom, STP and Generator </td>
+                    <td style="width: 20%;" class="right">
+                        <apex:outputText value="{0, number, ##,##,###.00}">
+                            <apex:param value="{!qout.Bescom__c + qout.Generator_Charges__c}" /> 
+                        </apex:outputText> 
+                    </td>
+                    <td class="right" style="width: 40%;">
+                        <apex:outputText value="{0, number, ##,##,###.00}">
+                            <apex:param value="{!qout.Bescom_STP_and_Generator__c}" /> 
+                        </apex:outputText> 
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width:40%;">Legal Charges</td>
+                    <td style="width: 20%;"></td>
+                    <td class="right" style="width:40%;">
+                        <apex:outputText value="{0, number, ##,##,###.00}">
+                            <apex:param value="{!qout.Legal_Documentation_Charges__c}" /> 
+                        </apex:outputText> 
+                    </td>
+                </tr>
+                <tr class="bold">
+                    <td style="width:40%;background-color: #d3d3d3">Sub Total (B)</td>
+                    <td style="width: 20%;background-color: #d3d3d3 "></td>
+                    <td class="right" style="width:40%;background-color: #d3d3d3">
+                        <apex:outputText value="{0, number, ##,##,###.00}">
+                            <apex:param value="{!subTotalRowHouseB}" />
+                        </apex:outputText>
+                    </td>
+                </tr>
+                <tr class="bold" >
+                    <td style="width:40%;background-color: #d3d3d3;">Sub Total (A+B)</td>
+                    <td style="width: 20%;background-color: #d3d3d3;"></td>
+                    <td class="right" style="width:40%;background-color: #d3d3d3;">₹
+                        <apex:outputText value="{0, number, ##,##,###.00}">
+                            <apex:param value="{!totalAmountRowHouseAB}" /> 
+                        </apex:outputText>  
+                    </td>
+                </tr>
+                <tr>
+                    <td  colspan="2"> GST ({!qout.GST__c}%)</td>
+                    <td class="right">
+                        <apex:outputText value="{0, number, ##,##,###.00}">
+                            <apex:param value="{!qout.GST_Amount__c}" />
+                        </apex:outputText>
+                    </td>
+                </tr>
+                <tr class="bold" >
+                    <td style="width: 10%;background-color: #d3d3d3;">Total Value</td>
+                    <td style="width: 20%;background-color: #d3d3d3;"></td>
+                    <td class="right" style="width: 10%;background-color: #d3d3d3;">
+                        <apex:outputText value="{0, number, ##,##,###.00}">
+                            <apex:param value="{!grandtotalAmount}" />
+                        </apex:outputText>
+                    </td>
+                </tr>
+                
+            </table>
+            <!-- Payment Terms -->
+            <table>
+                <tr >
+                    <td colspan="3"> <h4>Payment Schedule:</h4></td>
+                </tr>
+                <apex:repeat value="{!qout.Payment_Schedules__r}"  var="p">
+                    <tr >
+                        <td style="width: 60%;">{!p.Name} </td>
+                        <td  align="center" style="width: 40%;">
+                            <apex:outputText value="{0, Number}">
+                                <apex:param value="{!p.Payment_percent__c}" /> 
+                            </apex:outputText>  %
+                        </td>
+                    </tr>
+                </apex:repeat>
+            </table>
+            
+            
+            <div class="page-break"></div>
+            
+            
+            <!-- Terms and Conditions -->
+                       <table class="terms" style="width: 100%; font-size: 12px; border-collapse: collapse;margin-top: 10px;">
+                <tr>
+                    <th style="text-align: left; padding: 2px 4px;">
+                        <h3 style="margin: 10px; font-size: 14px; font-weight: bold;">Terms and Conditions:</h3>
+                    </th>
+                </tr>
+                <tr>
+                    <td style="padding: 4px 8px;">
+                        <apex:outputText value="{!templateBody}" escape="false" />
+                    </td>
+                </tr>
+            </table>
+        </body>
+    </html>
+</apex:page>

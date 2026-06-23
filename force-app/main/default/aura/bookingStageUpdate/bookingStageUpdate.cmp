@@ -1,0 +1,217 @@
+<aura:component controller="BookingStageController"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickActionWithoutHeader" 
+                access="global">
+    
+    <aura:attribute name="recordId" type="Id"/>
+    <aura:attribute name="userList" type="User[]"/>
+    <aura:attribute name="filteredUserList" type="User[]"/>
+    <aura:attribute name="stageList" type="String[]"/>
+    <aura:attribute name="selectedUser" type="Id"/>
+    <aura:attribute name="selectedUserName" type="String"/>
+    <aura:attribute name="selectedStage" type="String"/>
+    <aura:attribute name="comment" type="String"/>
+    <aura:attribute name="searchKey" type="String"/>
+    <aura:attribute name="showDropdown" type="Boolean" default="false"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <aura:html tag="style">
+        .slds-modal__container{ 
+        max-width: 75rem !important;
+        width:75% !important;
+        } 
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+        .slds-p-around--medium {
+        padding: 0rem !important;
+        }
+        .slds-modal__content{
+        height:unset !important;
+        max-height:unset !important;
+        }
+        .closeIcon{
+        display:none;
+        }
+        .slds-col{
+        margin-left:5px;
+        }
+        .user-lookup-dropdown {
+        position: absolute;
+        z-index: 9999;
+        background: white;
+        border: 1px solid #d8dde6;
+        border-radius: 0.25rem;
+        box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.16);
+        max-height: 200px;
+        overflow-y: auto;
+        width: 100%;
+        margin-top: 2px;
+        }
+        .user-lookup-dropdown .slds-listbox {
+        margin: 0;
+        padding: 0;
+        }
+        .user-lookup-item {
+        padding: 0.5rem 0.75rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        }
+        .user-lookup-item:hover {
+        background-color: #f3f2f2;
+        }
+        .user-lookup-item .slds-media__figure {
+        margin-right: 0.5rem;
+        }
+        .lookup-container {
+        position: relative;
+        }
+        .selected-user-pill {
+        margin-top: 0.5rem;
+        }
+        .search-input-wrapper {
+        position: relative;
+        }
+    </aura:html>
+    
+    <div class="slds-modal slds-fade-in-open" >
+        <div class="slds-modal__container" style="width:800px;">
+            <header class="slds-modal__header">
+                <lightning:buttonIcon iconName="utility:close"
+                                      onclick="{! c.handleCancel }"
+                                      alternativeText="close"
+                                      variant="bare-inverse"
+                                      class="slds-modal__close"/>
+                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Update Stage &amp; Owner</h2>
+            </header>
+            <div class="slds-modal__content " id="modal-content-id-1">
+                <aura:if isTrue="{!v.isButtonDisabled}">
+                    
+                    <div class="slds-align_absolute-center slds-p-around_medium">
+                        <c:loadingScreen size="1" />
+                    </div>
+                    
+                    <aura:set attribute="else">
+                        
+                        <div class="slds-p-around_medium">
+                            
+                            <!-- Row 1 - User Lookup -->
+                            <div class="slds-grid slds-gutters slds-m-bottom_medium">
+                                <div class="slds-col slds-size_1-of-1 lookup-container">
+                                    <div class="slds-form-element slds-form-element_stacked">
+                                        <label class="slds-form-element__label" for="user-lookup">
+                                            <abbr class="slds-required" title="required">* </abbr>Select User
+                                        </label>
+                                        <div class="slds-form-element__control">
+                                            
+                                            <!-- Show Selected User Pill or Search Input -->
+                                            <aura:if isTrue="{!and(not(empty(v.selectedUser)), not(v.showDropdown))}">
+                                                <!-- Selected User Display -->
+                                                <div class="slds-combobox_container">
+                                                    <div class="slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click" role="combobox">
+                                                        <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
+                                                            <div class="slds-pill_container">
+                                                                <lightning:pill label="{!v.selectedUserName}" 
+                                                                                onremove="{!c.handleRemoveUser}"
+                                                                                class="slds-pill"/>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <aura:set attribute="else">
+                                                    <!-- Search Input -->
+                                                    <div class="search-input-wrapper">
+                                                        <lightning:input 
+                                                                         aura:id="userLookup"
+                                                                         name="userLookup" 
+                                                                         value="{!v.searchKey}"
+                                                                         placeholder="Search users..."
+                                                                         onchange="{!c.handleUserSearch}"
+                                                                         onfocus="{!c.handleInputFocus}"
+                                                                         onblur="{!c.handleInputBlur}"
+                                                                         variant="label-hidden"/>
+                                                    </div>
+                                                    
+                                                    <!-- Dropdown List -->
+                                                    <aura:if isTrue="{!v.showDropdown}">
+                                                        <div class="user-lookup-dropdown">
+                                                            <aura:if isTrue="{!v.filteredUserList.length > 0}">
+                                                                <aura:iteration items="{!v.filteredUserList}" var="user">
+                                                                    <div class="user-lookup-item" 
+                                                                         data-userid="{!user.Id}" 
+                                                                         data-username="{!user.Name}"
+                                                                         onmousedown="{!c.handleUserSelect}">
+                                                                        <lightning:icon iconName="standard:user" size="x-small" class="slds-m-right_small"/>
+                                                                        <span>{!user.Name}</span>
+                                                                    </div>
+                                                                </aura:iteration>
+                                                                <aura:set attribute="else">
+                                                                    <div class="slds-p-around_small slds-text-align_center slds-text-color_weak">
+                                                                        No users found
+                                                                    </div>
+                                                                </aura:set>
+                                                            </aura:if>
+                                                        </div>
+                                                    </aura:if>
+                                                </aura:set>
+                                            </aura:if>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Stage Selection -->
+                            <div class="slds-grid slds-gutters slds-m-bottom_medium">
+                                <div class="slds-col slds-size_1-of-1">
+                                    <lightning:select
+                                                      name="selectStage"
+                                                      label="Stage"
+                                                      value="{!v.selectedStage}"
+                                                      required="true">
+                                        
+                                        <option value="">--Select--</option>
+                                        
+                                        <aura:iteration items="{!v.stageList}" var="st">
+                                            <option selected="{!st == v.selectedStage}" value="{!st}">{!st}</option>
+                                        </aura:iteration>
+                                        
+                                    </lightning:select>
+                                </div>
+                            </div>
+                            
+                            <!-- Comments -->
+                            <div class="slds-grid slds-gutters slds-m-bottom_medium">
+                                <div class="slds-col slds-size_1-of-1">
+                                    <lightning:textarea
+                                                        label="Comments"
+                                                        value="{!v.comment}"
+                                                        class="slds-size_1-of-1"
+                                                        placeholder="Type Here ..."/>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        
+                    </aura:set>
+                </aura:if>
+                
+            </div>
+            
+            <footer class="slds-modal__footer">
+                <lightning:button variant="neutral"
+                                  label="Cancel"
+                                  title="Cancel"
+                                  onclick="{!c.handleCancel}"/>
+                
+                <lightning:button variant="brand" 
+                                  label="Save"
+                                  title="Push To Sales"
+                                  disabled="{!v.isButtonDisabled}"
+                                  onclick="{!c.handleSave}"/>
+                
+            </footer>
+        </div>
+    </div>
+    
+</aura:component>

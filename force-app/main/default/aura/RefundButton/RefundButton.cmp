@@ -1,0 +1,41 @@
+<aura:component 
+    implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId" 
+    access="global">
+
+    <aura:attribute name="showPopup" type="boolean" default="false" />
+    <aura:attribute name="showPaymentSchduleEdit" type="boolean" default="false" />
+    <aura:attribute name="showDemandPopup" type="boolean" default="false" />
+    <aura:attribute name="showPenaltyPopup" type="boolean" default="false" />
+    <aura:attribute name="recordId" type="Id" />
+    <aura:attribute name="bookingRecord" type="Object" />
+    <aura:attribute name="currentMilestone" type="Payment_schedule__c" />
+    
+    <aura:attribute name="showCustomButtons" type="boolean" default="false" />
+    <aura:attribute name="showAdjustLandAmount" type="boolean" default="false" />
+    
+    <aura:attribute name="showAdjustLandAmountButton" type="boolean" default="false" />
+    
+    <!--  force:recordData to load record fields directly -->
+    <force:recordData 
+        aura:id="bookingLoader"
+        recordId="{!v.recordId}"
+        targetRecord="{!v.bookingRecord}"
+        fields="Id,Show_Custom_Buttons__c,Project_Type__c"
+        recordUpdated="{!c.handleRecordLoaded}"
+        mode="VIEW"
+    />
+    <aura:if isTrue="{!v.showCustomButtons}">
+        <div class="slds-grid slds-grid_align-end">
+            <div class="slds-col">
+                <lightning:button variant="brand" label="New Refund" onclick="{!c.handleClick}" />
+            </div>
+        </div>
+    </aura:if>
+    
+    <aura:if isTrue="{!v.showPopup}">
+        <c:CreateRefund visible="{!v.showPopup}" recordId="{!v.recordId}" />
+    </aura:if>
+
+
+
+</aura:component>

@@ -1,0 +1,245 @@
+<apex:page standardController="Booking__c"
+           extensions="ConsolidatedReceiptController"
+           renderAs="pdf"
+           applyHtmlTag="false"
+           showHeader="false"
+           cache="true"
+           readOnly="true">
+    
+    <head>
+        <style>
+            @page {
+            size: A4;
+            margin: 10mm;
+            border: 0.5px solid #000;
+            }
+            
+            body {
+            font-family: Arial, sans-serif;
+            font-size: 11pt;
+            margin: 0;
+            padding: 20px;
+            }
+            
+            .header {
+            text-align: center;
+            margin-bottom: 20px;
+            }
+            
+            .company-name {
+            font-size: 16pt;
+            font-weight: bold;
+            }
+            
+            .company-address {
+            font-size: 9pt;
+            margin-bottom: 15px;
+            }
+            
+            .receipt-title {
+            font-size: 13pt;
+            font-weight: bold;
+            text-decoration: underline;
+            margin-bottom: 20px;
+            }
+            
+            .info-section {
+            width: 100%;
+            margin-bottom: 25px;
+            font-size: 9pt;
+            }
+            
+            .info-left {
+            float: left;
+            width: 48%;
+            }
+            
+            .info-right {
+            float: right;
+            width: 48%;
+            }
+            
+            .payment-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 9pt;
+            }
+            
+            .payment-table th,
+            .payment-table td {
+            border: 0.5px solid #000;
+            padding: 6px;
+            }
+            
+            .center { text-align: center; }
+            .right  { text-align: right; }
+            
+            .total-row {
+            font-weight: bold;
+            }
+            
+            .clear { clear: both; }
+            
+        </style>
+    </head>
+    
+    <body>
+        <div class="container">
+            
+            <!-- ================= HEADER ================= -->
+            <div class="header">
+                
+                <apex:image url="{!URLFOR($Resource.TrifectaLogo)}"
+                            style="height:70px; width:70px;"/>
+                
+                <div class="company-name">
+                    {!bookingInfo.companyName}
+                </div>
+                
+                <div class="company-address">
+                    <apex:outputText value="{!bookingInfo.companyAddress}" escape="false"/>
+                </div>
+                
+
+            </div>
+            
+            <!-- ================= CUSTOMER INFO ================= -->
+            
+            <div class="info-section">
+                
+                <div class="info-left">
+                    
+                    <div>
+                        <b>Customer ID:</b> {!bookingInfo.customerId}
+                    </div>
+                    
+                    <div>
+                        <b>Customer Name:</b> {!bookingInfo.customerName}
+                        
+                        <!-- Co Applicant if exists -->
+                        <apex:outputPanel rendered="{!NOT(ISNULL(firstCoApplicant))}">
+                            , {!firstCoApplicant.Name}
+                        </apex:outputPanel>
+                    </div>
+                    
+                    <div>
+                        <b>Unit No:</b> {!bookingInfo.unitNo}
+                    </div>
+                    
+                    <div>
+                        <b>Block:</b> {!bookingInfo.block}
+                    </div>
+                    
+                </div>
+                
+                <div class="info-right">
+                    
+                    <div>
+                        <b>Date:</b>   <apex:outputText value="{0,date,dd-MM-yyyy}">
+                        <apex:param value="{!bookingInfo.receiptDate}"/>
+                        </apex:outputText> 
+                    </div>
+                    
+                    <div>
+                        <b>Project:</b> {!bookingInfo.project}
+                    </div>
+                    
+                    <div>
+                        {!bookingInfo.projectAddress}
+                    </div>
+                    
+                    <div>
+                        <b>Email:</b> {!bookingInfo.email}
+                    </div>
+                    
+                    <div>
+                        <b>Contact No:</b> {!bookingInfo.contactNo}
+                    </div>
+                    
+                </div>
+                
+                <div class="clear"></div>
+            </div>
+            
+            <!-- ================= PAYMENT LEDGER STATEMENT ================= -->
+            
+            <div style="margin-top:20px;">
+                
+                <div style="text-align:center;font-weight:bold;text-decoration:underline;">
+                    PAYMENT LEDGER STATEMENT
+                </div>
+                
+                
+                <div style="text-align:center;margin-top:20px">
+                    We have received the below mentioned payments via following modes:
+                </div>
+              
+                <table class="payment-table">
+                    
+                    <thead>
+                        <tr>
+                            <th>Sl.No.</th>
+                            <th>Receipt No.</th>
+                            <th>Receipt Date</th>
+                            <th>Payment Type</th>
+                            <th>Mode of Payment</th>
+                            <th>Cheque/ Draft/ Ref. No.</th>
+                            <th>Cheque/ Draft/ Ref. Date</th>
+                            <th>Drawn On</th>
+                            <th>Received Amount</th>
+                        </tr>
+                    </thead>
+                    
+                    <tbody>
+                        
+                        <apex:variable var="index" value="{!0}" />
+                        
+                        <apex:repeat value="{!repList}" var="item">
+                            
+                            <apex:variable var="index" value="{!index + 1}" />
+                            
+                            <tr>
+                                <td class="center">{!index}</td>
+                                <td class="center">{!item.receiptNo}</td>
+                                <td class="center">
+                                    <apex:outputText value="{0,date,dd-MM-yyyy}">
+                                        <apex:param value="{!item.receiptDate}"/>
+                                    </apex:outputText>
+                                </td>
+                                <td class="center">{!item.paymentType}</td>
+                                <td class="center">{!item.modeOfPayment}</td>
+                                <td class="center">{!item.instruMentNo}</td>
+                                <td class="center">
+                                    <apex:outputText value="{0,date,dd-MM-yyyy}">
+                                        <apex:param value="{!item.refdate}"/>
+                                    </apex:outputText>
+                                </td>
+                                <td class="center">{!item.bankName}</td>
+                                <td class="right">{!item.receiptAmount}</td>
+                            </tr>
+                            
+                        </apex:repeat>
+                        
+                        <!-- TOTAL -->
+                        <tr class="total-row">
+                            <td colspan="8" class="right">Total</td>
+                            
+                            <td colspan="1" class="right">
+                                {!totalAmountFormatted}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+            </div>
+            
+            <!-- ================= FOOTER ================= -->
+            <div style="margin-top:20px;text-align:center;font-weight:bold;">
+                Total Amount Received &nbsp;    
+                {!totalAmountFormatted}/- ( {!receiptAmountInWords})
+            </div>
+            
+        </div>
+    </body>
+</apex:page>

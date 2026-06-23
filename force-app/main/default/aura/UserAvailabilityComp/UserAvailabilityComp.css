@@ -1,0 +1,23 @@
+.THIS .available-class {
+    background-color: #28a745; /* Green color for Available */
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.THIS .offline-class {
+    background-color: #dc3545; /* Red color for Offline */
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+}
+.THIS .custom1-toggle-style .slds-checkbox_toggle .slds-checkbox_faux {
+    background-color: green;
+    border-color:green;
+    box-shadow: 0 0 4px white;
+}
+.THIS .custom2-toggle-style .slds-checkbox_toggle .slds-checkbox_faux {
+    background-color: red;
+    border-color:red;
+    box-shadow: 0 0 4px white;
+}

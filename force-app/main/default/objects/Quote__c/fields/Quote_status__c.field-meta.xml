@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Quote_status__c</fullName>
+    <externalId>false</externalId>
+    <label>Quote Status</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Drafted</fullName>
+                <default>true</default>
+                <label>Drafted</label>
+            </value>
+            <value>
+                <fullName>submitted for approval</fullName>
+                <default>false</default>
+                <label>submitted for approval</label>
+            </value>
+            <value>
+                <fullName>Project Sales Head Approved</fullName>
+                <default>false</default>
+                <label>Project Sales Head Approved</label>
+            </value>
+            <value>
+                <fullName>Project Sales Head Rejected</fullName>
+                <default>false</default>
+                <label>Project Sales Head Rejected</label>
+            </value>
+            <value>
+                <fullName>Sales Head Approved</fullName>
+                <default>false</default>
+                <label>Sales Head Approved</label>
+            </value>
+            <value>
+                <fullName>Sales Head Rejected</fullName>
+                <default>false</default>
+                <label>Sales Head Rejected</label>
+            </value>
+            <value>
+                <fullName>Management User Approved</fullName>
+                <default>false</default>
+                <label>Management User Approved</label>
+            </value>
+            <value>
+                <fullName>Management User Rejected</fullName>
+                <default>false</default>
+                <label>Management User Rejected</label>
+            </value>
+            <value>
+                <fullName>Sent to Customer</fullName>
+                <default>false</default>
+                <label>Sent to Customer</label>
+            </value>
+            <value>
+                <fullName>Converted</fullName>
+                <default>false</default>
+                <label>Converted</label>
+            </value>
+            <value>
+                <fullName>Approved</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Approved</label>
+            </value>
+            <value>
+                <fullName>Rejected</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Rejected</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

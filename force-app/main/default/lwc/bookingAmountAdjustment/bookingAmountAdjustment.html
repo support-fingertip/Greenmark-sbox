@@ -1,0 +1,178 @@
+<template>
+    <template if:true={loading}>
+        <section role="dialog" tabindex="-1" aria-modal="true"
+                 class="slds-modal slds-fade-in-open slds-modal_medium">
+            <div class="slds-modal__container">
+                <div class="slds-modal__content slds-p-around_medium slds-is-relative"
+                     style="min-height: 8rem;">
+                    <lightning-spinner alternative-text="Loading"></lightning-spinner>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <template if:false={loading}>
+        <section role="dialog" tabindex="-1" aria-modal="true"
+                 aria-labelledby="booking-adj-heading"
+                 class="slds-modal slds-fade-in-open slds-modal_medium">
+            <div class="slds-modal__container">
+
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                            title="Close" onclick={handleCancel}>
+                        <lightning-icon icon-name="utility:close"
+                                        alternative-text="Close"
+                                        variant="inverse" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="booking-adj-heading" class="slds-modal__title slds-hyphenate">
+                        Round Off Booking Amount
+                    </h2>
+                </header>
+
+                <div class="slds-modal__content slds-p-around_medium booking-adj-body">
+                    <p class="slds-text-body_small slds-m-bottom_small">
+                        <strong>Booking:</strong> {bookingName}
+                        &nbsp;&middot;&nbsp;
+                        {scheduleSummary}
+                    </p>
+
+                    <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                        <thead>
+                            <tr class="slds-line-height_reset">
+                                <th scope="col">Field</th>
+                                <th scope="col" class="slds-text-align_right">Before</th>
+                                <th scope="col" class="slds-text-align_right">After</th>
+                                <th scope="col" class="slds-text-align_right">Difference</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class={plotLandRowClass}>
+                                <td data-label="Field">Plot Land Cost</td>
+                                <td data-label="Before" class="slds-text-align_right">
+                                    <lightning-formatted-number value={before.plotLand}
+                                        format-style="currency" currency-code="INR">
+                                    </lightning-formatted-number>
+                                </td>
+                                <td data-label="After" class="slds-text-align_right">
+                                    <div class="slds-grid slds-grid_vertical-align-center slds-grid_align-end">
+                                        <lightning-input
+                                            type="number"
+                                            step="1"
+                                            variant="label-hidden"
+                                            data-id="plot-land-input"
+                                            value={after.plotLand}
+                                            onchange={handlePlotLandChange}
+                                            class="plot-land-input">
+                                        </lightning-input>
+                                        <lightning-button
+                                            variant="neutral"
+                                            label="Round Off"
+                                            title="Round to nearest 1,000"
+                                            icon-name="utility:filter"
+                                            onclick={handleRoundOff}
+                                            class="slds-m-left_x-small round-off-btn">
+                                        </lightning-button>
+                                    </div>
+                                </td>
+                                <td data-label="Difference" class={diffPlotLandClass}>
+                                    <div class="slds-text-align_right">
+                                        <lightning-formatted-number value={diffPlotLand}
+                                            format-style="currency" currency-code="INR"
+                                            sign-display="exceptZero">
+                                        </lightning-formatted-number>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Field">Extra Land Amount</td>
+                                <td data-label="Before" class="slds-text-align_right">
+                                    <lightning-formatted-number value={before.extraLand}
+                                        format-style="currency" currency-code="INR">
+                                    </lightning-formatted-number>
+                                </td>
+                                <td data-label="After" class="slds-text-align_right">
+                                    <lightning-formatted-number value={before.extraLand}
+                                        format-style="currency" currency-code="INR">
+                                    </lightning-formatted-number>
+                                </td>
+                                <td></td>
+                            </tr>
+                            <tr class={plotLandRowClass}>
+                                <td data-label="Field">Total Land Amount</td>
+                                <td data-label="Before" class="slds-text-align_right">
+                                    <lightning-formatted-number value={before.totalLand}
+                                        format-style="currency" currency-code="INR">
+                                    </lightning-formatted-number>
+                                </td>
+                                <td data-label="After" class="slds-text-align_right">
+                                    <lightning-formatted-number value={after.totalLand}
+                                        format-style="currency" currency-code="INR">
+                                    </lightning-formatted-number>
+                                </td>
+                                <td></td>
+                            </tr>
+                            <tr class={constructionRowClass}>
+                                <td data-label="Field">Construction Cost</td>
+                                <td data-label="Before" class="slds-text-align_right">
+                                    <lightning-formatted-number value={before.construction}
+                                        format-style="currency" currency-code="INR">
+                                    </lightning-formatted-number>
+                                </td>
+                                <td data-label="After" class="slds-text-align_right">
+                                    <lightning-formatted-number value={after.construction}
+                                        format-style="currency" currency-code="INR">
+                                    </lightning-formatted-number>
+                                </td>
+                                <td data-label="Difference" class={diffConstructionClass}>
+                                    <div class="slds-text-align_right">
+                                        <lightning-formatted-number value={diffConstruction}
+                                            format-style="currency" currency-code="INR"
+                                            sign-display="exceptZero">
+                                        </lightning-formatted-number>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="booking-adj-total-row">
+                                <td data-label="Field"><strong>Total Booking Amount</strong></td>
+                                <td data-label="Before" class="slds-text-align_right">
+                                    <strong>
+                                        <lightning-formatted-number value={before.total}
+                                            format-style="currency" currency-code="INR">
+                                        </lightning-formatted-number>
+                                    </strong>
+                                </td>
+                                <td data-label="After" class="slds-text-align_right">
+                                    <strong>
+                                        <lightning-formatted-number value={after.total}
+                                            format-style="currency" currency-code="INR">
+                                        </lightning-formatted-number>
+                                    </strong>
+                                </td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <template if:true={hasError}>
+                        <p class="slds-text-color_error slds-m-top_small">
+                            {errorMsg}
+                        </p>
+                    </template>
+                </div>
+
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancel" onclick={handleCancel}
+                        class="slds-m-right_x-small">
+                    </lightning-button>
+                    <lightning-button variant="brand" label="Save"
+                        disabled={saveDisabled} onclick={handleSave}>
+                    </lightning-button>
+                </footer>
+
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

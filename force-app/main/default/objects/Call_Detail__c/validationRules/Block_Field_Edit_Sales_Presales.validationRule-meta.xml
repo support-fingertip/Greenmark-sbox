@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Block_Field_Edit_Sales_Presales</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(
+    OR(
+        $Profile.Name = &quot;Sales&quot;,
+        $Profile.Name = &quot;Pre Sales&quot;
+    ),
+    OR(
+        ISCHANGED(Call_ID__c),
+        ISCHANGED(Status__c),
+        ISCHANGED(Call_From__c),
+        ISCHANGED(Call_To__c),
+        ISCHANGED(Parent_ID__c),
+        ISCHANGED(Call_Type__c),
+        ISCHANGED(Start_Time__c),
+        ISCHANGED(End_Time__c),
+        ISCHANGED(Lead__c),
+        ISCHANGED(Recording_File__c)
+    )
+)</errorConditionFormula>
+    <errorMessage>You are not allowed to edit these fields. Please contact Admin if changes are required.</errorMessage>
+</ValidationRule>

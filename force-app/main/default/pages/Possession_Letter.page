@@ -1,0 +1,6 @@
+<apex:page standardController="Booking__c" showHeader="false" sidebar="false" standardStylesheets="false" renderAs="pdf">
+    <div>
+        Not in Use
+    </div>
+    
+</apex:page>

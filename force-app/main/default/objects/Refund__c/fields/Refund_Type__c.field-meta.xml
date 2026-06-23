@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Refund_Type__c</fullName>
+    <externalId>false</externalId>
+    <label>Refund Type</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Cancellation Refund</fullName>
+                <default>false</default>
+                <label>Cancellation Refund</label>
+            </value>
+            <value>
+                <fullName>TDS Refund</fullName>
+                <default>false</default>
+                <label>TDS Refund</label>
+            </value>
+            <value>
+                <fullName>Credit Note</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Credit Note</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

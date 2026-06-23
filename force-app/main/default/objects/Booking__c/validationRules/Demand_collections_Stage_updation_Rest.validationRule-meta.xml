@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Demand_collections_Stage_updation_Rest</fullName>
+    <active>false</active>
+    <errorConditionFormula>(ISCHANGED(Stage__c)
+&amp;&amp; TEXT(Stage__c) = &apos;Demands &amp; Progressive Collections&apos;
+&amp;&amp; Signed_Agreement_Uploaded__c = false)</errorConditionFormula>
+    <errorMessage>Signed Agreement is not uploaded. Please upload the Signed Document to mark the Stage as Demands and Progressive Collections.</errorMessage>
+</ValidationRule>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Interest_Amount__c</fullName>
+    <description>For Pending amount in Payment Schdule</description>
+    <externalId>false</externalId>
+    <formula>IF(
+    Include_Interest__c,
+    IF(
+        NOT(ISBLANK(PaymentDueDate__c)) &amp;&amp; PaymentDueDate__c &lt; TODAY(),
+        MAX((
+                Pending_Amount__c 
+                * Interest_Percent__c 
+                * (TODAY() - PaymentDueDate__c)
+            )/ 365,
+            0),
+        0
+    ),
+    0
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Interest Amount (for Pending Amt)</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Currency</type>
+</CustomField>

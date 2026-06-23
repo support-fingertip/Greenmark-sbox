@@ -1,0 +1,25 @@
+<aura:component controller="executeBatchcmpController"
+                implements="flexipage:availableForAllPageTypes,force:appHostable"
+                access="global">
+
+    <aura:attribute name="message" type="String" default=""/>
+
+    <div class="slds-card slds-p-around_medium">
+        
+        <h2 class="slds-text-heading_medium slds-m-bottom_medium">
+             Reminder Scheduler
+        </h2>
+
+        <lightning:button 
+            label="Run Payment Reminder Batch"
+            variant="brand"
+            onclick="{!c.runBatch}" />
+        
+        <lightning:button 
+                          label="Run Aggrement Batch"
+                          variant="brand"
+                          onclick="{!c.runBatchAgreement}" />
+        
+    </div>
+    
+</aura:component>

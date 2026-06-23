@@ -1,0 +1,84 @@
+/* ─── Page Title ─── */
+.page-title {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* ─── Leads Section Title ─── */
+.leads-title {
+    color: maroon;
+    font-weight: bold;
+}
+
+/* ─── Leads Data Table Card ─── */
+.leads-card {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    padding: 16px;
+    margin-top: 12px;
+}
+
+/* ─── Filters Card ─── */
+.filters-card {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+/* ─── Lookup Dropdown ─── */
+.lookup-container {
+    position: relative;
+}
+
+.lookup-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 9999;
+    background: #fff;
+    border: 1px solid #dddbda;
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.16);
+}
+
+.slds-lookup__item-action {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.slds-lookup__item-action:hover {
+    background-color: #f3f2f2;
+}
+
+/* ─── Pagination Card ─── */
+.pagination-card {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    padding: 12px 16px;
+    margin-top: 12px;
+}
+
+/* ─── Action Buttons Card ─── */
+.actions-card {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    padding: 16px;
+    margin-top: 12px;
+}
+
+/* ─── Spinner Overlay ─── */
+lightning-spinner {
+    position: fixed;
+    z-index: 10000;
+}

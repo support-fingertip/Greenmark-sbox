@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>KeyHandOver_Check_CRM_Manager</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(
+    ISPICKVAL(Stage__c, &quot;Customer Service &amp; Complaints&quot;),
+    OR(
+        AND(
+            TEXT(Payment_Type__c) = &quot;Villas&quot;,
+            OR(
+                ISBLANK(Main_Door__c),
+                ISBLANK(Main_Door_Sensor_No_of_Keys__c),
+                ISBLANK(Guest_Bedroom_Key_No__c),
+                ISBLANK(Guest_Bedroom_No_of_Keys__c),
+                ISBLANK(FF_Master_bedroom_Key_No__c),
+                ISBLANK(FF_Master_bedroom_No_Of_Keys__c),
+                ISBLANK(Sit_Out_Key_No__c),
+                ISBLANK(Sit_Out_No_of_Keys__c),
+                ISBLANK(FF_children_bedroom_Key_No__c),
+                ISBLANK(FF_children_bedroom_No_Of_Keys__c),
+                ISBLANK(Second_Floor_Key_No__c),
+                ISBLANK(Second_Floor_No_of_Keys__c)
+            )
+        ),
+        AND(
+            TEXT(Payment_Type__c) = &quot;Apartments&quot;,
+            OR(
+                ISBLANK(Main_Door__c),
+                ISBLANK(Main_Door_Sensor_No_of_Keys__c),
+                ISBLANK(FF_Master_bedroom_Key_No__c),
+                ISBLANK(FF_Master_bedroom_No_Of_Keys__c),
+                ISBLANK(FF_children_bedroom_Key_No__c),
+                ISBLANK(FF_children_bedroom_No_Of_Keys__c),
+                ISBLANK(Common_Bedroom_Key_No__c),
+                ISBLANK(Common_Bedroom_No_of_Keys__c)
+            )
+        ),
+        AND(
+            TEXT(Payment_Type__c) = &quot;Row House&quot;,
+            OR(
+                ISBLANK(Main_Door_Key_No__c),
+                ISBLANK(Main_Door_No_of_Keys__c),
+                ISBLANK(Guest_Bedroom_Key_No__c),
+                ISBLANK(Guest_Bedroom_No_of_Keys__c),
+                ISBLANK(FF_Master_bedroom_Key_No__c),
+                ISBLANK(FF_Master_bedroom_No_Of_Keys__c),
+                ISBLANK(FF_children_bedroom_Key_No__c),
+                ISBLANK(FF_children_bedroom_No_Of_Keys__c),
+                ISBLANK(Basement_Door_Key_No__c),
+                ISBLANK(Basement_Door_No_of_Keys__c),
+                ISBLANK(Second_Floor_Key_No__c),
+                ISBLANK(Second_Floor_No_of_Keys__c)
+            )
+        )
+    )
+)</errorConditionFormula>
+    <errorMessage>All key-related fields must be filled before changing Stage to Customer Service &amp; Complaints.</errorMessage>
+</ValidationRule>

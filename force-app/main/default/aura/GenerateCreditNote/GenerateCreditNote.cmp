@@ -1,0 +1,70 @@
+<aura:component controller="RefundController" implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global" >
+    <aura:attribute name="recordId" type="Id" />
+    <aura:attribute name="demand" type="Demand_Raised__c" />
+    <aura:attribute name="isLoading" type="Boolean" default="false" />
+    <aura:attribute name="showModal" type="Boolean" default="false" />
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:html tag="style">
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+        .slds-p-around--medium {
+        padding: 0rem !important;
+        }
+        .slds-modal__content{
+        overflow-y:hidden !important;
+        height:unset !important;
+        max-height:unset !important;
+        }
+        .panel.slds-modal > .modal-container{
+        width: 75%;
+        max-width: 70rem;
+        }
+        .panel.slds-modal {
+        margin-top:2%;
+        }
+    </aura:html>
+    <section class="slds-modal slds-fade-in-open">
+        <header class="slds-modal__header">
+            <h2 class="slds-text-heading_medium slds-hyphenate">Cancel Demand</h2>
+        </header>  
+        
+        <div class="slds-modal__content slds-p-around_small" id="modal-content-id-1">
+            
+            <aura:if isTrue="{!v.isLoading}">
+                <lightning:spinner alternativeText="Loading..." size="medium" />
+            </aura:if>
+            
+            <div class =" slds-align_absolute-center">
+                <aura:if isTrue="{!not(empty(v.demand))}">
+                    <div class="slds-p-around_medium">
+                        <lightning:recordViewForm recordId="{!v.demand.Id}" objectApiName="Demand_Raised__c">
+                            <lightning:outputField fieldName="Name" />
+                            <lightning:outputField fieldName="Booking__c" />
+                            <lightning:outputField fieldName="Grand_Total__c" />
+                            <lightning:outputField fieldName="Stage__c" />
+                            <lightning:outputField fieldName="CreatedDate" />
+                            <lightning:outputField fieldName="Remarks__c" />
+                        </lightning:recordViewForm>
+                    </div>
+                </aura:if>
+                  
+
+            </div>
+             <!--<div class="warning-box slds-align_absolute-center">
+                        <p><strong>Note:</strong> Cancelling this demand will:</p>
+                        <ul class="slds-list_dotted slds-m-left_large slds-m-top_x-small">
+                            <li>Change the demand status to <strong>“Demand Cancelled”</strong></li>
+                            <li>Create a refund record with type <strong>Credit Note</strong></li>
+                            <li>Refund amount will be equal to <strong>Grand Total</strong></li>
+                        </ul>
+                    </div>-->
+        </div>
+        <footer class="slds-modal__footer">
+            <lightning:button variant="neutral" label="Cancel" onclick="{!c.closeModal}" />
+            <lightning:button variant="destructive" label="Cancel Demand &amp; Create Refund" onclick="{!c.handleSubmit}" />
+        </footer>
+    </section>
+</aura:component>

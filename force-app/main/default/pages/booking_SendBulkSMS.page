@@ -1,0 +1,3 @@
+<apex:page id="pageID" standardController="Booking__c"  recordSetVar="testRecords" docType="html-5.0" standardStylesheets="false" sidebar="false" showHeader="false">
+
+</apex:page>

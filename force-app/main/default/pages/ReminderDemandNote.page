@@ -1,0 +1,301 @@
+<apex:page standardController="Booking__c"
+           extensions="ReminderdemandInvioceController"
+           renderAs="pdf"
+           applyHtmlTag="false"
+           showHeader="false"
+           cache="true"
+           readOnly="true">  
+    <head>
+        <style>
+            @page {
+            size: A4;
+            margin: 10mm;
+            border: 0.5px solid #000;
+            }
+            
+
+            .page-border {
+            padding: 20px;
+            }
+            
+            body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 9pt;
+            color: #000;
+            line-height: 1.2;
+            }
+            
+            .header {
+            text-align: center;
+            margin-bottom: 10px;
+            }
+            
+            .logo {
+            text-align: right;
+            margin-bottom: 5px;
+            }
+            
+            .company-name {
+            font-size: 16pt;
+            font-weight: bold;
+            text-decoration: underline;
+            margin: 8px 0;
+            }
+            
+            .company-address {
+            font-size: 9pt;
+            margin-bottom: 10px;
+            }
+            
+            .info-section {
+            margin: 10px 0;
+            }
+            
+            .info-row {
+            display: table;
+            width: 100%;
+            }
+            
+            .info-left {
+            display: table-cell;
+            width: 50%;
+            font-size: 9pt;
+            line-height: 1.3;
+            }
+            
+            .info-right {
+            display: table-cell;
+            width: 50%;
+            font-size: 9pt;
+            line-height: 1.3;
+            }
+            
+            .section-title {
+            font-size: 13pt;
+            font-weight: bold;
+            text-decoration: underline;
+            text-align: center;
+            margin: 12px 0 8px 0;
+            }
+            
+            .content-text {
+            text-align: justify;
+            margin: 8px 0;
+            font-size: 9pt;
+            }
+            
+            .milestone-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 8pt;
+            }
+            
+            .milestone-table th,
+            .milestone-table td {
+            border: 0.5px solid #000;
+            padding: 3px 4px;
+            text-align: center;
+            }
+            
+            .milestone-table th {
+            background-color: #fff;
+            font-weight: bold;
+            line-height: 1.2;
+            }
+            
+            .total-row {
+            font-weight: bold;
+            }
+            
+            .payment-request {
+            margin: 10px 0;
+            font-size: 9pt;
+            text-align: justify;
+            }
+            
+            .bank-details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 9pt;
+            }
+            
+            .bank-details-table th {
+            background-color: #fff;
+            border: 0.5px solid #000;
+            padding: 3px;
+            text-align: center;
+            font-weight: bold;
+            }
+            
+            .bank-details-table td {
+            border: 0.5px solid #000;
+            padding: 3px 5px;
+            }
+            
+            .notes {
+            font-size: 8pt;
+            margin: 10px 0;
+            line-height: 1.4;
+            }
+            
+            .footer {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 9pt;
+            }
+            
+            .signature-section {
+            margin-top: 30px;
+            font-weight: bold;
+            font-size: 9pt;
+            }
+        </style>
+    </head>
+    
+    <body>
+        <div class="page-border">
+            <!-- Logo -->
+            <div class="logo">
+                <apex:image url="{!URLFOR($Resource.TrifectaLogo)}"
+                            style="height:55px; width:55px;"/>
+            </div>
+            
+            <!-- Header -->
+            <div class="header">
+                <div class="company-name">{!bookingInfo.companyName }</div>
+                <div class="company-address">
+                    <apex:outputText value="{!bookingInfo.companyAddress}" escape="false"/>
+                    {!bookingInfo.webAddress}
+                </div>
+            </div>
+            
+            <!-- Customer and Project Info -->
+            <div class="info-section">
+                <div class="info-row">
+                    <div class="info-left">
+                        <strong>Customer ID:</strong>{!bookingInfo.customerId}<br/>
+                        <strong>Customer Name:</strong> {!bookingInfo.customerName}
+                        <!-- Co Applicant if exists -->
+                        <apex:outputPanel rendered="{!NOT(ISNULL(firstCoApplicant))}">
+                            , {!firstCoApplicant.Name}
+                        </apex:outputPanel><br/>
+                        <strong>Unit No:</strong> {!bookingInfo.unitNo}<br/>
+                        <strong>Block:</strong> {!bookingInfo.block}
+                    </div>
+                    <div class="info-right">
+                        <strong>Dated:</strong>  
+                        <apex:outputText value="{0,date,dd'-'MM'-'yyyy}"><apex:param value="{!bookingInfo.demandDate}"/>
+                        </apex:outputText>
+                        <br/>
+                        <strong> {!bookingInfo.project}</strong><br/>
+                        {!bookingInfo.projectAddress}<br/>
+                        <strong>Email:</strong> {!bookingInfo.email}<br/>
+                        <strong>Contact No.</strong> {!bookingInfo.contactNo}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Demand Note Title -->
+            <div class="section-title">{!bookingInfo.reminderType}</div>
+            
+            <!-- Opening Text -->
+            <div class="content-text">
+                Dear Sir/Madam,
+            </div>
+            
+            <div class="content-text">
+                This is with reference to the Agreement executed for <strong> {!bookingInfo.project}, Unit No. {!bookingInfo.unitNo}</strong>. As per the agreed payment schedule, we hereby raised the demand note for the below- mentioned milestone/payment.
+            </div>
+            
+            <!-- Milestone Table -->
+            <table class="milestone-table">
+                <thead>
+                    <tr>
+                        <th>Milestone Demand Note</th>
+                        <th>Due Date</th>
+                        <th>Pending Dues excluding TDS Carried Forward</th>
+                        <th>Pending Payment TDS</th>
+                        <th>Current Milestone Excluding the TDS</th>
+                        <th>Current TDS @ {!bookingInfo.tdsPercent}%</th>
+                        <th>Interest {!bookingInfo.interstPercent}%</th>
+                        <th>Total Milestone Amount payable</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{!currentCompletedStage}</td>
+                        <td> 
+                            <apex:outputText value="{0,date,dd'/'MM'/'yyyy}"><apex:param value="{!demandDueDate}"/>
+                            </apex:outputText>
+                        </td>
+                        <td>{!prevDueExcludingTDSFormatted}</td>
+                        <td>{!pendingPreviousTDSFormatted}</td>
+                        <td>{!currentDueExcludingTDSFormatted}</td>
+                        <td>{!currentPendingTDSFormatted}</td>
+                        <td>{!balanceInterestFormatted}</td>
+                        <td>{!totalAmountFormatted}</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td colspan="3">Total Outstanding Amount (In Words)</td>
+                        <td colspan="5">{!milestoneAmountInWords}</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <!-- Payment Request -->
+            <div class="payment-request">
+                You are requested to remit the total dues of <strong>Rs. {!totalAmountFormatted}/- ({!milestoneAmountInWords})</strong> in favour of <strong>"TRIFECTA PROJECTS PVT LIMITED"</strong> on or before {!formattedDueDate}. Please make the payment in the below bank account details.
+            </div>
+            
+            <!-- Bank Details Table -->
+            <table class="bank-details-table">
+                <thead>
+                    <tr>
+                        <th colspan="2">{!bookingInfo.companyName}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Bank Name</strong></td>
+                        <td>{!bookingInfo.bankName}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Account Number</strong></td>
+                        <td>{!bookingInfo.accountNumber}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>IFSC Code</strong></td>
+                        <td>{!bookingInfo.ifscCode}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Type of Account</strong></td>
+                        <td>{!bookingInfo.typeOfAccount}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Branch</strong></td>
+                        <td>{!bookingInfo.branch}</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <!-- Notes -->
+            <div class="notes">
+                1. TDS {!bookingInfo.tdsPercent}% is applicable, we request you to pay {!bookingInfo.tdsPercent}% TDS as applicable to authorities and share the challan of this payment along with the payment for {!bookingInfo.amountPercent}% towards payment.<br/>
+                2. Please note that Form 141 Schedule B is mandatory for tax audit, till then these amounts will appear as un.<br/>
+                3. Kindly note that in case of non-receipt of due amount within stipulated time, interest @{!bookingInfo.interstPercent} % p.a. shall be charged as per terms on the delayed payments.
+            </div>
+            
+            <!-- Footer -->
+            <div class="footer">
+                {!bookingInfo.companyName}
+            </div>
+            
+            <!-- Signature -->
+            <div class="signature-section">
+                Authorized Signatory
+            </div>
+        </div>
+    </body>
+</apex:page>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Grand_Total_Before_GST__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(
+				TEXT(Property_Type__c) = &quot;Apartments&quot;,
+				Base_Value__c +
+				PLC_Amount__c +
+				Bescom_STP_and_Generator__c +
+				Floor_Rise_Charge__c +
+				Extra_car_parking_charges__c +
+				Car_Parking__c +
+				amenities_charges__c +
+				Legal_Documentation_Charges__c ,
+
+				IF(
+								TEXT(Property_Type__c) = &quot;Villas&quot;,
+								Base_Value__c +
+								PLC_Amount__c  +
+								Bescom_Charges__c +
+								STP_and_Generator_Charges__c +
+								Extra_Land_Amount__c,
+
+								IF(
+												TEXT(Property_Type__c) = &quot;Plots&quot;,
+												Base_Value__c +
+												PLC__c +
+												Bescom_STP_and_Generator__c +
+												amenities_charges__c +
+												Legal_Documentation_Charges__c,
+												IF(
+																TEXT(Property_Type__c) = &quot;Row House&quot;,
+																Base_Value__c +
+																PLC_Amount__c  +
+																Bescom_Charges__c +
+																STP_and_Generator_Charges__c +
+                Legal_Documentation_Charges__c ,
+																0
+												)
+								)
+				)
+)</formula>
+    <label>Sub Total</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Currency</type>
+</CustomField>

@@ -1,0 +1,266 @@
+<apex:page standardController="Receipt__c" extensions="ReceiptVFPController" renderAs="pdf" showHeader="false" sidebar="false" applyHtmlTag="false" applyBodyTag="false" standardStylesheets="false">
+    
+    <head>
+        <style>
+      
+            @page {
+            size: A4;
+            margin: 10mm;
+            border: 0.5px solid #000;
+            }
+            
+            body {
+                font-family: Arial, sans-serif;
+                font-size: 11pt;
+                margin: 0;
+                padding: 20px;
+            }
+            
+     
+            
+            .header {
+                text-align: center;
+                margin-bottom: 30px;
+            }
+            
+            .logo {
+                width: 60px;
+                height: 60px;
+                margin: 0 auto 15px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                padding-top: 15px;
+            }
+            
+            .company-name {
+                font-size: 16pt;
+                font-weight: bold;
+                margin-bottom: 10px;
+                letter-spacing: 1px;
+            }
+            
+            .company-address {
+            font-size: 9pt;
+            line-height: 1.4;
+            margin-bottom: 25px;
+            text-align: center;
+            }            
+            .receipt-title {
+                font-size: 13pt;
+                font-weight: bold;
+                text-decoration: underline;
+                margin-bottom: 20px;
+            }
+            
+            .info-section {
+                display: table;
+                width: 100%;
+                margin-bottom: 25px;
+                font-size: 9pt;
+            }
+            
+            .info-left {
+                float: left;
+                width: 48%;
+            }
+            
+            .info-right {
+                float: right;
+                width: 48%;
+            }
+            
+            .info-row {
+                margin-bottom: 5px;
+            }
+            
+            .label {
+                font-weight: bold;
+                display: inline-block;
+            }
+            
+            .clear {
+                clear: both;
+            }
+            
+            .payment-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 30px 0;
+                font-size: 9pt;
+            }
+            
+            .payment-table th {
+                border: 0.5px solid #000;
+                padding: 8px;
+                font-weight: bold;
+                text-align: center;
+            }
+            
+            .payment-table td {
+                border: 0.5px solid #000;
+                padding: 8px;
+                text-align: left;
+            }
+            
+            .payment-table td.center {
+                text-align: center;
+            }
+            
+            .payment-table td.right {
+                text-align: right;
+            }
+            
+            .total-row {
+                font-weight: bold;
+            }
+            
+            .footer-note {
+                text-align: right;
+                font-size: 9pt;
+                font-weight: bold;
+                margin-top: 5px;
+            }
+            
+            .company-footer {
+                font-weight: bold;
+                margin: 30px 0 20px 0;
+            }
+            
+            .signature-section {
+                margin-top: 30px;
+            }
+            
+            .signature-title {
+                font-weight: bold;
+                margin-bottom: 15px;
+            }
+            
+            .terms {
+                font-size: 9pt;
+                line-height: 1.6;
+                margin-left: 20px;
+            }
+            
+            .terms li {
+                margin-bottom: 8px;
+            }
+        </style>
+    </head>
+    
+    <body>
+        <div class="container">
+            <div class="header">
+                <div class="logo"> 
+                    <apex:image url="{!URLFOR($Resource.TrifectaLogo)}"
+                        style="height:70px; width:70px;"/>
+                </div>
+                <div class="company-name"> {!receiptInfo.companyName}</div>
+                <div class="company-address">
+                    <apex:outputText value="{!receiptInfo.companyAddress}" escape="false"/>
+                </div>
+                <div class="receipt-title">PAYMENT RECEIPT</div>
+            </div>
+            
+            <div class="info-section">
+                <div class="info-left">
+                    <div class="info-row">
+                        <span class="label">Receipt No:</span> {!receiptInfo.receiptNo}
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Customer ID:</span>  {!receiptInfo.customerId}
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Customer Name:</span>  {!receiptInfo.customerName}<br/>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Unit No:</span>   {!receiptInfo.unitNo}
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Block:</span>   {!receiptInfo.block}
+                    </div>
+                </div>
+                
+                <div class="info-right">
+                    <div class="info-row">
+                        <span class="label">Date:</span>   {!receiptInfo.receiptDate}
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Project:</span>  {!receiptInfo.project}
+                    </div>
+                    <div class="info-row">
+                        {!receiptInfo.projectAddress}
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Email:</span> {!receiptInfo.email}
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Contact No.</span> {!receiptInfo.contactNo}
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Web:</span>{!receiptInfo.webAddress}
+                    </div>
+                </div>
+                
+                <div class="clear"></div>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <div style="font-weight: bold; text-align: center; margin-bottom: 10px;">PAYMENT DETAILS</div>
+                
+                <table class="payment-table">
+                    <thead>
+                        <tr>
+                            <th>Sl.No.</th>
+                            <th>Mode</th>
+                            <th>Instrument Date</th>
+                            <th>Instrument No.</th>
+                            <th>Bank Name</th>
+                            <th>Total amount received</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <apex:variable var="index" value="{!0}" />
+                        <apex:repeat value="{!receiptLineItemWrappers}" var="wrapper">
+                            <tr>
+                                <apex:variable var="index" value="{!index + 1}" />
+                                <td class="center">{!index}</td>
+                                <td class="center">{!wrapper.modeOfPayment}</td>
+                                <td class="center">
+                                    <apex:outputText value="{0,date,dd'-'MM'-'yyyy}">
+                                        <apex:param value="{!wrapper.receiptDate}"/>
+                                    </apex:outputText>
+                                </td>
+                                <td class="center">{!wrapper.chequeOrTxnNumber}</td>
+                                <td class="center">{!wrapper.bankName}</td>
+                                <td class="right">{!wrapper.formattedAmount}</td>
+                            </tr>
+                        </apex:repeat>
+
+                        <tr class="total-row">
+                            <td colspan="5" class="right">Total</td>
+                            <td class="right">{!totalAmountFormatted}</td>
+                        </tr>
+                        
+                        <tr class="total-row">
+                            <td  colspan="6" class="right">{!amountInWords}/-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="company-footer">TRIFECTA PROJECTS PVT LTD</div>
+            
+            <div class="signature-section">
+                <div class="signature-title">Authorised Signatory</div>
+                
+                <ul class="terms">
+                    <li>This receipt is subject to realization of cheque/ draft.</li>
+                    <li>The receipts are not transferable without written consent of the company.</li>
+                    <li>This is only the receipt for the remittance as above and this does not entitle you to claim ownership / title of the above, property unless you are the confirmed owner of the property, as per Company record.</li>
+                </ul>
+            </div>
+        </div>
+    </body>
+</apex:page>

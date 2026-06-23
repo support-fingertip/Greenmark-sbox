@@ -1,0 +1,102 @@
+<aura:component controller="DocumentandEmailController"
+                implements="flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickActionWithoutHeader"
+                access="global">
+
+    <!-- ATTRIBUTES -->
+    <aura:attribute name="recordId" type="Id" />
+    <aura:attribute name="booking" type="Booking__c" />
+    <aura:attribute name="pdfUrl" type="String" />
+    <aura:attribute name="showPdf" type="Boolean" default="false" />
+    <aura:attribute name="isPopup" type="Boolean" default="false" />
+    <aura:attribute name="isSending" type="Boolean" default="false" />
+
+    <!-- LOAD BOOKING -->
+    <force:recordData aura:id="bookingRecord"
+                      recordId="{!v.recordId}"
+                      targetFields="{!v.booking}"
+                      fields="Project_Type__c, Email__c"
+                      recordUpdated="{!c.doInit}"/>
+
+    <!-- SLIGHTLY SMALLER MODAL (WIDTH & HEIGHT JUST A LITTLE LESS) -->
+    <aura:html tag="style">
+        /* Quick Action modal container – slightly smaller than 75% */
+        .panel.slds-modal > .modal-container,
+        .slds-modal__container {
+            width: 65% !important;        /* a little smaller than 75% */
+            max-width: 60rem !important;  /* a little smaller than 70rem */
+        }
+    </aura:html>
+
+    <!-- MAIN MODAL -->
+    <section class="slds-modal slds-fade-in-open">
+        <!-- HEADER -->
+        <header class="slds-modal__header">
+            <h2 class="slds-text-heading_medium slds-hyphenate">Key Handover Letter</h2>
+        </header>
+
+        <!-- CONTENT (similar style to your Consolidated Receipt component) -->
+        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+            <aura:if isTrue="{!v.showPdf}">
+                <aura:if isTrue="{!not(empty(v.pdfUrl))}">
+                    <!-- FIXED: iframe has explicit closing tag -->
+                    <iframe src="{!v.pdfUrl}"
+                            width="100%"
+                            height="450px"
+                            frameBorder="0">
+                    </iframe>
+                    <aura:set attribute="else">
+                        <div class="slds-align_absolute-center" style="height:450px;">
+                            <lightning:spinner alt="Loading..." size="medium" />
+                        </div>
+                    </aura:set>
+                </aura:if>
+                <aura:set attribute="else">
+                    <div class="slds-align_absolute-center" style="height:450px;">
+                        No Preview Available for this Project Type.
+                    </div>
+                </aura:set>
+            </aura:if>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="slds-modal__footer">
+            <button class="slds-button slds-button_neutral" onclick="{!c.close}">
+                Cancel
+            </button>
+            <!--<button class="slds-button slds-button_brand"
+                    onclick="{!c.openConfirm}"
+                    disabled="{!v.isSending}">
+                Send Email
+            </button>-->
+        </footer>
+    </section>
+
+    <!-- CONFIRM POPUP -->
+    <aura:if isTrue="{!v.isPopup}">
+        <div style="z-index:9002;">
+            <section role="dialog"
+                     tabindex="-1"
+                     class="slds-modal slds-fade-in-open slds-modal_prompt">
+                <div class="slds-modal__container" style="width: 30% !important;">
+                    <header class="slds-modal__header slds-theme_info slds-theme_alert-texture">
+                        <h2 class="slds-text-heading_medium">Confirm Send</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium"
+                         style="height: auto !important;
+                                max-height: 200px !important;
+                                overflow: visible !important;">
+                        <p class="slds-text-align_center">
+                            Are you sure you want to send the handover letter to {!v.booking.Email__c}?
+                        </p>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning:button label="No" onclick="{!c.closeConfirm}" />
+                        <lightning:button label="Yes, Send Now" variant="brand" onclick="{!c.processSend}" />
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </aura:if>
+
+</aura:component>

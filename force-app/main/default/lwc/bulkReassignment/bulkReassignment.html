@@ -1,0 +1,334 @@
+<template>
+    <!-- ─── HEADER ─── -->
+    <div class="slds-page-header">
+        <div class="slds-page-header__row">
+            <div class="slds-page-header__col-title slds-align-middle">
+                <div class="slds-media">
+                    <div class="slds-media__figure">
+                        <lightning-icon size="large" icon-name="standard:record_update"></lightning-icon>
+                    </div>
+                    <div class="slds-media__body slds-align-middle">
+                        <span class="page-title">Lead Re-Assignment</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── TABSET ─── -->
+    <lightning-tabset variant="scoped">
+        <lightning-tab label="Bulk Reassignment">
+            <div class="slds-page-body">
+
+                <!-- ─── USER LOOKUP ROW ─── -->
+                <div class="slds-grid slds-wrap slds-gutters slds-m-bottom_medium">
+
+                    <!-- Current User Lookup -->
+                    <div class="slds-col slds-size_1-of-2 slds-p-horizontal_x-small">
+                        <div class="lookup-container">
+                            <lightning-input
+                                label="Current User Name"
+                                type="search"
+                                value={searchText}
+                                onchange={handleSearchText}
+                                required
+                                autocomplete="off"
+                                message-when-value-missing="Select User">
+                            </lightning-input>
+                            <template if:true={showMatchUsers}>
+                                <div class="lookup-dropdown">
+                                    <ul class="slds-listbox slds-listbox_vertical" role="listbox">
+                                        <template for:each={matchUsers} for:item="user">
+                                            <li key={user.Id} role="presentation" class="slds-listbox__item">
+                                                <div class="slds-lookup__item-action" data-id={user.Id} onclick={handleSelectUser}>
+                                                    <lightning-icon icon-name="standard:account" size="xx-small"></lightning-icon>
+                                                    &nbsp;{user.Name} - {user.ProfileName}
+                                                </div>
+                                            </li>
+                                        </template>
+                                    </ul>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Assigning To Lookup -->
+                    <div class="slds-col slds-size_1-of-2 slds-p-horizontal_x-small">
+                        <div class="lookup-container">
+                            <lightning-input
+                                label="Assigning To"
+                                type="search"
+                                value={searchText2}
+                                onchange={handleSearchText2}
+                                required
+                                autocomplete="off"
+                                message-when-value-missing="Select User">
+                            </lightning-input>
+                            <template if:true={showMatchUsers2}>
+                                <div class="lookup-dropdown">
+                                    <ul class="slds-listbox slds-listbox_vertical" role="listbox">
+                                        <template for:each={matchUsers2} for:item="user">
+                                            <li key={user.Id} role="presentation" class="slds-listbox__item">
+                                                <div class="slds-lookup__item-action" data-id={user.Id} onclick={handleSelectUser2}>
+                                                    <lightning-icon icon-name="standard:account" size="xx-small"></lightning-icon>
+                                                    &nbsp;{user.Name} - {user.ProfileName}
+                                                </div>
+                                            </li>
+                                        </template>
+                                    </ul>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ─── FILTERS (shown after current user selected) ─── -->
+                <template if:true={showFilter}>
+                    <div class="filters-card">
+                        <div class="slds-grid slds-wrap slds-gutters_x-small slds-m-bottom_small">
+
+                            <!-- Project -->
+                            <div class="slds-col slds-size_1-of-6 slds-p-horizontal_x-small">
+                                <lightning-combobox
+                                    label="Project"
+                                    value={projectFilter}
+                                    options={projectOptions}
+                                    onchange={handleFilterChange}
+                                    data-field="project">
+                                </lightning-combobox>
+                            </div>
+
+                            <!-- Created Date From -->
+                            <div class="slds-col slds-size_1-of-6 slds-p-horizontal_x-small">
+                                <lightning-input
+                                    label="From"
+                                    type="date"
+                                    value={fromCreatedDate}
+                                    onchange={handleFilterChange}
+                                    data-field="fromCreatedDate">
+                                </lightning-input>
+                            </div>
+
+                            <!-- Created Date To -->
+                            <div class="slds-col slds-size_1-of-6 slds-p-horizontal_x-small">
+                                <lightning-input
+                                    label="To"
+                                    type="date"
+                                    value={toCreatedDate}
+                                    onchange={handleFilterChange}
+                                    data-field="toCreatedDate">
+                                </lightning-input>
+                            </div>
+
+                            <!-- Site Visit Date From -->
+                            <div class="slds-col slds-size_1-of-6 slds-p-horizontal_x-small">
+                                <lightning-input
+                                    label="Site Visit From"
+                                    type="date"
+                                    value={fromSiteVisitDate}
+                                    onchange={handleFilterChange}
+                                    data-field="fromSiteVisitDate">
+                                </lightning-input>
+                            </div>
+
+                            <!-- Site Visit Date To -->
+                            <div class="slds-col slds-size_1-of-6 slds-p-horizontal_x-small">
+                                <lightning-input
+                                    label="Site Visit To"
+                                    type="date"
+                                    value={toSiteVisitDate}
+                                    onchange={handleFilterChange}
+                                    data-field="toSiteVisitDate">
+                                </lightning-input>
+                            </div>
+
+                            <!-- Lead Status -->
+                            <div class="slds-col slds-size_1-of-6 slds-p-horizontal_x-small">
+                                <lightning-combobox
+                                    label="Lead Status"
+                                    value={leadStatusFilter}
+                                    options={leadStatusOptions}
+                                    onchange={handleFilterChange}
+                                    data-field="leadStatus">
+                                </lightning-combobox>
+                            </div>
+                        </div>
+
+                        <div class="slds-grid slds-wrap slds-gutters_x-small slds-m-bottom_small">
+
+                            <!-- Follow-up Date From -->
+                            <div class="slds-col slds-size_1-of-6 slds-p-horizontal_x-small">
+                                <lightning-input
+                                    label="Follow-up From"
+                                    type="date"
+                                    value={fromFollowUpDate}
+                                    onchange={handleFilterChange}
+                                    data-field="fromFollowUpDate">
+                                </lightning-input>
+                            </div>
+
+                            <!-- Follow-up Date To -->
+                            <div class="slds-col slds-size_1-of-6 slds-p-horizontal_x-small">
+                                <lightning-input
+                                    label="Follow-up To"
+                                    type="date"
+                                    value={toFollowUpDate}
+                                    onchange={handleFilterChange}
+                                    data-field="toFollowUpDate">
+                                </lightning-input>
+                            </div>
+
+                            <!-- Lead Source -->
+                            <div class="slds-col slds-size_1-of-6 slds-p-horizontal_x-small">
+                                <lightning-combobox
+                                    label="Lead Source"
+                                    value={leadSourceFilter}
+                                    options={leadSourceOptions}
+                                    onchange={handleFilterChange}
+                                    data-field="leadSource">
+                                </lightning-combobox>
+                            </div>
+
+                            <!-- Sub Source -->
+                            <div class="slds-col slds-size_1-of-6 slds-p-horizontal_x-small">
+                                <lightning-input
+                                    label="Sub Source"
+                                    type="text"
+                                    value={subSource}
+                                    onchange={handleFilterChange}
+                                    data-field="subSource"
+                                    placeholder="Sub Source">
+                                </lightning-input>
+                            </div>
+
+                            <!-- Allocation Date From -->
+                            <div class="slds-col slds-size_1-of-6 slds-p-horizontal_x-small">
+                                <lightning-input
+                                    label="From Allocation"
+                                    type="date"
+                                    value={fromAllocationDate}
+                                    onchange={handleFilterChange}
+                                    data-field="fromAllocationDate">
+                                </lightning-input>
+                            </div>
+
+                            <!-- Allocation Date To -->
+                            <div class="slds-col slds-size_1-of-6 slds-p-horizontal_x-small">
+                                <lightning-input
+                                    label="To Allocation"
+                                    type="date"
+                                    value={toAllocationDate}
+                                    onchange={handleFilterChange}
+                                    data-field="toAllocationDate">
+                                </lightning-input>
+                            </div>
+                        </div>
+
+                        <div class="slds-grid slds-wrap slds-gutters_x-small">
+
+                            <!-- Phone Number -->
+                            <div class="slds-col slds-size_1-of-6 slds-p-horizontal_x-small">
+                                <lightning-input
+                                    label="Phone Number"
+                                    type="tel"
+                                    value={phoneNumber}
+                                    onchange={handleFilterChange}
+                                    data-field="phoneNumber"
+                                    placeholder="Enter Phone Number">
+                                </lightning-input>
+                            </div>
+
+                            <div class="slds-col slds-size_1-of-6"></div>
+                            <div class="slds-col slds-size_1-of-6"></div>
+                            <div class="slds-col slds-size_1-of-6"></div>
+                            <div class="slds-col slds-size_1-of-6"></div>
+
+                            <!-- Clear Filters -->
+                            <div class="slds-col slds-size_1-of-6 slds-p-horizontal_x-small slds-align-bottom">
+                                <lightning-button
+                                    variant="brand-outline"
+                                    label="Clear Filters"
+                                    icon-name="utility:refresh"
+                                    title="Reset all filters"
+                                    onclick={handleClearFilters}
+                                    disabled={isLoading}>
+                                </lightning-button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- ─── DATA TABLE ─── -->
+                <template if:true={showDataTable}>
+                    <template if:true={hasLeads}>
+                        <div class="leads-card">
+                            <div class="slds-m-bottom_small">
+                                <h1 class="slds-text-align_center slds-text-heading_medium">
+                                    <span class="leads-title">Leads</span>
+                                </h1>
+                            </div>
+
+                            <p class="slds-m-bottom_x-small">Selected leads: {selectedRowsCount}</p>
+
+                            <div style="height: 300px;">
+                                <lightning-datatable
+                                    key-field="Id"
+                                    data={paginatedData}
+                                    columns={columns}
+                                    selected-rows={selectedRowIds}
+                                    onrowselection={handleRowSelection}
+                                    show-row-number-column>
+                                </lightning-datatable>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- No data message -->
+                    <template if:false={hasLeads}>
+                        <div class="leads-card slds-text-align_center slds-p-around_medium">
+                            <p class="slds-text-color_weak">No leads found for the selected user and filters.</p>
+                        </div>
+                    </template>
+
+                    <!-- ─── PAGINATION ─── -->
+                    <div class="pagination-card slds-grid slds-grid_align-center slds-grid_vertical-align-center">
+                        <lightning-button
+                            label="Previous"
+                            onclick={handlePreviousPage}
+                            disabled={isPreviousDisabled}>
+                        </lightning-button>
+                        <p class="slds-p-horizontal_medium">Page {currentPage} of {totalPages}</p>
+                        <lightning-button
+                            label="Next"
+                            onclick={handleNextPage}
+                            disabled={isNextDisabled}>
+                        </lightning-button>
+                    </div>
+
+                    <!-- ─── ACTION BUTTONS ─── -->
+                    <div class="actions-card slds-text-align_center">
+                        <lightning-button
+                            variant="brand"
+                            label="Cancel"
+                            onclick={handleCancel}
+                            class="slds-m-right_small">
+                        </lightning-button>
+                        <template if:true={hasSelectedRows}>
+                            <lightning-button
+                                variant="brand"
+                                label="Change Lead Owner"
+                                onclick={handleChangeOwner}>
+                            </lightning-button>
+                        </template>
+                    </div>
+                </template>
+
+            </div>
+        </lightning-tab>
+    </lightning-tabset>
+
+    <!-- ─── SPINNER ─── -->
+    <template if:true={isLoading}>
+        <lightning-spinner alternative-text="Loading" size="medium" variant="brand"></lightning-spinner>
+    </template>
+</template>

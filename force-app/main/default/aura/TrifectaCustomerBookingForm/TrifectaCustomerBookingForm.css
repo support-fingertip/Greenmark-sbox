@@ -1,0 +1,25 @@
+.THIS .btnAccept {
+    background-color: forestgreen;
+    color: white;
+    border-radius: 5px;
+    font-weight: bold;
+    margin-right: 5px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.THIS .btnReject {
+    background-color: firebrick;
+    color: white;
+    border-radius: 5px;
+    font-weight: bold;
+    margin-right: 5px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Hover effect – move up slightly without changing color */
+.THIS .btnAccept:hover,
+.THIS .btnReject:hover {
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}

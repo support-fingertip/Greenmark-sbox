@@ -1,0 +1,176 @@
+<aura:component controller="transferLeadController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    
+    <aura:attribute name="sectionLabels" type="Map" default=""/>
+    <aura:attribute name="selectedCountry" type="string" />
+    <aura:attribute name="selectedCountryCode" type="string" />
+    <aura:attribute name="recordId" type="string"/>
+    <aura:attribute name="projectName" type="string"/>
+    <aura:attribute name="isModalOpen" type="boolean" default="true"/>
+    <aura:attribute name="spinner" type="boolean" default="false"/>
+    <aura:attribute name="hideProjectName" type="boolean" default="true "/>
+    <aura:attribute name="accounts" type="String[]" default="[]"/>
+    <aura:attribute name="searchText" type="string" default=""/>
+    <aura:attribute name="matchaccounts" type="String[]" default="[]"/>
+    <aura:attribute name="allocatedProject" type="String"/>
+    <aura:attribute name="ratePerSqFeet" type="Decimal"/>
+    <aura:attribute name="plotSize" type="Decimal"/>
+    <aura:attribute name="leadSource" type="String"/>
+    <aura:attribute name="isChannelPartner" type="boolean"/>
+    <aura:attribute name="basicprice" type="Decimal"/>
+    <aura:attribute name="userId" type="String"/>
+    <aura:attribute name="isSubmitting" type="boolean" default="false"/>
+     <aura:attribute name="tabId" type="String" default="1"/>
+    
+    
+    
+    <aura:attribute name="PhoneNumber" type="String"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"></aura:handler>
+    <aura:handler name="change" value="{!v.searchText}" action="{!c.searchText}"></aura:handler>
+    
+    <div>
+        <div class="slds-page-header">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title slds-align-middle">
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                            <lightning:icon size="large" iconName="standard:groups"/>
+                        </div>
+                        <div class="slds-media__body slds-align-middle"><span style="font-size:18px;font-weight: bold;">Walkin-In Form</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <lightning:tabset variant="scoped" class="slds-tabs_medium" aura:id="tabs" selectedTabId="{!v.tabId}">
+            <lightning:tab label="Create New Lead" id="1">
+                <lightning:card >
+                    <div class="slds-p-around_medium">
+                        <div >
+                            <lightning:recordEditForm recordTypeId="" objectApiName="Lead" aura:id="myform" onsubmit="{!c.handleSubmit}" onsuccess="{!c.handleSuccess}" onerror="{!c.handleError}"> 
+                                <div >
+                                    <p>
+                                        <p><div class="slds-form">
+                                            <div class="slds-scope">
+                                    <div class="slds-grid slds-wrap slds-text-align_left">
+                                        <div class="slds-size_1-of-1 slds-max-small-size_1-of-1">
+                                            <div class="slds-form-element__control">
+                                                <label><b>Name:</b></label><br/>
+                                                <lightning:inputField variant='label-hidden' fieldName="Name" required="true" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div><br/>
+                                            
+                                            <div class="slds-grid">
+                                                <div class="slds-col slds-size_1-of-1">
+                                                    <lightning:inputField fieldName="Allocated_Project__c" aura:id="projectname" value="{!v.projectName}" required='true'/>
+                                                </div>
+                                            </div>
+                                            <div class="slds-scope">
+                                                <div class="slds-grid slds-wrap slds-text-align_left">
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1">
+                                                        
+                                                        <div class="slds-form-element__control">
+                                                            <lightning:inputField fieldName="Country__c" aura:id="CountryLookupField" onchange="{!c.handleCountryChange}" />
+                                                        </div>
+                                                        
+                                                    </div>
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1">
+                                                        
+                                                        <div class="slds-form-element__control">
+                                                            <lightning:inputField fieldName="Country_Code__c" value="{!v.selectedCountryCode}" disabled="true"/>
+                                                        </div>
+                                                        
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="slds-scope">
+                                                <div class="slds-grid slds-wrap slds-text-align_left">
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1">
+                                                        <lightning:inputField  fieldName="Phone__c" aura:id="PhoneNumber" required="true" />
+                                                    </div>
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1">
+                                                        <lightning:inputField fieldName="Secondary_Phone__c" aura:id="seconfPhoneNumber" />
+                                                    </div>
+                                                    
+                                                </div>
+                                            </div>
+                                            <div class="slds-scope">
+                                                <div class="slds-grid slds-wrap slds-text-align_left">
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1">
+                                                        <div class="slds-form-element__control">
+                                                            <lightning:inputField fieldName="Email" aura:id="email" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1">
+                                                        <lightning:inputField fieldName="Secondary_Email__c" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="slds-scope">
+                                                <div class="slds-grid slds-wrap slds-text-align_left">
+                                                </div>
+                                            </div>
+                                            <div class="slds-scope">
+                                                <div class="slds-grid slds-wrap slds-text-align_left">
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1">
+                                                        <lightning:inputField fieldName="Lead_source__c"  required='true' value="{!v.leadSource}" onchange="{!c.isChannelPartner}"/>
+                                                    </div>
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1">
+                                                        <lightning:inputField fieldName="Sub_Source__c"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <aura:if isTrue="{!v.leadSource == 'Channel Partner'}">
+                                                <div class="slds-scope">
+                                                    <div class="slds-grid slds-wrap slds-text-align_left">
+                                                        <div class="slds-size_1-of-1 slds-max-small-size_1-of-1">
+                                                            <lightning:inputField fieldName="Channel_Partner__c"  required='true'/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </aura:if>
+                                            <aura:if isTrue="{!v.leadSource == 'Mcube'}">
+                                                <div class="slds-scope">
+                                                    <div class="slds-grid slds-wrap slds-text-align_left">
+                                                        <div class="slds-size_1-of-1 slds-max-small-size_1-of-1">
+                                                            <lightning:inputField fieldName="MCube_Sub_Source__c"  required='true'/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </aura:if>
+                                            <div class="slds-grid">
+                                                <div class="slds-col slds-size_1-of-2">
+                                                    <lightning:inputField fieldName = "Unit_Preference__c"/>
+                                                </div>
+                                                <div class="slds-size_1-of-2 slds-max-small-size_1-of-1">
+                                                    <lightning:inputField fieldName="Budget__c" />
+                                                </div>
+                                            </div>
+                                            <div class="slds-scope">
+                                                <div class="slds-grid slds-wrap slds-text-align_left">
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1">
+                                                        
+                                                    </div>
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1">
+                                                        <lightning:inputField fieldName="Company" value="abc" style="display:none" />
+                                                    </div>
+                                                </div>
+                                                
+                                            </div>
+                                            </div>
+                                        </p>
+                                        
+                                    </p><br/>
+                                    <div style="display: flex; justify-content: center;">
+                                        <lightning:button variant="brand" type="submit" label="Save Lead" />
+                                    </div>
+                                </div>
+                            </lightning:recordEditForm> 
+                        </div>
+                    </div>
+                </lightning:card>
+            </lightning:tab>
+        </lightning:tabset>
+    </div>
+</aura:component>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Data_Upload__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Marks a Receipt Line Item generated from historical uploaded Receipt data by HistoricalReceiptLineItemBatch, distinguishing it from UI-created line items.</description>
+    <externalId>false</externalId>
+    <label>Data Upload</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

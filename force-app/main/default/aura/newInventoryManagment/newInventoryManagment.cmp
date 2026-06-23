@@ -1,0 +1,370 @@
+<aura:component controller="newProjectBoardControllerClass"
+                implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global" >
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"></aura:handler>
+    <aura:attribute name="projects" type="object[]" default="[]"/>
+    <aura:attribute name="Plots" type="object[]" default="[]"/>
+    <aura:attribute name="filteredPlots" type="object[]" default="[]"/>
+    <aura:attribute name="showProjects" type="boolean" default="true"/>
+    <aura:attribute name="showPlots" type="boolean" default="false"/>
+    <aura:attribute name="totalSoldUnits" type="integer" default="0"/>
+    <aura:attribute name="totalAvailableUnits" type="integer" default="0"/>
+    <aura:attribute name="projectName" type="String" default=""/>
+    <aura:attribute name="showCreateBooking" type="boolean" default="false"/>
+    <aura:attribute name="unitId" type="Id"/>
+    
+    <aura:attribute name="plotTypeOptions" type="List" default="[]"/>
+    <aura:attribute name="bhkTypeOptions" type="List" default="[]"/>
+    <aura:attribute name="statusOptions" type="List" default="[]"/>
+    <aura:attribute name="isLoading" type="Boolean" default="false"/>
+    
+    <aura:attribute name="blockNames" type="List" />
+    <aura:attribute name="filterBlock" type="String" />
+    <aura:attribute name="wingNames" type="List" />
+    <aura:attribute name="filterWing" type="String" />
+    
+    <aura:attribute name="filterStatus" type="String" default=""/>
+    <aura:attribute name="filterBHKType" type="String" default=""/>
+    <aura:attribute name="searchText" type="String" default=""/>
+    
+    <aura:attribute name="BookedPlots" type="Object[]" />
+    <aura:attribute name="NotReleasedPlots" type="Object[]" />
+    <aura:attribute name="SoldPlots" type="Object[]" />
+    <aura:attribute name="BlockedPlots" type="Object[]" />
+    <aura:attribute name="AvailablePlots" type="Object[]" />
+    
+    <aura:attribute name="statTotal" type="Integer" default="0"/>
+    <aura:attribute name="statAvailable" type="Integer" default="0"/>
+    <aura:attribute name="statBlocked" type="Integer" default="0"/>
+    <aura:attribute name="statInvestor" type="Integer" default="0"/>
+    <aura:attribute name="statManagement" type="Integer" default="0"/>
+    <aura:attribute name="statBooked" type="Integer" default="0"/>
+    <aura:attribute name="statSold" type="Integer" default="0"/>
+    <aura:attribute name="statLandowner" type="Integer" default="0"/>
+    <aura:attribute name="statCommercial" type="Integer" default="0"/>
+    <aura:attribute name="statModelVilla" type="Integer" default="0"/>
+    
+    <lightning:navigation aura:id="navService" />
+    
+    <!-- ═══════════════════════════════════════
+         PROJECTS VIEW
+    ═══════════════════════════════════════ -->
+    <aura:if isTrue="{!AND(v.showProjects,!v.isLoading)}">
+        <div class="nb-shell" style="border-radius:10px">
+            <div class="nb-orb nb-orb-1"></div>
+            <div class="nb-orb nb-orb-2"></div>
+            <div class="nb-orb nb-orb-3"></div>
+            
+            <div class="nb-page">
+                
+                <!-- Top header bar -->
+                <div class="nb-topbar" style="border-radius:10px">
+                    <div class="nb-topbar-brand">
+                        <div class="nb-logo-mark">
+                            <div class="nb-logo-dots"></div>
+                        </div>
+                        <span class="nb-brand-name">Inventory Management</span>
+                    </div>
+                    <div class="nb-topbar-stats">
+                        <div class="nb-topbar-stat">
+                            <span class="nb-topbar-stat-value">{!v.projects.length}</span>
+                            <span class="nb-topbar-stat-label">Projects</span>
+                        </div>
+                        <div class="nb-topbar-divider"></div>
+                        <div class="nb-topbar-stat">
+                            <span class="nb-topbar-stat-value">{!v.totalAvailableUnits}</span>
+                            <span class="nb-topbar-stat-label">Available</span>
+                        </div>
+                        <div class="nb-topbar-divider"></div>
+                        <div class="nb-topbar-stat">
+                            <span class="nb-topbar-stat-value">{!v.totalSoldUnits}</span>
+                            <span class="nb-topbar-stat-label">Sold</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Page hero -->
+                <div class="nb-page-hero">
+                    <div class="nb-hero-eyebrow">Portfolio Overview</div>
+                    <h1 class="nb-hero-title">Projects</h1>
+                    <p class="nb-hero-sub">Manage inventory, track availability, and monitor booking progress across all developments.</p>
+                </div>
+                
+                <!-- Project Cards Grid -->
+                <div class="nb-projects-grid">
+                    <aura:iteration items="{!v.projects}" var="prj">
+                        <div class="nb-project-card">
+                            <div class="nb-card-accent"></div>
+                            <div class="nb-card-inner">
+                                
+                                <div class="nb-card-header">
+                                    <div class="nb-card-title-row">
+                                        <h2 class="nb-card-title">{!prj.Name}</h2>
+                                        <div class="nb-card-badge">{!prj.progressPercentage}</div>
+                                    </div>
+                                    <div class="nb-card-progress-track">
+                                        <div class="nb-card-progress-fill" style="{! 'width:' + prj.progressWidth + '%'}"></div>
+                                    </div>
+                                    <p class="nb-card-progress-label">Booking Progress</p>
+                                </div>
+                                
+                                <div class="nb-card-stats-grid">
+                                    <div class="nb-mini-stat">
+                                        <span class="nb-mini-stat-n">{!prj.Total_Units__c}</span>
+                                        <span class="nb-mini-stat-l">Total</span>
+                                    </div>
+                                    <div class="nb-mini-stat nb-mini-available">
+                                        <span class="nb-mini-stat-n">{!prj.Available_Units__c}</span>
+                                        <span class="nb-mini-stat-l">Available</span>
+                                    </div>
+                                    <div class="nb-mini-stat nb-mini-blocked">
+                                        <span class="nb-mini-stat-n">{!prj.Blocked_Units__c}</span>
+                                        <span class="nb-mini-stat-l">Blocked</span>
+                                    </div>
+                                    <div class="nb-mini-stat nb-mini-investor">
+                                        <span class="nb-mini-stat-n">{!prj.Blocked_by_Investor_Units__c}</span>
+                                        <span class="nb-mini-stat-l">Investor</span>
+                                    </div>
+                                    <div class="nb-mini-stat nb-mini-mgmt">
+                                        <span class="nb-mini-stat-n">{!prj.Blocked_by_Management_Units__c}</span>
+                                        <span class="nb-mini-stat-l">Management</span>
+                                    </div>
+                                    <div class="nb-mini-stat nb-mini-booked">
+                                        <span class="nb-mini-stat-n">{!prj.Booked_Units__c}</span>
+                                        <span class="nb-mini-stat-l">Booked</span>
+                                    </div>
+                                    <div class="nb-mini-stat nb-mini-sold">
+                                        <span class="nb-mini-stat-n">{!prj.Sold_Units__c}</span>
+                                        <span class="nb-mini-stat-l">Sold</span>
+                                    </div>
+                                    <div class="nb-mini-stat nb-mini-landowner">
+                                        <span class="nb-mini-stat-n">{!prj.Landowner_Share_Units__c}</span>
+                                        <span class="nb-mini-stat-l">Landowner Share</span>
+                                    </div>
+                                    <div class="nb-mini-stat nb-mini-commercial">
+                                        <span class="nb-mini-stat-n">{!prj.Commercial_Units__c}</span>
+                                        <span class="nb-mini-stat-l">Commercial</span>
+                                    </div>
+                                    <div class="nb-mini-stat nb-mini-villa">
+                                        <span class="nb-mini-stat-n">{!prj.Model_Villa_Units__c}</span>
+                                        <span class="nb-mini-stat-l">Model Villa</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="nb-card-footer">
+                                    <div class="nb-view-btn" onclick="{!c.loadPlots}" data-id="{!prj.Id}" data-name="{!prj.Project__c}">
+                                        <span>View Units</span>
+                                        <span class="nb-arrow-icon">&#8594;</span>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </aura:iteration>
+                </div>
+                
+            </div>
+        </div>
+    </aura:if>
+    
+    <!-- ═══════════════════════════════════════
+         PLOTS / UNITS VIEW
+    ═══════════════════════════════════════ -->
+    <aura:if isTrue="{!v.isLoading}">
+        <div class="nb-shell" style="border-radius:10px">
+            <div  style="margin:10px">
+                <c:loadingScreen size="6" />
+            </div>
+        </div>
+        <aura:set attribute="else">
+            <aura:if isTrue="{!v.showPlots}">
+                <div class="nb-shell" style="border-radius:10px">
+                    <div class="nb-orb nb-orb-1"></div>
+                    <div class="nb-orb nb-orb-2"></div>
+                    
+                    <div class="nb-page nb-page-units">
+                        
+                        <!-- Sticky control bar -->
+                        <div class="nb-control-bar">
+                            <div class="nb-control-top">
+                                <nav class="nb-breadcrumb" aria-label="Breadcrumbs">
+                                    <a href="#" onclick="{!c.backToProjects}" class="nb-bc-link">
+                                        <span class="nb-bc-chevron">&#8592;</span> Projects
+                                    </a>
+                                    <span class="nb-bc-sep">/</span>
+                                    <span class="nb-bc-current">{!v.projectName}</span>
+                                </nav>
+                                <h2 class="nb-units-title">{!v.projectName}</h2>
+                            </div>
+                            
+                            <div class="nb-filters-row">
+                                <div class="nb-filter-wrap">
+                                    <label class="nb-filter-label">Block</label>
+                                    <div class="nb-select-wrap">
+                                        <lightning:select aura:id="blockSelect" name="filterBlock" label=""
+                                                          value="{!v.filterBlock}" onchange="{!c.handleFilterChange}">
+                                            <option>All</option>
+                                            <aura:iteration items="{!v.blockNames}" var="block">
+                                                <option value="{!block}">{!block}</option>
+                                            </aura:iteration>
+                                        </lightning:select>
+                                    </div>
+                                </div>
+                                <div class="nb-filter-wrap">
+                                    <label class="nb-filter-label">BHK Type</label>
+                                    <div class="nb-select-wrap">
+                                        <lightning:select name="bhkTypeFilter" label="" value="{!v.filterBHKType}"
+                                                          onchange="{!c.handleFilterChange}">
+                                            <option>All</option>
+                                            <aura:iteration items="{!v.bhkTypeOptions}" var="type">
+                                                <option value="{!type.value}">{!type.label}</option>
+                                            </aura:iteration>
+                                        </lightning:select>
+                                    </div>
+                                </div>
+                                <div class="nb-filter-wrap">
+                                    <label class="nb-filter-label">Status</label>
+                                    <div class="nb-select-wrap">
+                                        <lightning:select name="statusFilter" label="" value="{!v.filterStatus}"
+                                                          onchange="{!c.handleFilterChange}">
+                                            <option>All</option>
+                                            <aura:iteration items="{!v.statusOptions}" var="status">
+                                                <option value="{!status.value}">{!status.label}</option>
+                                            </aura:iteration>
+                                        </lightning:select>
+                                    </div>
+                                </div>
+                                <div class="nb-search-wrap">
+                                    <label class="nb-filter-label">Search</label>
+                                    <div class="nb-search-field">
+                                        <span class="nb-search-icon-css"></span>
+                                        <lightning:input type="search" label="" value="{!v.searchText}"
+                                                         placeholder="Unit number..." onchange="{!c.handleFilterChange}"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Legend strip -->
+                        <div class="nb-legend">
+                            <div class="nb-legend-item">
+                                <div class="nb-legend-dot nb-dot-available"></div>
+                                <span>Available</span>
+                            </div>
+                            <div class="nb-legend-item">
+                                <div class="nb-legend-dot nb-dot-blocked"></div>
+                                <span>Blocked</span>
+                            </div>
+                            <div class="nb-legend-item">
+                                <div class="nb-legend-dot nb-dot-investor"></div>
+                                <span>Blocked by Investor</span>
+                            </div>
+                            <div class="nb-legend-item">
+                                <div class="nb-legend-dot nb-dot-management"></div>
+                                <span>Blocked by Management</span>
+                            </div>
+                            <div class="nb-legend-item">
+                                <div class="nb-legend-dot nb-dot-booked"></div>
+                                <span>Booked</span>
+                            </div>
+                            <div class="nb-legend-item">
+                                <div class="nb-legend-dot nb-dot-sold"></div>
+                                <span>Sold</span>
+                            </div>
+                            <div class="nb-legend-item">
+                                <div class="nb-legend-dot nb-dot-landowner"></div>
+                                <span>Landowner Share</span>
+                            </div>
+                            <div class="nb-legend-item">
+                                <div class="nb-legend-dot nb-dot-commercial"></div>
+                                <span>Commercial</span>
+                            </div>
+                            <div class="nb-legend-item">
+                                <div class="nb-legend-dot nb-dot-villa"></div>
+                                <span>Model Villa</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Stat strip -->
+                        <div class="nb-stat-strip">
+                            <div class="nb-stat-pill nb-sp-total">
+                                <span class="nb-sp-n">{!v.statTotal}</span>
+                                <span class="nb-sp-l">Total Units</span>
+                            </div>
+                            <div class="nb-stat-pill nb-sp-available">
+                                <span class="nb-sp-n">{!v.statAvailable}</span>
+                                <span class="nb-sp-l">Available</span>
+                            </div>
+                            <div class="nb-stat-pill nb-sp-blocked">
+                                <span class="nb-sp-n">{!v.statBlocked}</span>
+                                <span class="nb-sp-l">Blocked</span>
+                            </div>
+                            <div class="nb-stat-pill nb-sp-investor">
+                                <span class="nb-sp-n">{!v.statInvestor}</span>
+                                <span class="nb-sp-l">Blocked by Investor</span>
+                            </div>
+                            <div class="nb-stat-pill nb-sp-management">
+                                <span class="nb-sp-n">{!v.statManagement}</span>
+                                <span class="nb-sp-l">Blocked by Management</span>
+                            </div>
+                            <div class="nb-stat-pill nb-sp-booked">
+                                <span class="nb-sp-n">{!v.statBooked}</span>
+                                <span class="nb-sp-l">Booked</span>
+                            </div>
+                            <div class="nb-stat-pill nb-sp-sold">
+                                <span class="nb-sp-n">{!v.statSold}</span>
+                                <span class="nb-sp-l">Sold</span>
+                            </div>
+                            <div class="nb-stat-pill nb-sp-landowner">
+                                <span class="nb-sp-n">{!v.statLandowner}</span>
+                                <span class="nb-sp-l">Landowner Share</span>
+                            </div>
+                            <div class="nb-stat-pill nb-sp-commercial">
+                                <span class="nb-sp-n">{!v.statCommercial}</span>
+                                <span class="nb-sp-l">Commercial</span>
+                            </div>
+                            <div class="nb-stat-pill nb-sp-villa">
+                                <span class="nb-sp-n">{!v.statModelVilla}</span>
+                                <span class="nb-sp-l">Model Villa</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Units grid -->
+                        <div class="nb-units-scroll-container">
+                            <div class="nb-units-grid">
+                                <aura:iteration items="{!v.filteredPlots}" var="plot">
+                                    <div class="{!plot.Status__c=='Available'?'nb-unit-card nb-unit-available':plot.Status__c=='Booked'?'nb-unit-card nb-unit-booked':plot.Status__c=='Blocked by Investor'?'nb-unit-card nb-unit-investor':plot.Status__c=='Sold'?'nb-unit-card nb-unit-sold':plot.Status__c=='Blocked'?'nb-unit-card nb-unit-blocked':plot.Status__c=='Blocked by Management'?'nb-unit-card nb-unit-management':plot.Status__c=='Landowner Share'?'nb-unit-card nb-unit-landowner':plot.Status__c=='Commercial'?'nb-unit-card nb-unit-commercial':plot.Status__c=='Model Villa'?'nb-unit-card nb-unit-villa':'nb-unit-card'}">
+                                        <div class="nb-unit-status-bar"></div>
+                                        <div class="nb-unit-inner">
+                                            <div class="nb-unit-top">
+                                                <span class="nb-unit-status-badge">{!plot.Status__c}</span>
+                                            </div>
+                                            <div class="nb-unit-name">{!plot.Name}</div>
+                                            <div class="nb-unit-details">
+                                                <div class="nb-unit-detail-row">
+                                                    
+                                                    <span> Rate per Sq.ft : ₹ {!plot.Rate_per_sqft__c} </span>
+                                                </div>
+                                                <div class="nb-unit-detail-row">
+                                                    <span> SBA : {!plot.Super_Built_up_Area__c} sft</span>
+                                                </div>
+                                            </div>
+                                            <div class="nb-unit-footer">
+                                                <div class="nb-unit-btn" onclick="{!c.navigatePlots}" data-id="{!plot.Id}">
+                                                    <span>Go to Unit</span>
+                                                    <span class="nb-arrow-icon">&#8594;</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </aura:iteration>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </aura:if>
+        </aura:set>
+    </aura:if>
+    
+    
+</aura:component>

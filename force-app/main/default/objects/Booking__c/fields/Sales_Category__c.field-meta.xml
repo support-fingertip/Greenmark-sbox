@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Sales_Category__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(SLead__r.Pre_Sale_User_Profile_Name__c = &quot;Pre Sales&quot;, &quot;Pre Sales&quot;,
+  IF(SLead__r.Pre_Sale_User_Profile_Name__c = &quot;Sales&quot;, &quot;Direct Sales&quot;,
+    IF(OR(SLead__r.Pre_Sale_User_Profile_Name__c = &quot;CP Sourcing Member&quot;,
+         Credit_Source_For_Sharing__c = &quot;Channel Partner&quot;),
+         &quot;CP (Channel Partners)&quot;,
+      NULL
+    )
+  )
+)</formula>
+    <label>Sales Category</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

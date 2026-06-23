@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>KeyHandOver_Check_CRM_Executive</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(
+    ISCHANGED(Stage_Status__c),
+    ISPICKVAL(Stage_Status__c, &apos;Completed&apos;),
+    ISPICKVAL(Stage__c, &apos;Possession / Handover&apos;),
+    OR(
+        AND(
+            ISPICKVAL(Project_Type__c, &apos;Villas&apos;),
+            OR(
+                ISBLANK(Main_Door__c),
+                ISBLANK(Main_Door_Sensor_No_of_Keys__c),
+                ISBLANK(Guest_Bedroom_Key_No__c),
+                ISBLANK(Guest_Bedroom_No_of_Keys__c),
+                ISBLANK(FF_Master_bedroom_Key_No__c),
+                ISBLANK(FF_Master_bedroom_No_Of_Keys__c),
+                ISBLANK(Sit_Out_Key_No__c),
+                ISBLANK(Sit_Out_No_of_Keys__c),
+                ISBLANK(FF_children_bedroom_Key_No__c),
+                ISBLANK(FF_children_bedroom_No_Of_Keys__c),
+                ISBLANK(Second_Floor_Key_No__c),
+                ISBLANK(Second_Floor_No_of_Keys__c)
+            )
+        ),
+        AND(
+            ISPICKVAL(Project_Type__c, &apos;Apartments&apos;),
+            OR(
+                ISBLANK(Main_Door__c),
+                ISBLANK(Main_Door_Sensor_No_of_Keys__c),
+                ISBLANK(FF_Master_bedroom_Key_No__c),
+                ISBLANK(FF_Master_bedroom_No_Of_Keys__c),
+                ISBLANK(FF_children_bedroom_Key_No__c),
+                ISBLANK(FF_children_bedroom_No_Of_Keys__c),
+                ISBLANK(Common_Bedroom_Key_No__c),
+                ISBLANK(Common_Bedroom_No_of_Keys__c)
+            )
+        ),
+        AND(
+            ISPICKVAL(Project_Type__c, &apos;Row House&apos;),
+            OR(
+                ISBLANK(Main_Door_Key_No__c),
+                ISBLANK(Main_Door_No_of_Keys__c),
+                ISBLANK(Guest_Bedroom_Key_No__c),
+                ISBLANK(Guest_Bedroom_No_of_Keys__c),
+                ISBLANK(FF_Master_bedroom_Key_No__c),
+                ISBLANK(FF_Master_bedroom_No_Of_Keys__c),
+                ISBLANK(FF_children_bedroom_Key_No__c),
+                ISBLANK(FF_children_bedroom_No_Of_Keys__c),
+                ISBLANK(Basement_Door_Key_No__c),
+                ISBLANK(Basement_Door_No_of_Keys__c),
+                ISBLANK(Second_Floor_Key_No__c),
+                ISBLANK(Second_Floor_No_of_Keys__c)
+            )
+        )
+    )
+)</errorConditionFormula>
+    <errorMessage>All key-related fields must be filled in key handover section before marking stage as completed</errorMessage>
+</ValidationRule>
