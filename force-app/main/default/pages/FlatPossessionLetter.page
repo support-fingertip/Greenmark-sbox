@@ -1,0 +1,245 @@
+<apex:page renderAs="pdf"
+           applyHtmlTag="false"
+           showHeader="false"
+           cache="true"
+           standardController="Booking__c" extensions="NOCController"
+           readOnly="true">
+          
+    
+    <head>
+        <meta charset="UTF-8"/>
+        <title>Villa Possession Certificate</title>
+        
+        <style>
+            /* iText / Flying-Saucer safe CSS (NO flex/grid) */
+            
+            @page {
+            size: A4;
+            margin: 12mm;
+            /* Page border */
+            border: 1px solid #000;
+            }
+            
+            body {
+            font-family: "Times New Roman", Times, serif;
+            font-size: 12.8px;
+            color: #000;
+            margin: 0;
+            padding: 0;
+            }
+            
+            /* Backup border (sometimes @page border rendering varies by org/version) */
+            .page-wrapper{
+            
+            padding: 10mm 10mm 0 10mm; /* Reduced top padding */
+            }
+            
+            .main-title {
+            text-align: center;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 14px;
+            margin: 4px 0 10px 0; /* Adjusted margins */
+            }
+            
+            .row {
+            width: 100%;
+            margin: 4px 0;
+            }
+            
+            .label {
+            display: inline-block;
+            width: 32px;
+            }
+            
+            .underline {
+            border-bottom: 1px solid #000;
+            display: inline-block;
+            min-width: 160px;
+            height: 14px;
+            vertical-align: bottom;
+            }
+            
+            .underline-wide {
+            border-bottom: 1px solid #000;
+            display: inline-block;
+            min-width: 220px;
+            height: 14px;
+            vertical-align: bottom;
+            }
+            
+            .subj {
+            margin-top: 6px; /* Reduced margin */
+            margin-bottom: 8px;
+            }
+            
+            .subj b {
+            font-weight: bold;
+            }
+            
+            .body {
+            line-height: 1.85;
+            text-align: justify;
+            margin-top: 4px; /* Reduced margin */
+            margin-bottom: 8px;
+            }
+            
+            .sign-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px; /* Reduced margin */
+            }
+            
+            .sign-table td {
+            width: 50%;
+            vertical-align: top;
+            padding-top: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 12px;
+            }
+            
+            .footer-loc {
+            margin-top: 14px; /* Reduced margin */
+            font-weight: bold;
+            text-transform: uppercase;
+            }
+            
+            .footer-date {
+            margin-top: 6px; /* Reduced margin */
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 8px; /* Added bottom margin */
+            }
+            
+            .muted {
+            font-weight: normal;
+            text-transform: none;
+            }
+            .header-block {
+            margin-bottom: 6px;
+            }
+            
+            .logo-right {
+            float: right;
+            }
+            
+            .logo-right img {
+            width: 60px;
+            height: 60px;
+            }
+            
+            /* ── Divider ── */
+            .divider {
+            border: none;
+            border-top: 1px solid #555555;
+            margin-bottom: 10px;
+            clear: both;
+            }
+            
+            /* ── Company name ── */
+            .company-name {
+            text-align: center;
+            font-size: 15px;
+            font-weight: bold;
+            text-decoration: underline;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            }
+            
+            /* ── Address ── */
+            .address {
+            text-align: center;
+            font-size: 12.5px;
+            font-weight: bold;
+            line-height: 1.7;
+            margin-bottom: 4px;
+            }
+            
+            
+            /* Removed spacer classes as they're not needed */
+        </style>
+    </head>
+    
+    
+    <div class="page-wrapper">
+              
+        <!-- HEADER: logo floats right -->
+        <div class="header-block">
+            <div class="logo-right">
+                <apex:image url="{!URLFOR($Resource.TrifectaLogo)}"
+                            styleClass="logo-img"
+                            style="width:60px; height:60px;"/>
+            </div>
+        </div>
+        
+        
+        
+        <!-- COMPANY NAME -->
+        <div class="company-name">TRIFECTA PROJECTS PVT LTD</div>
+        
+        <!-- ADDRESS -->
+        <div class="address">
+            Trifecta <span class="ul">Adatto</span>, 11th Floor, Survey No. 66/2, 67/1, Whitefield Main Road,<br/>
+            <span class="ul">Garudacharpalya</span>, <span class="ul">Mahadevapura</span> Post, Bangalore &#8211; 560048, Karnataka.<br/>
+            Web: www.trifectaprojects.com
+        </div>
+        <!-- DIVIDER -->
+        <hr class="divider"/>
+        <!-- Center title -->
+        <div class="main-title">POSSESSION CERTIFICATE</div>
+        <br/><br/>
+        <!-- To -->
+        <div class="row">
+            <span class="label">To:</span>
+        </div>
+        <br/>
+        <!-- Sir + Names (no extra spacing) -->
+       <strong> <div class="row">
+            <span>
+                {!booking.S__c} {!bookingInfo.customerName}   
+            </span>
+            
+            <apex:outputPanel rendered="{!NOT(ISNULL(firstCoApplicant))}">
+                        &amp;  Mr./Ms. {!firstCoApplicant.Name}
+                        </apex:outputPanel>
+        </div></strong>
+        <br/><br/>
+      
+        
+        <!-- Subject (reduced spacing) -->
+        <div class="subj">
+            <b>Sub:</b>
+            Handing over Possession of your Completed Flat bearing No : {!bookingInfo.unitNo}
+            
+        </div>
+        <br/>
+        <!-- Body (tightened spacing) -->
+        <div class="body">
+            This is to inform you that, your <b>Flat</b> bearing No: {!bookingInfo.unitNo}, in the <b>&ldquo;{!Booking__c.Project_Block_Name__c}&rdquo;</b> has been allotted to you with total super built up area- {!Booking__c.Plot__r.Super_Built_up_Area__c} Sq.Ft, Carpet Area measuring as per RERA {!Booking__c.Plot__r.Carpet_Area__c} Sq. Ft Balcony &amp; Utility Area measuring {!Booking__c.Plot__r.Utility_in_SqMtrs__c}Sq. Ft. and one independent covered exclusive Car Parking space in schedule C of Sale Agreement with all rights, appurtenances after having inspected by Purchaser duly in respect of the Schedule Property stated supra is transferred from Developer to Purchaser. whatsoever hereunder or underneath or above the surface.
+        </div>
+        
+        <div class="body">
+            The Purchaser as on this
+            {!registrationDateLong}
+            
+            at Bengaluru having fully satisfied with regard to the specifications of the Flat, has agreed to take the possession. The Developer in respect of the said Flat have this day signed this Certificate as a token of Acknowledgement/Acceptance of the same.
+        </div>
+        <br/><br/>
+        <!-- Signatures (reduced top margin) -->
+        <table class="sign-table">
+            <tr>
+                <td>SIGNATURE OF THE BUILDER</td>
+                <td style="text-align:right;">SIGNATURE OF THE PURCHASER</td>
+            </tr> 
+        </table>
+        
+        <div class="footer-loc">BANGALORE</div><br/>
+        <div ><strong>DATE:&nbsp;</strong><apex:outputText value="{0,date,dd/MM/yyyy}">
+    <apex:param value="{!TODAY()}" />
+</apex:outputText></div>
+        
+    </div>
+    
+    
+</apex:page>

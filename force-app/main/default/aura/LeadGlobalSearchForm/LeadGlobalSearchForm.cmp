@@ -1,0 +1,172 @@
+<aura:component controller = "SiteVisitFormController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    
+    <aura:attribute name="leadRecord" type="Lead"  default="{}"/>
+    <aura:attribute name="sourceToSubSoruce" type="Map"  default=""/>
+    <aura:attribute name="projects" type="List" />
+    <aura:attribute name="siteVisitRatings" type="List" />
+    <aura:attribute name="selectedProject" type="String" />
+    <aura:attribute name="phone" type="String" />
+    <aura:attribute name="datevalue" type="datetime" />
+    <aura:attribute name="leadName" type="String" />
+    <aura:attribute name="phonenumer" type="String" />
+    <aura:attribute name="otpStatus" type="String" default=''/>
+    <aura:attribute name="showDetails" type="Boolean" default="false"/>
+    <aura:attribute name="sectionLabels" type="Map" default=""/>
+    <aura:attribute name="selectedCountry" type="string" />
+    <aura:attribute name="selectedCountryCode" type="string" />
+    <aura:attribute name="OTPnewLead" type="string" default="0000"/>
+    <aura:attribute name="OTPExisLead" type="string" default=""/>
+    <aura:attribute name="salesuser" type="string" />
+    <aura:attribute name="leadSource" type="string" />
+    <aura:attribute name="leadId" type="string" />
+    <aura:attribute name="tabId" type="String" default="1"/>
+    <aura:attribute name="visitType" type="string" />
+    <aura:attribute name="leadRecordToSave" type="Lead"  default="{}"/>
+    <aura:attribute name="selectedRating" type="String" />
+    <aura:attribute name="siteVisitComments" type="String" />
+    <aura:attribute name="LeadComments" type="String" />
+    <aura:attribute name="selectedSource" type="String" />
+    <aura:attribute name="selectedSubSource" type="String" />
+    <aura:attribute name="SubSourceList" type="List" />
+    <aura:attribute name="isLoading" type="Boolean" default="false"/>
+    <aura:attribute name="siteVisit" type="Site_Visit__c" default="{}"/>
+    <aura:attribute name="siteVisitFormattedDate" type="String" default=""/>
+    <div>
+        <div class="slds-page-header">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title slds-align-middle">
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                            <lightning:icon size="large" iconName="standard:groups"/>
+                        </div>
+                        <div class="slds-media__body slds-align-middle"><span style="font-size:18px;font-weight: bold;">Lead Global Search</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <lightning:tabset variant="scoped" class="slds-tabs_medium" aura:id="tabs" selectedTabId="{!v.tabId}">
+            <lightning:tab label="Search Lead" id="1">
+                <div>
+                    <div class="slds-scope">
+                        <div class="slds-grid slds-wrap slds-text-align_left">
+                            <div class="slds-size_1-of-1 slds-max-small-size_1-of-1 slds-p-horizontal_x-small">
+                                <lightning:input type="tel" name="phone" label="Name/Phone/Email/Lead Id" value="{!v.phone}" />
+                            </div>
+                        </div>
+                    </div>
+                    <br/>
+                    <aura:if isTrue="{!v.isLoading == true}">
+                    	<c:loadingScreen size="1" />
+                    </aura:if>
+                    <aura:if isTrue="{!v.showDetails == true}">
+                        <lightning:card >
+                            <aura:set attribute="title">
+                                <div style="display: flex; align-items: center;">
+                                    <lightning:icon iconName="standard:lead_list" size="medium" alternativeText="Lead Icon" />
+                                    <b><span style="margin-left: 5px; font-size: 20px;">Lead Details</span></b>
+                                </div>
+                            </aura:set>
+                            <hr style="margin-top: 5px; border-top: 1px solid #ccc;"/>
+                            <div style="text-align: left; padding-left: 20px;">
+                                <aura:if isTrue="{!v.otpStatus != 'No Lead Exists'}">
+                                    <table>
+                                        <tr>
+                                            <td width = "50%" style="font-size: 15px;">
+                                                <b>Lead Name : </b>
+                                           
+                                                <aura:if isTrue="{!v.leadRecord.Name != null}">
+                                                    <a href="javascript:void(0);"
+                                                       onclick="{!c.openLead}"
+                                                       data-id="{!v.leadId}">
+                                                        {!v.leadRecord.Name}
+                                                    </a>
+                                                </aura:if>
+
+                                            </td>
+                                            <td width = "50%" style="font-size: 15px;">
+                                                <b>Phone Number : </b>
+                                                <aura:if isTrue="{!v.leadRecord.Phone__c != null}">
+                                                    {!v.leadRecord.Phone__c}
+                                                </aura:if>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td width = "50%" style="font-size: 15px;">
+                                                <b>Lead Id : </b>
+                                                <aura:if isTrue="{!v.leadRecord.Lead_ID__c != null}">
+                                                    {!v.leadRecord.Lead_ID__c}
+                                                </aura:if>
+                                            </td>
+                                            <td width = "50%" style="font-size: 15px;">
+                                                <b>Email : </b>
+                                                <aura:if isTrue="{!v.leadRecord.Email != null}">
+                                                    {!v.leadRecord.Email}
+                                                </aura:if>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td width = "50%" style="font-size: 15px;">
+                                                <b>Secondary Phone : </b>
+                                                <aura:if isTrue="{!v.leadRecord.Secondary_Phone__c != null}">
+                                                    {!v.leadRecord.Secondary_Phone__c}
+                                                </aura:if>
+                                            </td>
+                                            <td width = "50%" style="font-size: 15px;">
+                                                <b>Secondary Email : </b>
+                                                <aura:if isTrue="{!v.leadRecord.Secondary_Email__c != null}">
+                                                    {!v.leadRecord.Secondary_Email__c}
+                                                </aura:if>
+                                            </td>
+                                        </tr>
+                                        
+                                        <tr>
+                                            <td style="font-size: 15px;">
+                                                <b>Lead Owner Name : </b>
+                                                <aura:if isTrue="{!v.leadRecord.Lead_Owner_Full_Name__c != null}">
+                                                    {!v.leadRecord.Lead_Owner_Full_Name__c}
+                                                </aura:if>
+                                            </td>
+                                            <td style="font-size: 15px;">
+                                                <b>Lead Source : </b>
+                                                <aura:if isTrue="{!v.leadRecord.Source_Type__c != null}">
+                                                    {!v.leadRecord.Source_Type__c}
+                                                </aura:if>
+                                            </td>
+                                        </tr>
+                                        <tr> 
+                                            <td style="font-size: 15px;">
+                                                <b>Secondary Source : </b>
+                                                <aura:if isTrue="{!v.leadRecord.Lead_source__c != null}">
+                                                    {!v.leadRecord.Lead_source__c}
+                                                </aura:if>
+                                            </td>
+                                            <td style="font-size: 15px;">
+                                                <b>Lead Status : </b>
+                                                <aura:if isTrue="{!v.leadRecord.Lead_Status__c != null}">
+                                                    {!v.leadRecord.Lead_Status__c}
+                                                </aura:if>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <aura:set attribute="else">
+                                        <!-- Centered Processing Text -->
+                                        <div style="display: flex; justify-content: center; align-items: center; height: 100%; width: 100%;">
+                                            <span class="slds-text-color_brand slds-text-title_bold" style="font-size: 1.5rem;color:red">
+                                                Lead Not Found !!..
+                                            </span>
+                                        </div>
+                                    </aura:set>
+                                </aura:if>
+                            </div>
+                            
+                        </lightning:card>
+                    </aura:if>
+                    <br/>
+                    <button class="slds-button slds-button_brand" onclick="{!c.checkLead}">Search Lead</button>
+                    <button class="slds-button slds-button_destructive" onclick="{!c.clearValues}">Clear</button>
+                </div>
+            </lightning:tab>
+        </lightning:tabset>
+    </div>
+</aura:component>

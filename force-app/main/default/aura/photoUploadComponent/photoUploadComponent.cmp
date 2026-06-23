@@ -1,0 +1,98 @@
+<aura:component controller="LightningFileUploadHandler"
+                implements="flexipage:availableForAllPageTypes,force:appHostable,force:hasRecordId"
+                access="global">
+
+    <!-- Handlers -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:handler name="change" value="{!v.filesIds}" action="{!c.syncParentFiles}"/>
+
+    <!-- Attributes -->
+    <aura:attribute name="files" type="List" default="[]"/>
+    <aura:attribute name="filesIds" type="List"/> <!-- From Parent -->
+    <aura:attribute name="internalFileIds" type="List" default="[]"/> <!-- Child Controlled -->
+    <aura:attribute name="defaultFileIds" type="List" default="[]"/> <!-- Parent Files -->
+    <aura:attribute name="recordId" type="Id"/>
+    <aura:attribute 
+                    name="acceptFileTypes" 
+                    type="List" 
+                    default="['.png','.jpg','.jpeg','.pdf','.xls','.xlsx','.csv']"/>
+    <aura:attribute name="showFileHeader" type="Boolean" default="true"/>
+    <aura:attribute name="fileHeaderText" type="String" default="Files"/>
+    <aura:attribute name="uploadMultiple" type="Boolean" default="true"/>
+    <aura:attribute name="showSpinner" type="Boolean" default="false"/>
+
+    <aura:registerEvent name="fileUploadEvent" type="c:fileUploadEvent"/>
+
+    <div class="slds-card slds-card_boundary">
+
+        <!-- Header -->
+        <aura:if isTrue="{!v.showFileHeader}">
+            <div class="slds-page-header">{!v.fileHeaderText}</div>
+        </aura:if>
+
+        <!-- Upload Section -->
+        <div class="slds-align_absolute-center">
+            <lightning:fileUpload
+                multiple="{!v.uploadMultiple}"
+                accept="{!v.acceptFileTypes}"
+                recordId="{!v.recordId}"
+                onuploadfinished="{!c.uploadFinished}" />
+        </div>
+
+        <br/>
+
+        <!-- File List -->
+        <div class="slds-form--compound">
+            <table class="slds-table slds-table_bordered">
+
+                <aura:if isTrue="{!not(empty(v.files))}">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                </aura:if>
+
+                <tbody>
+                    <aura:iteration items="{!v.files}" var="f">
+                        <tr>
+                            <td>
+                                <a href="javascript:void(0)"
+                                   id="{!f.Id}"
+                                   onclick="{!c.previewFile}">
+                                    {!f.Title}
+                                </a>
+                            </td>
+
+                            <td>
+                                <!-- Hide delete for default(parent) files -->
+                                <aura:if isTrue="{!not(f.isDefault)}">
+                                    <a href="javascript:void(0)"
+                                       id="{!f.Id}"
+                                       onclick="{!c.deleteSelectedFile}">
+                                        <lightning:icon size="x-small"
+                                                        iconName="utility:delete"
+                                                        alternativeText="Delete"/>
+                                    </a>
+                                </aura:if>
+                            </td>
+                        </tr>
+                    </aura:iteration>
+                </tbody>
+            </table>
+
+            <!-- Spinner -->
+            <aura:if isTrue="{!v.showSpinner}">
+                <div class="slds-spinner_container">
+                    <div class="slds-spinner slds-spinner_medium"
+                         role="alert">
+                        <div class="slds-spinner__dot-a"></div>
+                        <div class="slds-spinner__dot-b"></div>
+                    </div>
+                </div>
+            </aura:if>
+
+        </div>
+    </div>
+</aura:component>

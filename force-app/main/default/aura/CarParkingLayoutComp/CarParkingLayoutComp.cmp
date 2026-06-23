@@ -1,0 +1,136 @@
+<aura:component controller="CarParkingController"
+                implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global" >
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"></aura:handler>
+    <aura:attribute name="projects" type="object[]" default="[]"/>
+    <aura:attribute name="carParking" type="object[]" default="[]"/>
+    <aura:attribute name="filteredCarParkings" type="object[]" default="[]"/>
+    <aura:attribute name="showProjects" type="boolean" default="true"/>
+    <aura:attribute name="showCarParking" type="boolean" default="false"/>
+    <aura:attribute name="showPlots" type="boolean" default="false"/>
+    <aura:attribute name="totalAlottedCarParking" type="integer" default="false"/>
+    <aura:attribute name="totalAvailableCarParkings" type="integer" default="false"/>
+    <aura:attribute name="projectName" type="String" default=""/>
+    <aura:attribute name="carParkingId" type="Id"/>   
+    
+    <aura:attribute name="statusOptions" type="List" default="[]"/>
+     <aura:attribute name="fieldMap" type="Map"/>
+   
+    <aura:attribute name="filterStatus" type="String" default=""/>
+    <lightning:navigation aura:id="navService" />
+    
+    <aura:if isTrue="{!v.showProjects}">
+        <div class="projects-section">
+            
+            <div class="app-container">
+                <div class="app-content">
+                    
+                        <div class="projects-section-header">
+                            <p>Projects</p>
+                        </div>
+                        <div class="project-boxes jsGridView">
+                            <aura:iteration items="{!v.projects}" var="prj"> 
+                                <div class="project-box-wrapper myColor">
+                                    <div class="project-box">
+                                        <div class="project-box-header">
+                                            <span>{!prj.Project__c}</span>
+                                        </div>
+                                        <div class="project-box-content-header">
+                                            <p class="box-content-subheader">Total Car Parking: {!prj.Total_Car_Parking__c}</p>
+                                            <p class="box-content-subheader">Total Alotted Cark Parking Unit: {!prj.Total_Alotted_Car_Parking__c}</p>
+                                            <p class="box-content-subheader">Toal Blocked Car Parking Unit: {!prj.Total_Blocked_Car_Parking__c}</p>
+                                            <p class="box-content-subheader">Total Available Car Parking Unit: {!prj.Total_Available_Car_Parking__c}</p>
+                                            
+                                            <!--     <p class="box-content-subheader">Sold Unit: {!prj.Total_Sold__c}</p> -->
+                                        </div>
+                                        <div class="project-box-footer">
+                                            <div class="days-left" style="color: #096c86;" onclick="{!c.loadCarParking}" data-id="{!prj.Id}" data-name="{!prj.Project__c}">
+                                                View Car Parking
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </aura:iteration>
+                        </div>
+                        
+                </div>
+            </div>
+        </div>
+        
+    </aura:if>
+    
+     <aura:if isTrue="{!v.showCarParking}">
+        <div class="app-container">
+            <div class="app-content">
+                <div class="projects-section">
+                    <div class="projects-section-header">
+                        <p><nav role="navigation" aria-label="Breadcrumbs">
+                            <ol class="slds-breadcrumb slds-list_horizontal">
+                                <li class="slds-breadcrumb__item">
+                                    <a href="#">Projects</a>
+                                </li>
+                                <li class="slds-breadcrumb__item slds-p-left_medium">
+                                    {!v.projectName}
+                                </li>
+                            </ol>
+                            </nav></p>
+                        <div class="filter-section">
+                            <div class="slds-col slds-size_1-of-1">
+                                <lightning:combobox name="statusFilter" label="Status" value="{!v.filterStatus}" placeholder="Select Status" 
+                                                    onchange="{!c.handleFilterChange}" options="{!v.statusOptions}"/>
+                            </div>
+                        </div>
+                          <ul class="rwp-chart-legend rwp-chart-legend-Center" aria-hidden="true">
+                            <li class="rwp-chart-legend__card-Center">
+                                <div class="rwp-chart-legend__cell">
+                                    <div class="rwp-chart__icon sold"></div>
+                                </div>
+                                <div class="rwp-chart-legend__cell">
+                                    <div class="rwp-chart__description">Alloted</div>
+                                </div>
+                            </li>       
+                            <li class="rwp-chart-legend__card-Center">
+                                <div class="rwp-chart-legend__cell">
+                                    <div class="rwp-chart__icon avaliable"></div>
+                                </div>
+                                <div class="rwp-chart-legend__cell">
+                                    <div class="rwp-chart__description">Not Alloted</div>
+                                </div>
+                            </li>  
+                            <li class="rwp-chart-legend__card-Center">
+                                <div class="rwp-chart-legend__cell">
+                                    <div class="rwp-chart__icon blocked"></div>
+                                </div>
+                                <div class="rwp-chart-legend__cell">
+                                    <div class="rwp-chart__description">Blocked</div>
+                                </div>
+                            </li> 
+                        </ul>
+                      
+                    </div>
+                    <!-- Scrollable content -->
+                    <div class="project-boxes jsGridView compact">
+                        <aura:iteration items="{!v.filteredCarParkings}" var="plot">
+                            <div class="project-box-wrapper-plot compact">
+                                <div class="{!plot.Car_Parking_Status__c == 'Not Alotted' ? 'project-box-plot avaliable' : 
+                                             plot.Car_Parking_Status__c == 'Allotted' ? 'project-box-plot booked' :
+                                             plot.Car_Parking_Status__c == 'Blocked' ? 'project-box-plot blocked' : 'project-box-plot'}">
+                                    <div class="project-box-header-plot">
+                                        <span>{!plot.Sl_No__c}</span><br/>
+                                        <span>{!plot.Flat_Number__c}</span>
+                                    </div>
+                                    <div class="project-box-footer-plot">
+                                        <div class="days-left-plot" style="color: #096c86;" onclick="{!c.navigatePlots}" data-id="{!plot.Id}">
+                                            Go to Car Parking
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </aura:iteration>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aura:if>
+    
+</aura:component>

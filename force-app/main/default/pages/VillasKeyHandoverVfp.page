@@ -1,0 +1,247 @@
+<apex:page standardController="Booking__c"
+           extensions="FlatKeyHandoverVfpController"
+           sidebar="false"
+           showHeader="false"
+           applyBodyTag="false"
+           applyHtmlTag="false"
+           cache="false"
+           renderAs="pdf">
+    
+    <html>
+        <head>
+            <style type="text/css">
+                @page {
+                size: A4;
+                margin: 12mm;
+                border: 0.5px solid #000;
+                }
+                
+                body {
+                font-family: "Times New Roman", Times, serif;
+                font-size: 12pt;
+                color: #000000;
+                }
+                
+                .page-wrapper {
+                width: 100%;
+                }
+                
+                .heading-project {
+                font-size: 16pt;
+                font-weight: bold;
+                text-align: center;
+                }
+                
+                .heading-address {
+                font-size: 10pt;
+                text-align: center;
+                }
+                
+                .section-title {
+                margin-top: 30px;
+                margin-bottom: 20px;
+                font-weight: bold;
+                text-align: center;
+                text-decoration: underline;
+                }
+                
+                .content-block {
+                margin-top: 10px;
+                margin-bottom: 10px;
+                }
+                
+                .content-block p {
+                margin: 3px 0;
+                }
+                
+                .label-inline {
+                display: inline-block;
+                min-width: 65px;
+                }
+                
+                table.keys-table {
+                width: 100%;              /* full width table */
+                border-collapse: collapse;
+                margin-top: 15px;
+                margin-bottom: 20px;      /* bottom margin after table */
+                font-size: 11pt;
+                }
+                
+                table.keys-table th,
+                table.keys-table td {
+                border: 1px solid #000000;
+                padding: 4px 6px;
+                text-align: center;
+                }
+                
+                table.keys-table th {
+                font-weight: bold;
+                }
+                
+                .signature-block-title {
+                font-weight: bold;
+                }
+                
+                .line-block {
+                border-bottom: 1px solid #000000;
+                height: 16px;
+                margin-top: 4px;
+                margin-bottom: 4px;
+                }
+                
+                hr.header-line {
+                border: none;
+                border-top: 1px solid #000000;
+                margin-top: 20px;
+                margin-bottom: 30px;
+                }
+                
+                /* ── Header: logo floated right ── */
+                .header-block {
+                margin-bottom: 6px;
+                }
+                
+                .logo-right {
+                float: right;
+                }
+                
+                .logo-right img {
+                width: 60px;
+                height: 60px;
+                }
+                /* ── Company name ── */
+                .company-name {
+                text-align: center;
+                font-size: 15px;
+                font-weight: bold;
+                text-decoration: underline;
+                letter-spacing: 1px;
+                margin-bottom: 8px;
+                }
+                
+                /* ── Address ── */
+                .address {
+                text-align: center;
+                font-size: 12.5px;
+                font-weight: bold;
+                line-height: 1.7;
+                margin-bottom: 4px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="page-wrapper">
+                
+                <!-- HEADER: logo floats right -->
+                <div class="header-block">
+                    <div class="logo-right">
+                        <apex:image url="{!URLFOR($Resource.TrifectaLogo)}"
+                                    styleClass="logo-img"
+                                    style="width:60px; height:60px;"/>
+                    </div>
+                </div>
+                
+                <!-- COMPANY NAME -->
+                <div class="company-name">{!bookingWrapper.projectName}</div>
+                
+                <!-- ADDRESS -->
+                <div class="address">
+                    {!bookingWrapper.projectAddress}
+                </div>
+                
+                <hr class="header-line" />
+                
+                <!-- Main Title -->
+                <div class="section-title">
+                    VILLA’S KEYS HANDOVER CHECKLIST
+                </div>
+                
+                <!-- Address To -->
+                <div class="content-block">
+                    <p style="margin-top: 20px;">To,</p>
+                    <p style="margin-top: 20px;">{!booking.First_Applicant_Name__c}
+                        <!-- Co Applicant if exists -->
+                        <apex:outputPanel rendered="{!NOT(ISNULL(firstCoApplicant))}">
+                            , {!firstCoApplicant.Name}
+                        </apex:outputPanel></p>
+                    <p style="margin-top: 10px;">Project Name - {!bookingWrapper.projectName}</p>
+                    <p style="margin-top: 10px;">Flat No - {!booking.Unit_Number__c}</p>
+                    <p style="margin-top: 10px;"><span >Sub:</span>ROW HOUSE KEYS HANDOVER</p>
+                </div>
+                
+                
+                <br/>
+                Please sign this Letter as a token of acceptance of the following:
+                <!-- Keys Table -->
+                <table class="keys-table" style="text-align: left;">
+                    <tr>
+                        <th style="text-align: left;">SL No</th>
+                        <th style="text-align: left;">LOCATION</th>
+                        <th style="text-align: left;">KEYS NO</th>
+                        <th style="text-align: left;">NO. OF KEYS</th>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left;">1</td>
+                        <td style="text-align: left;">Main Door &amp; Sensor</td>
+                        <th style="text-align: left;">{!bookingWrapper.mainDoorSensorKeyNo}</th>
+                        <td style="text-align: left;">{!bookingWrapper.mainDoorSensorNoOfKeys}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left;">2</td>
+                        <td style="text-align: left;">Guest Bedroom Bedroom</td>
+                        <th style="text-align: left;">{!bookingWrapper.guestBedroomKeyNo}</th>
+                        <td style="text-align: left;">{!bookingWrapper.guestBedroomNoOfKey}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left;">3</td>
+                        <td style="text-align: left;">Master Bedroom Bedroom</td>
+                        <th style="text-align: left;">{!bookingWrapper.masterBedroomKeyNo}</th>
+                        <td style="text-align: left;">{!bookingWrapper.masterBedroomKeyNo}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left;">4</td>
+                        <td style="text-align: left;">Children Bedroom</td>
+                        <th style="text-align: left;">{!bookingWrapper.childrenBedroomKeyNo}</th>
+                        <td style="text-align: left;">{!bookingWrapper.childrenBedroomNoOfKeys}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left;">5</td>
+                        <td style="text-align: left;">Sit Out</td>
+                        <th style="text-align: left;">{!bookingWrapper.sitOutKeyNo}</th>
+                        <td style="text-align: left;">{!bookingWrapper.sitOutNoOfKey}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left;">6</td>
+                        <td style="text-align: left;">Second floor</td>
+                        <th style="text-align: left;">{!bookingWrapper.secondFloorKeyNo}</th>
+                        <td style="text-align: left;">{!bookingWrapper.secondFloorNoOfKey}</td>
+                    </tr>
+                </table>
+                
+                <br/>
+                <br/>
+                <!-- Handed Over By -->
+                <div class="content-block">
+                    
+                    Key Handed Over By
+                    <div class="signature-block-title">
+                        <br/>
+                        <p>Name: {!handoverByName}</p>
+                        
+                        <p>Designation: {!handoverByDesignation}</p>
+                        
+                        <p>Mobile Number: {!handoverByMobile}</p>
+                    </div>
+                </div>
+                <br/><br/>
+                <!-- Flat Owner Acknowledgement -->
+                <div class="content-block">
+                    <p>Villa Owner's Acknowledgement:</p>
+                    <br/>
+                    <p><u>Customer Signature:</u></p>
+                </div>
+                
+            </div>
+        </body>
+    </html>
+</apex:page>

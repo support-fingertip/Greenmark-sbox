@@ -1,0 +1,201 @@
+<template>
+    <lightning-card>
+        <div class="premium-container">
+            
+            <!-- Header Section -->
+            <div class="premium-header">
+                <div class="header-content">
+                    <lightning-icon 
+                        icon-name="standard:lead" 
+                        size="medium"
+                        class="header-icon">
+                    </lightning-icon>
+                    <div class="header-text">
+                        <h1 class="slds-text-heading_medium slds-m-bottom_xxx-small">Lead Global Search</h1>
+                        <p class="slds-text-body_small slds-text-color_weak">Search across all leads by name, phone, email, or ID</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Section -->
+            <div class="search-section">
+                <div class="search-wrapper">
+                    <lightning-input
+                        type="text"
+                        placeholder="Search by name, phone, email, or lead ID..."
+                        value={searchText}
+                        onchange={handleChange}
+                        onkeyup={handleKeyPress}
+                        variant="standard"
+                        class="premium-input">
+                    </lightning-input>
+                    
+                    <div class="button-group">
+                        <lightning-button
+                            variant="brand"
+                            label="Search"
+                            icon-name="utility:search"
+                            onclick={handleSearch}
+                            disabled={isSearchDisabled}
+                            class="search-btn">
+                        </lightning-button>
+
+                        <lightning-button
+                            variant="neutral"
+                            icon-name="utility:clear"
+                            onclick={handleClear}
+                            disabled={isClearDisabled}
+                            class="clear-btn">
+                        </lightning-button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading Spinner -->
+            <template if:true={isLoading}>
+                <div class="loading-container">
+                    <lightning-spinner 
+                        alternative-text="Searching..." 
+                        size="medium">
+                    </lightning-spinner>
+                </div>
+            </template>
+
+            <!-- Results Section -->
+            <template if:true={showResults}>
+                <div class="results-section">
+                    <div class="results-header">
+                        <h2 class="slds-text-heading_small">Search Results</h2>
+                        <span class="results-count">{resultCount} {resultLabel}</span>
+                    </div>
+
+                    <div class="results-grid">
+                        <template for:each={leads} for:item="ld">
+                            <div key={ld.leadId} class="lead-card">
+                                <div class="card-header">
+                                    <div class="lead-avatar">
+                                        <lightning-icon 
+                                            icon-name="standard:lead" 
+                                            size="small">
+                                        </lightning-icon>
+                                    </div>
+                                    <div class="lead-title">
+                                        <h3 class="slds-text-heading_small slds-truncate">{ld.name}</h3>
+                                        <span class="lead-status" data-status={ld.status}>{ld.status}</span>
+                                    </div>
+                                </div>
+
+                                <div class="card-body">
+                                    <div class="info-row">
+                                        <lightning-icon icon-name='utility:phone_portrait'
+                                         alternative-text='phone_portrait' size="x-small"
+                                           class="info-icon"
+                                          title='phone_portrait'>
+                                        </lightning-icon>
+                                        <span class="info-label">Phone:</span>
+                                        <span class="info-value">{ld.phone}</span>
+                                    </div>
+
+                                    <div class="info-row">
+                                        <lightning-icon 
+                                            icon-name="utility:email" 
+                                            size="x-small"
+                                            class="info-icon">
+                                        </lightning-icon>
+                                        <span class="info-label">Email:</span>
+                                        <span class="info-value">{ld.email}</span>
+                                    </div>
+
+                                    <div class="info-row">
+                                        <lightning-icon 
+                                            icon-name="utility:user" 
+                                            size="x-small"
+                                            class="info-icon">
+                                        </lightning-icon>
+                                        <span class="info-label">Owner:</span>
+                                        <span class="info-value">{ld.ownerName}</span>
+                                    </div>
+
+                                    <div class="info-row">
+                                        <lightning-icon
+                                            icon-name="utility:company"
+                                            size="x-small"
+                                            class="info-icon">
+                                        </lightning-icon>
+                                        <span class="info-label">Project:</span>
+                                        <span class="info-value">{ld.project}</span>
+                                    </div>
+
+                                    <template if:true={ld.showLostDates}>
+                                        <div class="info-row">
+                                            <lightning-icon
+                                                icon-name="utility:event"
+                                                size="x-small"
+                                                class="info-icon">
+                                            </lightning-icon>
+                                            <span class="info-label">Lead Lost Date:</span>
+                                            <span class="info-value">
+                                                <lightning-formatted-date-time
+                                                    value={ld.leadLostDate}
+                                                    year="numeric"
+                                                    month="short"
+                                                    day="2-digit">
+                                                </lightning-formatted-date-time>
+                                            </span>
+                                        </div>
+
+                                        <div class="info-row">
+                                            <lightning-icon
+                                                icon-name="utility:event"
+                                                size="x-small"
+                                                class="info-icon">
+                                            </lightning-icon>
+                                            <span class="info-label">Closed Lost Date:</span>
+                                            <span class="info-value">
+                                                <lightning-formatted-date-time
+                                                    value={ld.closedLostDate}
+                                                    year="numeric"
+                                                    month="short"
+                                                    day="2-digit">
+                                                </lightning-formatted-date-time>
+                                            </span>
+                                        </div>
+                                    </template>
+                                </div>
+                               <template if:true={ld.showOpenLead}>
+                                    <div class="card-footer">
+                                        <lightning-button
+                                            label="View Lead"
+                                            variant="brand"
+                                            icon-name="utility:open"
+                                            icon-position="right"
+                                            data-id={ld.leadId}
+                                            onclick={openLead}
+                                            class="view-btn">
+                                        </lightning-button>
+                                    </div>
+                              </template>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </template>
+
+            <!-- No Results -->
+            <template if:true={noResult}>
+                <div class="no-results">
+                    <lightning-icon 
+                        icon-name="utility:search" 
+                        size="large"
+                        class="no-results-icon">
+                    </lightning-icon>
+                    <h3 class="slds-text-heading_small slds-m-top_medium">No Leads Found</h3>
+                    <p class="slds-text-body_small slds-text-color_weak slds-m-top_x-small">
+                        Try adjusting your search criteria or check your spelling
+                    </p>
+                </div>
+            </template>
+
+        </div>
+    </lightning-card>
+</template>

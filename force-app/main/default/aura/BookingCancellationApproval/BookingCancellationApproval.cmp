@@ -1,0 +1,55 @@
+<aura:component controller="BookingCancellationApprovalController" 
+               implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader" 
+                access="global">
+    
+    <aura:attribute name="recordId" type="Id" />
+    <aura:attribute name="cancellationReason" type="String" />
+    <aura:attribute name="isAfterPostAggrement" type="boolean" />
+    <aura:attribute name="cancellationRemarks" type="String" />
+    <aura:attribute name="cancellationCharges" type="Decimal" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <div class="slds-modal__header">
+        <h2 class="slds-text-heading_medium slds-hyphenate">Request For Booking Cancellation</h2>
+    </div>
+    
+    <div class="slds-form slds-form_stacked slds-p-around_medium">
+        <div class="slds-form-element">
+            <lightning:select label="Cancellation Reason" 
+                              name="Cancellation_Reason" 
+                              aura:id="mandateFields" 
+                              value="{!v.cancellationReason}" 
+                              required="true">
+                <option value="">-- None--</option>
+                <option value="Not Attended For Agreement">Not Attended For Agreement</option>
+                <option value="Budget Issue">Budget Issue</option>
+                <option value="Found a New Flat">Found a New Flat</option>
+                <option value="Not Interested">Not Interested</option>
+                <option value="Others">Others</option>
+            </lightning:select>
+        </div>
+
+        <div class="slds-form-element slds-m-top_small">
+            <lightning:textArea name="Cancellation_Remarks" 
+                                aura:id="mandateFields" 
+                                label="Cancellation Remarks" 
+                                value="{!v.cancellationRemarks}" 
+                                required="true" /> 
+        </div>
+
+        <div class="slds-form-element slds-m-top_small">
+            <lightning:input name="Cancellation_Charge" 
+                             type="Number" 
+                             aura:id="mandateFields" 
+                             formatter="currency" 
+                             label="Cancellation Charges" 
+                             required="true" 
+                             value="{!v.cancellationCharges}" /> 
+        </div>
+
+        <div class="slds-m-top_large slds-text-align_right">
+            <lightning:button variant="neutral" label="Cancel" title="Cancel" onclick="{!c.handleCancel}"/>
+            <lightning:button variant="brand" label="Submit" title="Submit" onclick="{!c.saveCancellationDetails}"/>
+        </div>
+    </div>
+</aura:component>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Agreement_Reminder_Date__c</fullName>
+    <externalId>false</externalId>
+    <formula>/*IF(
+  AND(
+    Time_Extension_Requested__c     ,
+    NOT(ISBLANK(Agreement_Execution_Date__c))
+  ),
+   Agreement_Execution_Date__c - 6,
+  NULL
+)*/
+Today()</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Agreement Reminder Date</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Date</type>
+</CustomField>

@@ -1,0 +1,41 @@
+.THIS .label {
+    font-size: 0.75rem;
+    color: #54698d;
+    text-transform: uppercase;
+}
+
+.THIS .label-header {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: #54698d;
+}
+
+.THIS .section-title {
+    border-bottom: 1px solid #d8dde6;
+    padding-bottom: 4px;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+.THIS .status-pill {
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.THIS .status-pill.Pending {
+    background: #fffae6;
+    color: #8a6d3b;
+}
+
+.THIS .status-pill.Approved {
+    background: #e3fcef;
+    color: #2e844a;
+}
+
+.THIS .status-pill.Rejected {
+    background: #ffeaea;
+    color: #c23934;
+}

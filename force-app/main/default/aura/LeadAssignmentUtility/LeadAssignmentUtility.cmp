@@ -1,0 +1,21 @@
+<aura:component implements="flexipage:availableForAllPageTypes,lightning:utilityItem" access="global" 
+               >
+    <aura:attribute name="channel" type="String" default="/event/Lead_Assigned__e"/>
+    <aura:attribute name="subscription" type="Object"/>
+    <aura:attribute name="userId" type="String"/>
+    <aura:attribute name="latestLeadId" type="String"/>
+    <aura:attribute name="latestLeadName" type="String"/>
+
+
+    <lightning:empApi aura:id="empApi" />
+
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }"/>
+     <aura:if isTrue="{!not(empty(v.latestLeadId))}">
+        <div class="slds-p-around_medium">
+            <p>New Lead Assigned: {!v.latestLeadName}</p>
+            <lightning:button label="View Lead"
+                              variant="brand"
+                              onclick="{!c.handleViewLead}"/>
+        </div>
+    </aura:if>
+</aura:component>

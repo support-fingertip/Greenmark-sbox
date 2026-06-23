@@ -1,0 +1,194 @@
+<aura:component controller="QuoteApprovalUIPanelController"
+                implements="flexipage:availableForRecordHome,force:hasRecordId"
+                access="global">
+
+    <!-- ATTRIBUTES -->
+    <aura:attribute name="recordId" type="Id" />
+    <aura:attribute name="approvalData" type="Object" />
+    <aura:attribute name="isLoading" type="Boolean" default="true" />
+    <aura:attribute name="comments" type="String" />
+    <aura:attribute name="actionType" type="String" />  <!-- Approve/Reject -->
+    <aura:attribute name="isModalOpen" type="Boolean" default="false" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+    <lightning:card title="Quote Approval">
+
+        <!-- TOP RIGHT BUTTONS -->
+        <aura:set attribute="actions">
+            <aura:if isTrue="{!v.approvalData.canAct}">
+                <lightning:button variant="destructive"
+                                  label="Reject"
+                                  onclick="{!c.openRejectModal}" />
+
+                <lightning:button variant="brand"
+                                  label="Approve"
+                                  onclick="{!c.openApproveModal}" />
+            </aura:if>
+        </aura:set>
+
+
+        <!-- BODY -->
+        <aura:if isTrue="{!v.isLoading}">
+            <div class="slds-p-around_medium">
+                <lightning:spinner size="medium" />
+            </div>
+        <aura:set attribute="else">
+
+            <!-- ============ HEADER SECTION =============== -->
+            <div class="slds-box slds-theme_default slds-m-around_small">
+
+                <div class="label-header">Process Instance Step</div>
+
+                <strong>{!v.approvalData.processName}</strong> — 
+                <span class="{!'status-pill ' + v.approvalData.status}">
+                    {!v.approvalData.status}
+                </span>
+
+                <div class="slds-grid slds-wrap slds-m-top_small">
+
+                    <div class="slds-col slds-size_1-of-4">
+                        <div class="label">Submitter</div>
+                        <div>{!v.approvalData.submitterName}</div>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-4">
+                        <div class="label">Date Submitted</div>
+                        <lightning:formattedDateTime value="{!v.approvalData.submittedDate}" />
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-4">
+                        <div class="label">Actual Approver</div>
+                        <div>{!v.approvalData.actualApproverName}</div>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-4">
+                        <div class="label">Assigned To</div>
+                        <div>{!v.approvalData.assignedToName}</div>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <!-- ============ DETAILS SECTION =============== -->
+            <div class="slds-box slds-m-around_small">
+                <div class="section-title">Approval Details</div>
+
+                <div class="slds-grid slds-wrap slds-gutters">
+
+                    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                        <div class="label">Quote Id</div>
+                        <a href="{!'/' + v.approvalData.quote.quoteId}" target="_blank">
+                            {!v.approvalData.quote.quoteName}
+                        </a>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                        <div class="label">Approval Criteria</div>
+                        <div>{!v.approvalData.quote.approvalCriteria}</div>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-2">
+                        <div class="label">Owner</div>
+                        <div>{!v.approvalData.quote.ownerName}</div>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-2">
+                        <div class="label">Discount Price</div>
+                        <div>{!v.approvalData.quote.discountPrice}</div>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-2">
+                        <div class="label">Rate (sq.ft)</div>
+                        <div>{!v.approvalData.quote.ratePerSqFt}</div>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-2">
+                        <div class="label">Discounted Rate</div>
+                        <div>{!v.approvalData.quote.discountedRate}</div>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <!-- ============ HISTORY SECTION =============== -->
+            <div class="slds-box slds-m-around_small">
+                <div class="section-title">Approval History</div>
+
+                <aura:if isTrue="{!empty(v.approvalData.history)}">
+                    <div>No History</div>
+                <aura:set attribute="else">
+                    <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                        <thead>
+                            <tr>
+                                <th>Action Date</th>
+                                <th>Actor</th>
+                                <th>Action</th>
+                                <th>Comments</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <aura:iteration items="{!v.approvalData.history}" var="h">
+                                <tr>
+                                    <td><lightning:formattedDateTime value="{!h.actionDate}" /></td>
+                                    <td>{!h.actorName}</td>
+                                    <td>{!h.action}</td>
+                                    <td>{!h.comments}</td>
+                                </tr>
+                            </aura:iteration>
+                        </tbody>
+                    </table>
+                </aura:set>
+                </aura:if>
+
+            </div>
+
+        </aura:set>
+        </aura:if>
+
+    </lightning:card>
+
+
+    <!-- ===================== COMMENT MODAL ===================== -->
+    <aura:if isTrue="{!v.isModalOpen}">
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+
+                <header class="slds-modal__header">
+                    <h2 class="slds-text-heading_medium">{!v.actionType} Quote</h2>
+                </header>
+
+                <div class="slds-modal__content slds-p-around_medium">
+                    <lightning:textarea label="Comments"
+                                        value="{!v.comments}" />
+                </div>
+
+                <footer class="slds-modal__footer">
+
+                    <lightning:button label="Cancel"
+                                      onclick="{!c.closeModal}" />
+
+                    <aura:if isTrue="{!v.actionType == 'Approve'}">
+                        <lightning:button variant="brand"
+                                          label="Approve"
+                                          onclick="{!c.handleApprove}" />
+                    <aura:set attribute="else">
+                        <lightning:button variant="destructive"
+                                          label="Reject"
+                                          onclick="{!c.handleReject}" />
+                    </aura:set>
+                    </aura:if>
+
+                </footer>
+
+            </div>
+        </section>
+
+        <div class="slds-backdrop slds-backdrop_open"></div>
+
+    </aura:if>
+
+</aura:component>

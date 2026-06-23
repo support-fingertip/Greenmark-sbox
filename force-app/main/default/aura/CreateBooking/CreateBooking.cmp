@@ -1,0 +1,535 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:hasSObjectName,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader,lightning:actionOverride" 
+                access="global" 
+                controller="BookingController" >
+    
+    <!-- Attributes -->
+    <aura:attribute name="dobError" type="String" default="" />
+    <aura:attribute name="isModalOpen" type="boolean" default="false"/>
+    <aura:attribute name="recordId" type="string"/>
+    <aura:attribute name="Aadhar" type="string"/>
+    <aura:attribute name="Aadharback" type="string"/>
+    <aura:attribute name="PAN" type="string"/>
+    <aura:attribute name="PANback" type="string"/>
+    <aura:attribute name="picType" type="string" default="Aadhar"/>
+    <aura:attribute name="picTypes" type="string" default="PAN"/>
+    <aura:attribute name="isAadharRequired" type="Boolean" default="false"/>
+    <aura:attribute name="isPassportRequired" type="Boolean" default="false"/>
+    <aura:attribute name="isPanRequired" type="Boolean" default="false"/>
+    <aura:attribute name="isAadharRequired1" type="Boolean" default="false"/>
+    <aura:attribute name="isPassportRequired1" type="Boolean" default="false"/>
+    <aura:attribute name="isPanRequired1" type="Boolean" default="false"/>
+    <aura:attribute name="isAadharRequired2" type="Boolean" default="false"/>
+    <aura:attribute name="isPassportRequired2" type="Boolean" default="false"/>
+    <aura:attribute name="isPanRequired2" type="Boolean" default="false"/>
+    <aura:attribute name="bookingid" type="String" />
+    <aura:attribute name="selectedValue" type="String" />
+    <aura:attribute name="picklistValues" type="List" />
+    <aura:attribute name="showCostSheet" type="Boolean" default="true" />
+    <aura:attribute name="showadharupload" type="Boolean" default="false" />
+    <aura:attribute name="show2nd" type="boolean" default="false"/>
+    <aura:attribute name="show3rd" type="boolean" default="false"/>
+    <aura:attribute name="show4th" type="boolean" default="false"/>
+    <aura:attribute name="fileName" type="String" default="Upload Government issued photo identity proof.." />
+    <aura:attribute name="file2ndName" type="String" default="Upload PAN Photo.." />
+    <aura:attribute name="file3rdName" type="String" default="Upload Applicant Photo.." />
+    <aura:attribute name="file4thName" type="String" default="Upload Proof of Address.." />
+    <aura:attribute name="applicantList" type="List[]" />
+    <aura:attribute name="book" type="Booking__c" default="{}"/>
+    <aura:attribute name="filetype" type="List" default="['.png', '.jpg', '.jpeg', '.pdf']" />
+    <aura:attribute name="bookingrecordId" type="string"/>
+    <aura:attribute name="quote" type="Quote__c" default="{}"/>
+    <aura:attribute name="bankNames" type="String[]" />
+    <aura:attribute name="Proffesion" type="string"/>
+    <aura:attribute name="Industry" type="string"/>
+    <aura:attribute name="Employeedat" type="string"/>
+    <aura:attribute name="Designation" type="string"/>
+    <aura:attribute name="isLoading" type="boolean" default="false"/>
+    <aura:attribute name="isLoadingNew" type="boolean" default="false"/>
+    <aura:attribute name="projectType" type="string"/>
+    <aura:attribute name="grandTotal" type="Decimal"/>
+    <aura:attribute name="loanAmount" type="Decimal"/>
+    <aura:attribute name="todayMax" type="String" />
+    <!-- Handlers -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <!-- Styles -->
+    <aura:html tag="style">
+        .slds-modal__container{ 
+        max-width: 85rem !important;
+        width:100% !important;
+        } 
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+        .slds-p-around--medium {
+        border: 1px solid #d8dde6;
+        padding: 1rem !important;
+        border-radius: 0.25rem;
+        margin-bottom: 1rem;
+        }
+        .slds-modal__content{
+        height:unset !important;
+        max-height:unset !important;
+        }
+        .closeIcon{
+        display:none;
+        }
+        .slds-col{
+        margin-left:5px;
+        }
+        .slds-section__title {
+        background-color: #f3f2f2;
+        padding: 0.5rem;
+        border-radius: 0.25rem;
+        }
+        .slds-grid {
+        margin-bottom: 1rem;
+        }
+    </aura:html>
+    
+    <!-- Modal Content -->
+    <aura:if isTrue="{!v.isModalOpen}">
+        <div role="dialog" tabindex="-1" aria-labelledby="header43" aura:id="Modalbox" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <h2 id="modal-heading-01" class="slds-text-heading--medium">Create New Booking</h2>
+                </header>
+               
+                <div class="slds-modal__content slds-p-around_medium slds-scrollable_y" id="modal-content-id-1" 
+                     style="height:100% !important; max-height:100% !important ;overflow-y:auto !important;" >
+                    <aura:if isTrue="{!v.isLoading == true}">
+                        <div class="slds-size_1-of-1 slds-p-horizontal_small" >
+                            <c:loadingScreen size="3" />
+                        </div>
+                        <aura:set attribute="else">
+                            <!-- Booking Information Section -->
+                            <div class="slds-section slds-is-open slds-p-around--medium">
+                                <h3 class="slds-section__title slds-theme_shade">
+                                    <span class="slds-truncate slds-p-horizontal_small" title="Section Title">Booking Information</span>
+                                </h3>
+                                <br/>
+                                <div class="slds-grid slds-gutters slds-wrap">
+                                    <div class="slds-size_1-of-2 slds-p-horizontal--medium">                    
+                                        <lightning:input name="Booking Date"
+                                                         aura:id="bookingDateInput"
+                                                         type="datetime"
+                                                         label="Booking Date"
+                                                         value="{!v.book.Booking_Date__c}"
+                                                         max="{!v.todayMax}"
+                                                         required="true"
+                                                         onchange="{!c.validateBookingDate}" />
+                                    </div>
+                                    <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                        <lightning:input name="Booking Amount"
+                                                         type="number" 
+                                                         label="Booking Amount" 
+                                                         value="{!v.book.Booking_Amount__c}"
+                                                         required="true" 
+                                                         formatter="currency"  min="0"
+                                                         />
+                                    </div>
+                                    <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                        <lightning:select name="Mode of Payment" 
+                                                          label="Mode of Payment" aura:id="statusField"
+                                                          value="{!v.book.Mode_Of_Payment__c}" required="true">
+                                            <option value="Cheque">Cheque</option>
+                                            <option value="Net Banking">Net Banking</option>
+                                            <option value="RTGS">RTGS</option>
+                                            <option value="IMPS">IMPS</option>
+                                            <option value="DD">DD</option>
+                                            <option value="UPI">UPI</option>
+                                            <option value="Credit Card">Credit Card	</option>
+                                            <option value="Debit Card">Debit Card</option>
+                                        </lightning:select>
+                                    </div>
+                                    <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                        <lightning:input name="Transaction No." type="text"
+                                                         label="Cheque/Transaction No"
+                                                         value="{!v.book.Transaction_ID__c}" 
+                                                         required="true" pattern="^[a-zA-Z0-9]*$"
+                                                         messageWhenPatternMismatch="Only letters and numbers are allowed (no spaces or special characters)."/>
+                                    </div>
+                                    <div class="slds-size_1-of-2 slds-p-horizontal--medium"> 
+                                        <lightning:select name="Bank Name" label="Bank Name" aura:id="statusField" value="{!v.book.Bank_Name__c}" required="true">
+                                            <aura:iteration items="{!v.bankNames}" var="option">
+                                                <option value="{!option}">{!option}</option>
+                                            </aura:iteration>
+                                        </lightning:select>
+                                    </div>
+                                    <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                        <lightning:input name="Branch Name" type="text" label="Branch Name" value="{!v.book.Branch_Name__c}" required="true"/>
+                                    </div>
+                                    <aura:if isTrue="{!OR(v.book.Mode_Of_Payment__c == 'Credit Card',v.book.Mode_Of_Payment__c == 'Debit Card')}">
+                                        <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                            <lightning:input name="Branch Name" type="text" label="Credit/Debit Card Number" value="{!v.book.Credit_Debit_Card_Number__c}"/>
+                                        </div> 
+                                    </aura:if>
+                                    <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                        <lightning:select name="Finding Type" label="Funding Type " aura:id="statusField" value="{!v.book.Funding_Type__c}">
+                                            <option value="Self">Self</option>
+                                            <option value="Loan">Loan</option>
+                                        </lightning:select>
+                                    </div>
+                                    <aura:if isTrue="{!v.book.Funding_Type__c == 'Loan'}">
+                                        <div class="slds-size_1-of-2 slds-p-horizontal--medium slds-m-top_small">
+                                            <lightning:input name="Loan Percentage"  type="number"
+                                                             label="Loan Percentage"
+                                                             formatter="percent-fixed" step="0.01"
+                                                             value="{!v.book.Loan_Percentage__c}" 
+                                                             required="true"
+                                                             max="100"
+                                                             messageWhenRangeOverflow="Loan Percentage cannot be more than 100%"
+                                                             onchange="{!c.calculateLoanAmount}" 
+                                                             min="0"/> 
+                                           
+                                        </div>      
+                                        <div class="slds-size_1-of-2 slds-p-horizontal--medium slds-m-top_small">
+                                            <lightning:input name="Loan Amount"  type="number"
+                                                             label="Loan Amount"
+                                                             disabled="true"
+                                                             value="{!v.loanAmount}" 
+                   
+                                                             required="true"
+                                                             formatter="currency" 
+                                                             min="0"/>
+                                        </div>
+                                      
+                                    </aura:if>
+                                    <div class="slds-size_1-of-2 slds-p-horizontal--medium"> 
+                                        <lightning:textarea 
+                                                            name="Payment Remarks" 
+                                                            label="Payment Remarks" 
+                                                            aura:id="paymentRemarks" 
+                                                            value="{!v.book.Payment_Remarks__c}" /> 
+                                    </div>
+                                    
+                                  
+                                </div>
+                            </div>
+                            <aura:if isTrue="{!v.book.Project_Type__c == 'Apartments'}">
+                                <!--Apartments Details Section -->
+                                <div class="slds-section slds-is-open slds-p-around--medium">
+                                    <h3 class="slds-section__title slds-theme_shade">
+                                        <span class="slds-truncate slds-p-horizontal_small" title="Section Title">Flat Details</span>
+                                        
+                                    </h3>
+                                    <div class="slds-grid slds-gutters slds-wrap">
+                                        <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                            <lightning:input name="" type="text"
+                                                             label="Type" disabled="true" 
+                                                             value="{!v.book.BHK_Type__c}" />
+                                        </div>   
+                                        <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                            <lightning:input name="" type="text"
+                                                             label="Super Built Up Area" 
+                                                             disabled="true" 
+                                                             value="{!v.book.Super_Built_UpArea__c}" />
+                                        </div>   
+                                        <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                            <lightning:input name="" type="text" label="Project"
+                                                             disabled="true"
+                                                             value="{!v.book.Project__c}" />
+                                        </div>
+                                        <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                            <lightning:input name="" type="number"
+                                                             label="Rate per Sq.ft on SBA" 
+                                                             disabled="true" 
+                                                             value="{!v.book.Rate_per_sqft__c}" />
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                                <!-- Aggrement Details Section -->
+                                <div class="slds-section slds-is-open slds-p-around--medium">
+                                    <h3 class="slds-section__title slds-theme_shade">
+                                        <span class="slds-truncate slds-p-horizontal_small" title="Section Title">Aggrement Details</span>
+                                        
+                                    </h3>
+                                    <div class="slds-grid slds-gutters slds-wrap">
+                                        <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                            <lightning:input name=""
+                                                             type="text"
+                                                             label="Unit Number" 
+                                                             disabled="true" 
+                                                             value="{!v.book.Unit_Number__c}" />
+                                        </div>
+                                        <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                            <lightning:select name="type of aggrement" label="Type of Aggrement" 
+                                                              aura:id="statusField" 
+                                                              value="{!v.book.Type_of_Aggrement__c}" required="false">
+                                                <option value="Single">Single</option>
+                                                <option value="Joint">Joint</option>
+                                            </lightning:select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!v.book.Project_Type__c == 'Villas'}">
+                                                                <!--Apartments Details Section -->
+                                <div class="slds-section slds-is-open slds-p-around--medium">
+                                    <h3 class="slds-section__title slds-theme_shade">
+                                        <span class="slds-truncate slds-p-horizontal_small" title="Section Title">Villa Details</span>
+                                        
+                                    </h3>
+                                    <div class="slds-grid slds-gutters slds-wrap">
+                                        <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                            <lightning:input name=""
+                                                             type="text"
+                                                             label="Villa Plot Number" 
+                                                             disabled="true" 
+                                                             value="{!v.book.Unit_Number__c}" />
+                                        </div>   
+                                        <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                            <lightning:input name="" type="text"
+                                                             label="Super Built Up Area" 
+                                                             disabled="true" 
+                                                             value="{!v.book.Super_Built_UpArea__c}" />
+                                        </div> 
+                                        <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                            <lightning:input name="" type="text"
+                                                             label="Plot Land Area" 
+                                                             disabled="true" 
+                                                             value="{!v.book.Plot_Land_Area__c}" />
+                                        </div> 
+                                        <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                            <lightning:input name="" type="text"
+                                                             label="Plot Land Cost" 
+                                                             disabled="true" 
+                                                             value="{!v.book.Plot_Land_Cost__c}" />
+                                        </div> 
+                                        <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                            <lightning:input name="" type="text"
+                                                             label="Extra Land Cost" 
+                                                             disabled="true" 
+                                                             value="{!v.book.Extra_Land_Amount__c}" />
+                                        </div> 
+                                        <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                            <lightning:input name="" type="text"
+                                                             label="Construction Cost" 
+                                                             disabled="true" 
+                                                             value="{!v.book.Construction_Cost__c}" />
+                                        </div> 
+                                        
+                                        <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                            <lightning:input name="" type="text" label="Project"
+                                                             disabled="true"
+                                                             value="{!v.book.Project__c}" />
+                                        </div>
+                                      
+                                        
+                                    </div>
+                                </div>
+                            </aura:if>
+                            
+                            <!--Customer Details Section -->
+                            <div class="slds-section slds-is-open slds-p-around--medium">
+                                <h3 class="slds-section__title slds-theme_shade">
+                                    <span class="slds-truncate slds-p-horizontal_small" title="Section Title">Customer Details</span>
+                                </h3>
+                                <br/>
+                                <div class="slds-grid slds-gutters slds-wrap">
+                                    <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                        <lightning:select name="Title" label="Title" 
+                                                          aura:id="statusField"
+                                                          value="{!v.book.S__c}" 
+                                                          required="false">
+                                            <option value="Mr.">Mr.</option>
+                                            <option value="Mrs.">Mrs.</option>
+                                        </lightning:select>
+                                    </div>
+                                    <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                        <lightning:input name="First Applicant Name " 
+                                                         type="text"
+                                                         label="First Applicant Name"
+                                                         value="{!v.book.First_Applicant_Name__c}"
+                                                         required="true"/>
+                                    </div>
+                                    <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                        <lightning:input name="Age"
+                                                         type="Number" label="Age"
+                                                         value="{!v.book.Age__c}"
+                                                         required="true"
+                                                         min="18"/>
+                                    </div>
+                                    
+                                    
+                                    <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                        <lightning:input name="S/O" type="text" label="S/o, D/o, W/o" value="{!v.book.Son_Daughter_Wife_of1__c}" required="true"/>
+                                    </div>
+                                    <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                        <lightning:input name="Occupation" type="text" label="Occupation" value="{!v.book.Occupation__c}" required="true"/>
+                                    </div>
+                                    <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                        <lightning:input name="Mobile" type="tel" label="Primary Mobile" value="{!v.book.Mobile__c}" required="true" maxlength="10" minlength="10" pattern="^[0-9]{10}$" messageWhenPatternMismatch="Enter a valid 10-digit phone number."/>
+                                    </div>
+                                    <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                        <lightning:input name="PEmail" type="text" label="Email" value="{!v.book.Email__c}" onchange="{!c.handleEmailChange}" required="true"/>
+                                    </div>
+                                    <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                        <lightning:input name="PAN" type="text" label="PAN" value="{!v.book.PAN_Number__c}"  pattern="^[A-Z]{5}[0-9]{4}[A-Z]{1}$"  messageWhenPatternMismatch="Enter a valid PAN (e.g., ABCDE1234F)." onchange="{!c.formatPAN}"/>
+                                    </div> 
+                                </div>
+                            </div>
+                            
+                            <!-- Address Details Section -->
+                            <div class="slds-section slds-is-open slds-p-around--medium">
+                                <h3 class="slds-section__title slds-theme_shade">
+                                    <span class="slds-truncate slds-p-horizontal_small" title="Section Title">Address Details</span>
+                                </h3>
+                                <br/>
+                                <div class="slds-grid slds-gutters">
+                                    
+                                    <div class="slds-size_1-of-2 slds-p-horizontal--medium"> 
+                                        <lightning:input name="Current" type="text" label="Current Address" value="{!v.book.Address__c}" required="true"/>
+                                        <lightning:input 
+                                                         name="Pin1" type="text" label="Current Address Pincode" value="{!v.book.Pincode__c}" pattern="[0-9]{6}" messageWhenPatternMismatch="Pincode must be exactly 6 digits" required="true"/>
+                                        <lightning:input type="checkbox" label="Permanent Address is same" onchange="{!c.handleSameAddressChange}"  name="sameAddress"/>
+                                    </div>
+                                    
+                                    
+                                    <div class="slds-size_1-of-2 slds-p-horizontal--medium"> 
+                                        <lightning:input name="PermanentAddress" type="text" label="Permanent Address" value="{!v.book.Permanent_Address1__c}" required="true"/>
+                                        <lightning:input     name="Pin1"     type="text"     label="Permanent Address Pincode"     value="{!v.book.Pincode1__c}"     pattern="[0-9]{6}"  messageWhenPatternMismatch="Pincode must be exactly 6 digits" required="true"  />
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Document Upload Section -->
+                            <div class="slds-section slds-is-open slds-p-around--medium">
+                                <h3 class="slds-section__title slds-theme_shade">
+                                    <span class="slds-truncate slds-p-horizontal_small" title="Section Title">Document Upload</span>
+                                </h3>
+                                <br/>
+                                <div class="slds-grid slds-gutters slds-wrap">
+                                    <!-- Aadhaar Card Section -->
+                                    <div class="slds-size_1-of-4 slds-p-horizontal--medium">
+                                        
+                                        <lightning:input aura:id="fuploader" onchange="{!c.handleFilesChangePhoto}" type="file" name="files" label="Government issued photo identity proof" multiple="false" />
+                                        <div class="slds-text-body_medium ">{!v.fileName}</div>
+                                        
+                                    </div>
+                                    <!-- PAN Card Section -->
+                                    <div class="slds-size_1-of-4 slds-p-horizontal--medium">
+                                        
+                                        <lightning:input aura:id="fuploader2" onchange="{!c.handleFilesChange2ndPhoto}" type="file" name="files" label="Pan card" multiple="false" />
+                                        <div class="slds-text-body_medium ">{!v.file2ndName}</div>
+                                       
+                                    </div>
+                                    
+                                    <!--Applicant Photo-->
+                                    <div class="slds-size_1-of-4 slds-p-horizontal-medium">
+                                        
+                                        <lightning:input aura:id="fuploader3" onchange="{!c.handleFilesChange3rdPhoto}" type="file" name="files" label="Applicant photo" multiple="false" />
+                                        <div class="slds-text-body_medium ">{!v.file3rdName}</div>
+
+                                    </div>
+                                    <!--Proof of Address-->
+                                    <div class="slds-size_1-of-4 slds-p-horizontal-medium">
+                                 
+                                        <lightning:input aura:id="fuploader4" onchange="{!c.handleFilesChange4thPhoto}" type="file" name="files" label="Proof of Address" multiple="false" />
+                                        <div class="slds-text-body_medium ">{!v.file4thName}</div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Co-Applicant Details Section -->
+                            <div class="slds-grid slds-gutters slds-wrap slds-p-around_medium">
+                                <div class="slds-size_1-of-4 slds-p-horizontal-small">
+                                    <lightning:button variant="Neutral" label="Add Applicant" title="Add Applicant" onclick="{!c.addRow}" class="slds-button slds-button_neutral slds-button_stretch"/>
+                                </div>
+                                <br/>
+                            </div>  <br/>
+                            <aura:if isTrue="{!v.applicantList.length > 0}">
+                                <div class="slds-section slds-is-open slds-p-around--medium">
+                                    <h3 class="slds-section__title slds-theme_shade">
+                                        <span class="slds-truncate slds-p-horizontal_small" title="Section Title">Co Applicant Details</span>
+                                    </h3>
+                                    <br/>
+                                    <div class="slds-grid slds-gutters slds-wrap slds-p-horizontal_small">
+                                        <table>
+                                            <tbody>
+                                                <aura:iteration items="{!v.applicantList}" var="prd" indexVar="index">
+                                                    <h3 class="slds-section__title slds-theme_shade">
+                                                        <span class="slds-truncate slds-p-horizontal_small" title="Section Title">{!index+1})</span>
+                                                    </h3>
+                                                    <tr>
+                                                        <td>
+                                                            <div class="slds-grid slds-wrap slds-grid_pull-padded-x-medium">
+                                                                <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                                                    <lightning:select name="Title" label="Title" aura:id="statuField" value="{!prd.Salutation__c}" required="false">
+                                                                        <option value="Mr.">Mr.</option>
+                                                                        <option value="Mrs.">Mrs.</option>
+                                                                    </lightning:select>
+                                                                </div>
+                                                                <div class="slds-size_4-of-8 slds-p-horizontal_small">
+                                                                    <lightning:input name="Name" type="Text" formatter="Text"  disabled="false" label="Name" aura:id="pro" value="{!prd.Name}" required="true" />
+                                                                </div>
+                                                                <div class="slds-size_4-of-8 slds-p-horizontal_small"  data-record="{!index}">
+                                                                    <lightning:input name="Age__c" type="Number"  formatter="number" label="Age" value="{!prd.Age__c}" required="true" min="18"  messageWhenRangeUnderflow="Age must be 18 or older"   messageWhenValueMissing="Age is required" />
+                                                                </div>
+                                                                <div class="slds-size_4-of-8 slds-p-horizontal_small">
+                                                                    <lightning:input name="Son_Daughter_Wife_of__c" type="Text" formatter="Text"  disabled="false" label="S/o, D/o, W/o" aura:id="pro" value="{!prd.Son_Daughter_Wife_of__c}" required="true"/>
+                                                                </div>
+                                                                <div class="slds-size_4-of-8 slds-p-horizontal_small">
+                                                                    <lightning:input name="Occupation__c" type="Text" formatter="Text"  disabled="false" label="Occupation" aura:id="pro" value="{!prd.Occupation__c}" required="true"/>
+                                                                </div>
+                                                                <div class="slds-size_4-of-8 slds-p-horizontal_small"  >
+                                                                    <lightning:input name="Primary_Phone__c"
+                                                                                     type="phone"  formatter="Text"  disabled="false" label="Primary Mobile"  
+                                                                                     value="{!prd.Primary_Phone__c}"   required="true" 
+                                                                                     maxlength="10" minlength="10" pattern="^[0-9]{10}$"
+                                                                                     messageWhenPatternMismatch="Enter a valid 10-digit phone number." />
+                                                                </div>
+                                                                <div class="slds-size_4-of-8 slds-p-horizontal_small"  >
+                                                                    <lightning:input name="Email__c" type="email" formatter="Text"  disabled="false" label="Email"  value="{!prd.Email__c}"  required="true"/>
+                                                                </div>
+                                                                <div class="slds-size_4-of-8 slds-p-horizontal_small">
+                                                                    <lightning:input name="PAN_Number__c" type="text" disabled="false" 
+                                                                                     formatter="Text" label="PAN No." value="{!prd.PAN_Number__c}" 
+                                                                                     pattern="^[A-Z]{5}[0-9]{4}[A-Z]{1}$"  messageWhenPatternMismatch="Enter a valid PAN (e.g., ABCDE1234F)."
+                                                                                     />
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <aura:set attribute="actions" >
+                                                                <a onclick="{!c.removeRow}" data-record="{!index}">
+                                                                    <lightning:buttonIcon iconName="utility:delete" iconClass="red"  size="x-large" variant="destructive" alternativeText="Delete" />
+                                                                </a>
+                                                                <lightning:buttonIcon iconName="utility:add" iconClass="green"  size="x-large" variant="success" alternativeText="Add" onclick="{!c.addRow}"/>
+                                                            </aura:set>
+                                                            <div class="slds-section slds-is-open">
+                                                                <div class="slds-grid slds-gutters slds-wrap slds-p-around_medium">
+                                                                    <div class="slds-size_1-of-1 slds-p-horizontal-medium">
+                                                                        <span class="slds-m-left_large"></span>
+                                                                        <lightning:button variant="Neutral" label="Add Applicant" title="Cancel" onclick="{!c.addRow}"/>
+                                                          				 <span class="slds-m-left_large"></span>
+                                                                        <a onclick="{!c.removeRow}" data-record="{!index}" class="slds-m-left_medium">
+                                                                            <lightning:button variant="destructive-text" label="Remove Applicant" title="Cancel"/>
+                                                                        </a>
+                                                                        
+                                                                    </div>
+                                                                    <br/>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </aura:iteration>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </aura:if>
+                        </aura:set>
+                    </aura:if>
+                </div>
+                
+                <!-- Footer -->
+                <footer class="slds-modal__footer">
+                    <lightning:button variant="neutral" label="Cancel" title="Cancel"  disabled="{!v.isLoadingNew}" onclick="{!c.closeModel}"/>
+                    <lightning:button class="slds-button slds-button_brand" onclick="{!c.save}" disabled="{!v.isLoadingNew}" label="Save"/>
+                </footer>
+            </div>
+        </div>
+    </aura:if>
+</aura:component>

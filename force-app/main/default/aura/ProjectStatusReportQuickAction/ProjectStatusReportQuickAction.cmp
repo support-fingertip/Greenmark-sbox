@@ -1,0 +1,179 @@
+<aura:component controller="ProjectStatusReportController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global">
+    <aura:attribute name="visible" type="boolean" />
+    <aura:attribute name="data" type="Object"/>
+    <aura:attribute name="columns" type="List"/>
+    <aura:attribute name="recordId" type="Id" />
+    <aura:attribute name="selectedIndexId" type="Id" />
+    <aura:attribute name="selectedMilestone" type="String" />
+    <aura:attribute name="milestoneId" type="Id" />
+    <aura:attribute name="isLoading" type="boolean" />
+    <aura:attribute name="filesLoading" type="boolean" />
+    <aura:attribute name="booking" type="Booking__c" />
+    <aura:attribute name="coApplicant" type="Co_Applicant__c" />
+    <aura:attribute name="currentMilestone" type="Payment_schedule__c" />
+    <aura:attribute name="vfPageUrl" type="String" />
+    <aura:attribute name="emailContent" type="String" />
+    <aura:attribute name="emailTemplateContent" type="Object" />
+    <aura:attribute name="filesIDS" type="List" />
+    <aura:attribute name="exestingFilesIDS" type="List" />
+    <aura:attribute name="defaultFileIds" type="List" />
+    <aura:handler name="fileUploadEvent" event="c:fileUploadEvent" action="{!c.handleFileUpload}" />
+    
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }"/>
+    <aura:html tag="style">
+        .slds-modal__container{ 
+        max-width: 85rem !important;
+        width:80% !important;
+        } 
+        
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+        .slds-p-around--medium {
+        padding: 0rem !important;
+        }
+        .slds-modal__content{
+        
+        height:unset !important;
+        max-height:unset !important;
+        }
+        
+        .closeIcon{
+        display:none;
+        }
+        .slds-col{
+        margin-left:5px;
+        }
+    </aura:html >
+    <div>
+        <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="header43" class="slds-modal slds-fade-in-open slds-modal_large">
+            <div class="slds-modal__container">
+                <button class="slds-button slds-button_icon slds-modal__close" onclick="{!c.handleClosePopup}">
+                    <lightning:icon iconName="utility:close" alternativeText="close" size="x-small"
+                                    title="close" />
+                    <span class="slds-assistive-text">Cancel and close</span>
+                </button>
+                <div class="slds-modal__header">
+                    <h1 id="header43" class="slds-text-heading_medium">Project Status Report</h1>
+                </div>
+                <div class="slds-modal__content slds-grow slds-p-around_xx-small" id="modal-content-id-1">
+                    <div class="slds-welcome-mat slds-p-vertical_xx-small">
+                        <div class="slds-welcome-mat__content slds-grid">
+                            <aura:if isTrue="{!v.isLoading}">
+                                <div class="slds-size_1-of-1 slds-p-horizontal_small">
+                                    <c:loadingScreen size="3" />
+                                </div>
+                                <aura:set attribute="else">
+                                    <div class="slds-welcome-mat__tiles slds-size_4-of-12 slds-p-vertical_xx-small cust-ht" tabindex="0" role="region">
+                                        <article class="slds-card">
+                                            <div class="slds-card__body slds-card__body_inner">
+                                                <div class="demo-only" style="background-color:#FAFAFB">
+                                                    <div class="slds-card__header slds-grid">
+                                                        <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                                                            <div class="slds-media__body">
+                                                                <h2 class="slds-card__header-title">
+                                                                    <span>Payment Schedules</span>
+                                                                </h2>
+                                                            </div>
+                                                        </header>
+                                                    </div>
+                                                    <div style="height: 335px;overflow:auto">
+                                                        <table aria-multiselectable="true" class="slds-table slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols" role="grid" aria-label="Payment Schedules">
+                                                            <thead>
+                                                                <tr class="slds-line-height_reset">
+                                                                    <th class="slds-text-align_right slds-cell_action-mode" scope="col" style="width:3rem">
+                                                                        <span id="column-group-header" class="slds-assistive-text">Choose a row</span>
+                                                                    </th>
+                                                                    <th scope="col" style="width:3rem"><div class="slds-truncate" title="SL.No">SL.No</div></th>
+                                                                    <th scope="col" ><div class="slds-truncate" title="Name">Name</div></th>
+                                                                    <th scope="col" style="width:6rem"><div class="slds-truncate" title="Status">Status</div></th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <!-- Iterate over data to create rows -->
+                                                                <aura:iteration items="{! v.data }" var="item" indexVar="index">
+                                                                    <tr aria-selected="true" class="slds-hint-parent slds-cell_action-mode">
+                                                                        <td class="slds-text-align_center" role="gridcell">
+                                                                            <span class="slds-radio">
+                                                                                <input type="radio" 
+                                                                                       id="{!'radio-' + index}" 
+                                                                                       value="{!item.Id}" 
+                                                                                       name="options"
+                                                                                       data-value="{! item.Name}"
+                                                                                       data-index="{! item.S_No__c }"
+                                                                                       disabled="{! item.status__c != 'Completed' }"
+                                                                                       onclick="{! c.handleRadioSelection }" />
+                                                                                <label class="slds-radio__label" for="{!'radio-' + index}">
+                                                                                    <span class="slds-radio_faux"></span>
+                                                                                    <span class="slds-form-element__label slds-assistive-text">Select item {! item.S_No__c }</span>
+                                                                                </label>
+                                                                            </span>
+                                                                        </td>
+                                                                        <td scope="row">
+                                                                            <div class="slds-truncate" title="{! item.S_No__c }">{! item.S_No__c }</div>
+                                                                        </td>
+                                                                        <td role="gridcell">
+                                                                            <div class="slds-truncate" title="{! item.Name }">{! item.Name }</div>
+                                                                        </td>
+                                                                        <td role="gridcell">
+                                                                            <div class="slds-truncate" title="{! item.Status__c }">{! item.status__c }</div>
+                                                                        </td>
+                                                                    </tr>
+                                                                </aura:iteration>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>   
+                                        </article>
+                                  
+                                    </div>
+                                    <div style="background-color:#FAFAFB" class="slds-welcome-mat__tiles slds-size_8-of-12 slds-welcome-mat__tiles_info-only slds-p-vertical_xx-small cust-ht">
+                                        <aura:if isTrue="{!v.milestoneId}">
+                                            <div class="slds-size_1-of-1">
+                                                <div class="slds-p-bottom_xx-small">
+                                                    <lightning:inputRichText class="custom-textarea" aura:id="emailContent"
+                                                                             placeholder="Review and edit email content"
+                                                                             value="{!v.emailContent}"   />
+                                                </div>
+                                                <aura:if isTrue="{!v.filesLoading}">
+                                                    <div class="slds-size_1-of-1">
+                                                        <c:loadingScreen size="1" />
+                                                    </div>
+                                                    <aura:set attribute="else">
+                                                        <div class="slds-p-bottom_xx-small">
+                                                            <c:photoUploadComponent recordId="{!v.recordId}" filesIds="{!v.exestingFilesIDS}" />
+                                                        </div>
+                                                    </aura:set>
+                                                </aura:if>
+                                            </div>
+           
+                                            <aura:set attribute="else">
+                                                <div class="slds-align_absolute-center slds-p-top_x-large">
+                                                    <div class="slds-illustration slds-illustration_small ">
+                                                        <div class="slds-text-longform">
+                                                            <h3 class="slds-text-heading_medium">No selection</h3>
+                                                            <p class="slds-text-body_regular">Please selecte a milestone and click "Generate" button</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </aura:set>
+                                        </aura:if>
+                                    </div>
+                                    
+                                </aura:set>
+                            </aura:if>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="slds-modal__footer">
+                    <button class="slds-button slds-button_neutral" aria-label="Cancel and close" onclick="{!c.handleClosePopup}">Cancel</button>
+                    
+                    <lightning:button label="Send Email" variant="brand" disabled="{!OR(v.selectedMilestone == null,v.selectedMilestone == undefined)}" onclick="{!c.handleSendProjectStatus}" />
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+    </div>
+</aura:component>

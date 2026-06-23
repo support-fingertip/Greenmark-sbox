@@ -1,0 +1,716 @@
+<aura:component controller = "SiteVisitFormController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    
+    <aura:attribute name="leadRecord" type="Lead"  default="{}"/>
+    <aura:attribute name="sourceToSubSoruce" type="Map"  default=""/>
+    <aura:attribute name="projects" type="List" />
+    <aura:attribute name="siteVisitRatings" type="List" />
+    <aura:attribute name="selectedProject" type="String" />
+    <aura:attribute name="phone" type="String" />
+    <aura:attribute name="datevalue" type="datetime" />
+    <aura:attribute name="leadName" type="String" />
+    <aura:attribute name="phonenumer" type="String" />
+    <aura:attribute name="otpStatus" type="String" default=''/>
+    <aura:attribute name="showDetails" type="Boolean" default="false"/>
+    <aura:attribute name="sectionLabels" type="Map" default=""/>
+    <aura:attribute name="selectedCountry" type="string" />
+    <aura:attribute name="selectedCountryCode" type="string" />
+    <aura:attribute name="OTPnewLead" type="string" default="0000"/>
+    <aura:attribute name="OTPExisLead" type="string" default=""/>
+    <aura:attribute name="salesuser" type="string" />
+    <aura:attribute name="leadSource" type="string" />
+    <aura:attribute name="leadId" type="string" />
+    <aura:attribute name="tabId" type="String" default="1"/>
+    <aura:attribute name="visitType" type="string" />
+    <aura:attribute name="leadRecordToSave" type="Lead"  default="{}"/>
+    <aura:attribute name="selectedRating" type="String" />
+    <aura:attribute name="siteVisitComments" type="String" />
+    <aura:attribute name="LeadComments" type="String" />
+    <aura:attribute name="selectedSource" type="String" />
+    <aura:attribute name="selectedSubSource" type="String" />
+    <aura:attribute name="SubSourceList" type="List" />
+    <aura:attribute name="location" type="String" />
+    
+    <aura:attribute name="isLoading" type="Boolean" default="false"/>
+    <aura:attribute name="siteVisit" type="Site_Visit__c" default="{}"/>
+    <aura:attribute name="siteVisitFormattedDate" type="String" default=""/>
+    
+    <aura:attribute name="channelPartnerList" type="Object[]" default="[]"/>
+    <aura:attribute name="searchedChannelPartners" type="Object[]" default="[]"/>
+    <aura:attribute name="cpSearchText" type="String" />
+    <aura:attribute name="channelPartnerId" type="String" />
+    
+    <aura:attribute name="cpExectiveList" type="Object[]" default="[]"/>
+    <aura:attribute name="searchedcpExectives" type="Object[]" default="[]"/>
+    <aura:attribute name="cpExeSearchText" type="String" />
+    <aura:attribute name="cpExecutiveId" type="String" />
+    
+    <aura:attribute name="autoMapSoucingMember" type="Boolean" default="false"/>
+    <aura:attribute name="autoMapChannelPartner" type="Boolean" default="false"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <div>
+        <div class="slds-page-header">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title slds-align-middle">
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                            <lightning:icon size="large" iconName="standard:groups"/>
+                        </div>
+                        <div class="slds-media__body slds-align-middle"><span style="font-size:18px;font-weight: bold;">GRE Form</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <lightning:tabset variant="scoped" class="slds-tabs_medium" aura:id="tabs" selectedTabId="{!v.tabId}">
+            <lightning:tab label="Search Lead" id="1">
+                <div>
+                    <div class="slds-scope">
+                        <div class="slds-grid slds-wrap slds-text-align_left">
+                            <div class="slds-size_1-of-2 slds-max-small-size_1-of-1">
+                                <lightning:select name="selectProject" aura:id="projectSelect" label="Select Project" value="{!v.selectedProject}">
+                                    <option value="None">--None--</option>
+                                    <aura:iteration items="{!v.projects}" var="project">
+                                        <option value="{!project}">{!project}</option>
+                                    </aura:iteration>
+                                </lightning:select>
+                            </div>
+                            <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-horizontal_x-small">
+                                <lightning:input type="tel" name="phone" label="Phone/Email/Lead Id" value="{!v.phone}" />
+                            </div>
+                        </div>
+                    </div>
+                    <br/>
+                    <aura:if isTrue="{!v.isLoading == true}">
+                    	<c:loadingScreen size="1" />
+                    </aura:if>
+                    <aura:if isTrue="{!v.showDetails == true}">
+                        <lightning:card >
+                            <aura:set attribute="title">
+                                <div style="display: flex; align-items: center;">
+                                    <lightning:icon iconName="standard:lead_list" size="medium" alternativeText="Lead Icon" />
+                                    <b><span style="margin-left: 5px; font-size: 20px;">Lead Details</span></b>
+                                </div>
+                            </aura:set>
+                            <hr style="margin-top: 5px; border-top: 1px solid #ccc;"/>
+                            <div style="text-align: left; padding-left: 20px;">
+                                <aura:if isTrue="{!v.otpStatus != 'No Lead Exists'}">
+                                    <table>
+                                        <tr>
+                                            <td width = "50%" style="font-size: 15px;">
+                                                <b>Lead Name : </b>
+                                           
+                                                <aura:if isTrue="{!v.leadRecord.Name != null}">
+                                                    <a href="javascript:void(0);"
+                                                       onclick="{!c.openLead}"
+                                                       data-id="{!v.leadId}">
+                                                        {!v.leadRecord.Name}
+                                                    </a>
+                                                </aura:if>
+
+                                            </td>
+                                            <td width = "50%" style="font-size: 15px;">
+                                                <b>Phone Number : </b>
+                                                <aura:if isTrue="{!v.leadRecord.Phone__c != null}">
+                                                    {!v.leadRecord.Phone__c}
+                                                </aura:if>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td width = "50%" style="font-size: 15px;">
+                                                <b>Lead Id : </b>
+                                                <aura:if isTrue="{!v.leadRecord.Lead_ID__c != null}">
+                                                    {!v.leadRecord.Lead_ID__c}
+                                                </aura:if>
+                                            </td>
+                                            <td width = "50%" style="font-size: 15px;">
+                                                <b>Email : </b>
+                                                <aura:if isTrue="{!v.leadRecord.Email != null}">
+                                                    {!v.leadRecord.Email}
+                                                </aura:if>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td width = "50%" style="font-size: 15px;">
+                                                <b>Secondary Phone : </b>
+                                                <aura:if isTrue="{!v.leadRecord.Secondary_Phone__c != null}">
+                                                    {!v.leadRecord.Secondary_Phone__c}
+                                                </aura:if>
+                                            </td>
+                                            <td width = "50%" style="font-size: 15px;">
+                                                <b>Secondary Email : </b>
+                                                <aura:if isTrue="{!v.leadRecord.Secondary_Email__c != null}">
+                                                    {!v.leadRecord.Secondary_Email__c}
+                                                </aura:if>
+                                            </td>
+                                        </tr>
+                                        
+                                        <tr>
+                                            <td style="font-size: 15px;">
+                                                <b>Lead Owner Name : </b>
+                                                <aura:if isTrue="{!v.leadRecord.Lead_Owner_Full_Name__c != null}">
+                                                    {!v.leadRecord.Lead_Owner_Full_Name__c}
+                                                </aura:if>
+                                            </td>
+                                            <td style="font-size: 15px;">
+                                                <b>Lead Status : </b>
+                                                <aura:if isTrue="{!v.leadRecord.Lead_Status__c != null}">
+                                                    {!v.leadRecord.Lead_Status__c}
+                                                </aura:if>
+                                            </td>
+                                            
+                                        </tr>
+                                        <tr> 
+                                            <td style="font-size: 15px;">
+                                                <b>Lead Source : </b>
+                                                <aura:if isTrue="{!v.leadRecord.Credit_Source__c != null}">
+                                                    {!v.leadRecord.Credit_Source__c}
+                                                </aura:if>
+                                            </td>
+                                            <td style="font-size: 15px;">
+                                                <b> Sub Source : </b>
+                                                <aura:if isTrue="{!v.leadRecord.Credit_Sub_Source__c != null}">
+                                                    {!v.leadRecord.Credit_Sub_Source__c}
+                                                </aura:if>
+                                            </td>
+                                            
+                                        </tr>
+                                        <aura:if isTrue="{!v.leadRecord.Credit_Sub_Source__c == 'Channel Partner'}">
+                                            <tr> 
+                                                <td style="font-size: 15px;">
+                                                    <b>Channel Partner : </b>
+                                                    <aura:if isTrue="{!v.leadRecord.Credit_Channel_Partner__c != null}">
+                                                        {!v.leadRecord.Credit_Channel_Partner__r.Name}
+                                                    </aura:if>
+                                                </td>
+                                            </tr>
+                                        </aura:if>
+                                    </table>
+                                    <aura:set attribute="else">
+                                        <!-- Centered Processing Text -->
+                                        <div style="display: flex; justify-content: center; align-items: center; height: 100%; width: 100%;">
+                                            <span class="slds-text-color_brand slds-text-title_bold" style="font-size: 1.5rem;color:red">
+                                                Lead Not Found !!..
+                                            </span>
+                                        </div>
+                                    </aura:set>
+                                </aura:if>
+                            </div>
+                            
+                        </lightning:card>
+                    </aura:if>
+                    <br/>
+                    <button class="slds-button slds-button_brand" onclick="{!c.checkLead}">Search Lead</button>
+                    <button class="slds-button slds-button_destructive" onclick="{!c.clearValues}">Clear</button>
+                </div>
+            </lightning:tab>
+            <aura:if isTrue="{!v.otpStatus == 'Active Lead Exist'}">
+                <lightning:tab label="Update Site Visit" id="2">
+                    <lightning:card>
+                        <div class="slds-p-around_medium">
+                    
+                            <!--  Lead Details Section -->
+                            <div class="slds-text-heading_small slds-m-bottom_small slds-border_bottom slds-p-bottom_x-small" style="display: flex; align-items: center;">
+                                <lightning:icon iconName="standard:lead_list" size="medium" alternativeText="Lead Icon" />
+                                <b><span style="margin-left: 5px; font-size: 20px;">Lead Details</span></b>
+                            </div>
+                            <table>
+                                <tr>
+                                    <td width = "50%" style="font-size: 15px;">
+                                        <b>Lead Name : </b>
+                                        <aura:if isTrue="{!v.leadRecord.Name != null}">
+                                            <a href="javascript:void(0);"
+                                               onclick="{!c.openLead}"
+                                               data-id="{!v.leadId}">
+                                                {!v.leadRecord.Name}
+                                            </a>
+                                        </aura:if>
+                                    </td>
+                                    <td width = "50%" style="font-size: 15px;">
+                                        <b>Phone Number : </b>
+                                        <aura:if isTrue="{!v.leadRecord.Phone__c != null}">
+                                            {!v.leadRecord.Phone__c}
+                                        </aura:if>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width = "50%" style="font-size: 15px;">
+                                        <b>Lead Id : </b>
+                                        <aura:if isTrue="{!v.leadRecord.Lead_ID__c != null}">
+                                            {!v.leadRecord.Lead_ID__c}
+                                        </aura:if>
+                                    </td>
+                                    <td width = "50%" style="font-size: 15px;">
+                                        <b>Email : </b>
+                                        <aura:if isTrue="{!v.leadRecord.Email != null}">
+                                            {!v.leadRecord.Email}
+                                        </aura:if>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="font-size: 15px;">
+                                        <b>Lead Owner Name : </b>
+                                        <aura:if isTrue="{!v.leadRecord.Lead_Owner_Full_Name__c != null}">
+                                            {!v.leadRecord.Lead_Owner_Full_Name__c}
+                                        </aura:if>
+                                    </td>
+                                    <td style="font-size: 15px;">
+                                        <b>Lead Status : </b>
+                                        <aura:if isTrue="{!v.leadRecord.Lead_Status__c != null}">
+                                            {!v.leadRecord.Lead_Status__c}
+                                        </aura:if>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="font-size: 15px;">
+                                        <b>Site Visit Scheduled Date: </b>
+                                        <aura:if isTrue="{!v.siteVisit.Date__c != null}">
+                                            <lightning:formattedDateTime
+                                                                         value="{!v.siteVisit.Date__c}"
+                                                                         year="numeric"
+                                                                         month="2-digit"
+                                                                         day="2-digit"
+                                                                         hour="2-digit"
+                                                                         minute="2-digit"
+                                                                         />
+                                        </aura:if>
+                                    </td>
+                                    
+                                    <td style="font-size: 15px;">
+                                        <b>Site Visit Scheduled By: </b>
+                                        <aura:if isTrue="{!v.siteVisit.Site_Visit_Create_Owner__c != null}">
+                                            {!v.siteVisit.Site_Visit_Create_Owner__c}
+                                        </aura:if>
+                                    </td>
+                                </tr>
+                                <tr> 
+                                    <td style="font-size: 15px;">
+                                        <b>Lead Source : </b>
+                                        <aura:if isTrue="{!v.leadRecord.Credit_Source__c != null}">
+                                            {!v.leadRecord.Credit_Source__c}
+                                        </aura:if>
+                                    </td>
+                                    <td style="font-size: 15px;">
+                                        <b> Sub Source : </b>
+                                        <aura:if isTrue="{!v.leadRecord.Credit_Sub_Source__c != null}">
+                                            {!v.leadRecord.Credit_Sub_Source__c}
+                                        </aura:if>
+                                    </td>
+                                    
+                                </tr>
+                                <aura:if isTrue="{!v.leadRecord.Credit_Sub_Source__c == 'Channel Partner'}">
+                                    <tr> 
+                                        <td style="font-size: 15px;">
+                                            <b>Channel Partner : </b>
+                                            <aura:if isTrue="{!v.leadRecord.Credit_Channel_Partner__c != null}">
+                                                {!v.leadRecord.Credit_Channel_Partner__r.Name}
+                                            </aura:if>
+                                        </td>
+                                    </tr>
+                                </aura:if>
+                                
+                            </table>
+                            <br />
+                            <br />
+                            <!-- Site Visit Details Section -->
+                            <div class="slds-text-heading_small slds-m-bottom_small slds-border_bottom slds-p-bottom_x-small" style="display: flex; align-items: center;">
+                                <lightning:icon iconName="standard:visits" size="medium" alternativeText="Lead Icon" />
+                                <b><span style="margin-left: 5px; font-size: 20px;">Site Visit Details</span></b>
+                            </div>
+                            
+                            <!-- Visit Details Subsection -->
+                            <div class="slds-scope slds-m-bottom_medium">
+                                <div class="slds-text-heading_small slds-m-bottom_x-small slds-m-top_small">
+                                    <b>Visit Details</b>
+                                </div>
+                                <div class="slds-grid slds-wrap slds-text-align_left">
+                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xx-small">
+                                        <lightning:input aura:id="field123" type="datetime" name="visitDate" label="SV Scheduled Date &amp; Time" value="{!v.datevalue}" required="true" />
+                                    </div>
+                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xx-small">
+                                        <lightning:textarea aura:id="field123" name="comments" label="Site Visit GRE Comments" value="{!v.siteVisitComments}" required="true" />
+                                    </div>
+                                </div>
+                                <div class="slds-grid slds-wrap slds-text-align_left">
+                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xx-small">
+                                        <lightning:select aura:id="field123" name="selectProjects" label="Select Project" value="{!v.selectedProject}" required="true">
+                                            <option value="None">--None--</option>
+                                            <aura:iteration items="{!v.projects}" var="project">
+                                                <option value="{!project}">{!project}</option>
+                                            </aura:iteration>
+                                        </lightning:select>
+                                    </div>
+                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xx-small">
+                                        <lightning:input aura:id="field123" type="text" name="location" label="Location" value="{!v.location}" required="true" />
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Channel Partner Related Subsection -->
+                            <div class="slds-scope">
+                                <div class="slds-text-heading_small slds-m-bottom_x-small slds-m-top_small">
+                                    <b>Channel Partner Details</b>
+                                </div>
+                                <div class="slds-grid slds-wrap slds-text-align_left">
+                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xx-small">
+                                        <div class="slds-combobox_container"> 
+                                            <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" onchange="{!c.searchChannelPartner}">    
+                                                <lightning:input 
+                                                                 value="{!v.cpSearchText}"
+                                                                 aura:id="field1" 
+                                                                 name="enter-search" 
+                                                                 label="Channel Partner"   
+                                                                 type="search"
+                                                                 id="combobox-id-1" 
+                                                                 aria-autocomplete="list" 
+                                                                 aria-controls="listbox-id-1" 
+                                                                 aria-expanded="false" 
+                                                                 aria-haspopup="listbox" 
+                                                                 autoComplete="off" 
+                                                                 role="combobox" 
+                                                                 placeholder="Search or Enter"/>                                      
+                                            </div>
+                                            <div class="{!not(empty(v.searchedChannelPartners)) ? 'slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click slds-is-open' : 'slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click'}" aura:id="open">
+                                                <div id="listbox-id-1" class="slds-dropdown slds-dropdown_length-with-icon-7 slds-dropdown_fluid" role="listbox">
+                                                    <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                                        <aura:if isTrue="{!v.searchedChannelPartners}">   
+                                                            <aura:iteration items="{!v.searchedChannelPartners}" var="item">
+                                                                <a data-id="{!item.Id}" data-name="{!item.Name}" onclick="{!c.updateChannelPartner}">
+                                                                    <li role="presentation" class="slds-listbox__item">
+                                                                        <div id="option1" class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+                                                                            <span class="slds-media__figure slds-listbox__option-icon">
+                                                                                <span class="slds-icon_container slds-icon-standard-account">
+                                                                                    <lightning:icon iconName="standard:user" size="xx-small"/>&nbsp;
+                                                                                </span>
+                                                                            </span>
+                                                                            <span class="slds-media__body">
+                                                                                <div class="slds-lookup__result-text">
+                                                                                    <span class="slds-listbox__option-text slds-listbox__option-text_entity" style="white-space:normal">{!item.Name}</span>
+                                                                                </div>
+                                                                            </span>
+                                                                        </div>
+                                                                    </li>
+                                                                </a>
+                                                            </aura:iteration>
+                                                        </aura:if>     
+                                                    </ul>
+                                                </div>  
+                                            </div>
+                                        </div> 
+                                    </div>
+                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xx-small">
+                                        <div class="slds-combobox_container"> 
+                                            <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" onchange="{!c.searchCpExecutive}">    
+                                                <lightning:input 
+                                                                 value="{!v.cpExeSearchText}"
+                                                                 aura:id="field1" 
+                                                                 name="enter-search" 
+                                                                 label="Sourcing Member"   
+                                                                 type="search"
+                                                                 id="combobox-id-1" 
+                                                                 aria-autocomplete="list" 
+                                                                 aria-controls="listbox-id-1" 
+                                                                 aria-expanded="false" 
+                                                                 aria-haspopup="listbox" 
+                                                                 autoComplete="off" 
+                                                                 role="combobox" 
+                                                                 placeholder="Search or Enter"/>                                      
+                                            </div>
+                                            <div class="{!not(empty(v.searchedcpExectives)) ? 'slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click slds-is-open' : 'slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click'}" aura:id="open">
+                                                <div id="listbox-id-1" class="slds-dropdown slds-dropdown_length-with-icon-7 slds-dropdown_fluid" role="listbox">
+                                                    <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                                        <aura:if isTrue="{!v.searchedcpExectives}">   
+                                                            <aura:iteration items="{!v.searchedcpExectives}" var="item">
+                                                                <a data-id="{!item.Id}" data-name="{!item.Name}" onclick="{!c.updateCpExecutive}">
+                                                                    <li role="presentation" class="slds-listbox__item">
+                                                                        <div id="option1" class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+                                                                            <span class="slds-media__figure slds-listbox__option-icon">
+                                                                                <span class="slds-icon_container slds-icon-standard-account">
+                                                                                    <lightning:icon iconName="standard:user" size="xx-small"/>&nbsp;
+                                                                                </span>
+                                                                            </span>
+                                                                            <span class="slds-media__body">
+                                                                                <div class="slds-lookup__result-text">
+                                                                                    <span class="slds-listbox__option-text slds-listbox__option-text_entity" style="white-space:normal">{!item.Name}</span>
+                                                                                </div>
+                                                                            </span>
+                                                                        </div>
+                                                                    </li>
+                                                                </a>
+                                                            </aura:iteration>
+                                                        </aura:if>     
+                                                    </ul>
+                                                </div>  
+                                            </div>
+                                        </div> 
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <br />
+                            <div style="display: flex; justify-content: center;">
+                                <lightning:button onclick="{!c.cancel}" variant="destructive" label="Cancel" />
+                                <lightning:button onclick="{!c.svWithLead}" variant="brand" label="Save Details" />
+                            </div>
+                       
+                        </div>
+                        <aura:if isTrue="{!v.isLoading == true}">
+                            <lightning:spinner 
+                                               alternativeText="Loading..." 
+                                               size="medium" 
+                                               variant="brand" />
+                        </aura:if>
+                    </lightning:card>
+                    
+                </lightning:tab>
+            </aura:if>
+            <aura:if isTrue="{!v.otpStatus == 'No Lead Exists' || v.otpStatus == 'Lead exists but In-Active'}">
+                <lightning:tab label="Create New Lead" id="3">
+                    <lightning:card >
+                        <div class="slds-p-around_medium">
+                            <lightning:recordEditForm recordTypeId="" objectApiName="Lead" aura:id="myform" onsubmit="{!c.handleSubmit}" onsuccess="{!c.handleSuccess}" onerror="{!c.handleError}"> 
+                                <div >
+                                    <p>
+                                        <div class="slds-form">
+                                            <!--Name Project-->
+                                            <div class="slds-scope">
+                                                <div class="slds-grid slds-wrap slds-text-align_left">
+                                                    <div class="slds-size_1-of-1 slds-max-small-size_1-of-1 slds-p-horizontal_x-small">
+                                                        <div class="slds-form-element__control custom-bold-label">
+                                                            <lightning:select aura:id="salutation" name="salutation" label="Salutation" required="true">
+                                                                <option value="">--None--</option>
+                                                                <option value="Mr.">Mr.</option>
+                                                                <option value="Mrs.">Mrs.</option>
+                                                                <option value="Ms.">Ms.</option>
+                                                                <option value="Dr.">Dr.</option>
+                                                            </lightning:select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="slds-size_1-of-1 slds-max-small-size_1-of-1 slds-p-horizontal_x-small">
+                                                        <div class="slds-form-element__control custom-bold-label">
+                                                            <lightning:input class="custom-disabled" aura:id="leadFirstName"
+                                                                             name="leadFirstName"
+                                                                             label="First Name"
+                                                                             required="true"
+                                                                             pattern="[A-Za-z ]+"
+                                                                             messageWhenPatternMismatch="Please enter alphabets only."
+                                                                             />
+                                                        </div>
+                                                    </div>
+                                                    <div class="slds-size_1-of-1 slds-max-small-size_1-of-1 slds-p-horizontal_x-small">
+                                                        <div class="slds-form-element__control custom-bold-label">
+                                                            <lightning:input aura:id="leadName"
+                                                                             name="leadName"
+                                                                             label="Last Name"
+                                                                             required="true"
+                                                                             pattern="[A-Za-z ]+"
+                                                                             messageWhenPatternMismatch="Please enter alphabets only."
+                                                                             />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="slds-scope">
+                                                <div class="slds-grid slds-wrap slds-text-align_left">
+                                                    <div class="slds-size_1-of-1 slds-max-small-size_1-of-1 slds-p-around_xxx-small">
+                                                        <lightning:inputField variant="label-stacked" fieldName="Allocated_Project__c" required="true" value="{!v.selectedProject}"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <br/>
+                                            <!--Contry and Code -->
+                                            <div class="slds-scope">
+                                                <div class="slds-grid slds-wrap slds-text-align_left">
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xxx-small">
+                                                        <div class="slds-form-element__control">
+                                                            <lightning:inputField variant="label-stacked"  fieldName="Country__c" aura:id="CountryLookupField" onchange="{!c.handleCountryChange}" required="true" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xxx-small">
+                                                        <div class="slds-form-element__control">
+                                                            <lightning:inputField variant="label-stacked"  fieldName="Country_Code__c" value="{!v.selectedCountryCode}" disabled="true" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!--Phone Info-->
+                                            <div class="slds-scope">
+                                                <div class="slds-grid slds-wrap slds-text-align_left">
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xxx-small">
+                                                        <lightning:inputField variant="label-stacked"  fieldName="Phone__c"  aura:id="PhoneNumber"
+                                                                              required="true" 
+                                                                              maxlength="10" minlength="10" pattern="^[0-9]{10}$"
+                                                                              messageWhenPatternMismatch="Enter a valid 10-digit phone number."/>
+                                                    </div>
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xxx-small">
+                                                        <lightning:inputField variant="label-stacked" fieldName="Secondary_Phone__c"  aura:id="secondPhoneNumber"
+                                                                              maxlength="10" minlength="10" pattern="^[0-9]{10}$"
+                                                                              messageWhenPatternMismatch="Enter a valid 10-digit phone number."/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!--Email Info-->
+                                            <div class="slds-scope">
+                                                <div class="slds-grid slds-wrap slds-text-align_left">
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xxx-small">
+                                                        <lightning:inputField variant="label-stacked"  fieldName="Email" required="true"/>
+                                                    </div>
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xxx-small">
+                                                        <lightning:inputField variant="label-stacked" fieldName="Secondary_Email__c" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="slds-scope">
+                                                <div class="slds-grid slds-wrap slds-text-align_left">
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-horizontal_x-small">
+                                                        <lightning:select aura:id="leadSource" name="Source"
+                                                                          label="Lead Source" value="{!v.selectedSource}" onchange="{!c.handleLeadSourceChange}" 
+                                                                          required="true">
+                                                            <option value="None">--None--</option>
+                                                            <option value="Direct Walk-in">Direct Walk-in</option>
+                                                            <option value="Channel Partner">Channel Partner</option>
+                                                            <option value="Referral and Loyalty">Referral and Loyalty</option>
+                                                        </lightning:select>
+                                                    </div>
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-horizontal_x-small">
+                                                        <lightning:select aura:id="field123" name="selectProjects"
+                                                                          label="Sub Source" value="{!v.selectedSubSource}" required="true">
+                                                            <option value="None">--None--</option>
+                                                            <aura:iteration items="{!v.SubSourceList}" var="subsource">
+                                                                <option value="{!subsource}">{!subsource}</option>
+                                                            </aura:iteration>
+                                                        </lightning:select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <aura:if isTrue="{!v.selectedSubSource == 'Channel Partner'}">
+                                                <div class="slds-scope">
+                                                    <div class="slds-grid slds-wrap slds-text-align_left">
+                                                        <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xxx-small">
+                                                            <lightning:inputField variant="label-stacked" aura:id="channelPartner" fieldName="Channel_Partner__c"  required='true'/>
+                                                        </div>
+                                                        <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xxx-small">
+                                                            <lightning:inputField variant="label-stacked" aura:id="sourcingMember" fieldName="Sourcing_Member__c"  required='true'/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </aura:if>
+                                            <aura:if isTrue="{!v.selectedSubSource == 'Employee Referral'}">
+                                                <div class="slds-scope">
+                                                    <div class="slds-grid slds-wrap slds-text-align_left">
+                                                        <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xxx-small">
+                                                            <lightning:inputField variant="label-stacked" fieldName="Company_Name__c" />
+                                                        </div>
+                                                        <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xxx-small">
+                                                            <lightning:inputField variant="label-stacked" fieldName="Designation__c" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </aura:if>
+                                            <aura:if isTrue="{!v.selectedSubSource == 'Customer Referral'}">
+                                                <div class="slds-scope">
+                                                    <div class="slds-grid slds-wrap slds-text-align_left">
+                                                        <div class="slds-size_1-of-3 slds-max-small-size_1-of-1 slds-p-around_xxx-small">
+                                                            <lightning:inputField variant="label-stacked" fieldName="Customer_Name__c" />
+                                                        </div>
+                                                        <div class="slds-size_1-of-3 slds-max-small-size_1-of-1 slds-p-around_xxx-small">
+                                                            <lightning:inputField variant="label-stacked" fieldName="Customer_Project_Name__c" />
+                                                        </div>
+                                                        
+                                                        <div class="slds-size_1-of-3 slds-max-small-size_1-of-1 slds-p-around_xxx-small">
+                                                            <lightning:inputField variant="label-stacked" fieldName="Customer_s_Unit_No__c" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </aura:if>
+                                            
+                                            <br/>
+                                            <div class="slds-scope">
+                                                <div class="slds-grid slds-wrap slds-text-align_left">
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xxx-small">
+                                                        <lightning:inputField variant="label-stacked" fieldName="Unit_Preference__c" />
+                                                    </div>
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xxx-small">
+                                                        <lightning:inputField variant="label-stacked" fieldName="Budget__c" />
+                                                    </div>
+                                                </div>
+                                            </div> 
+                                            <div class="slds-scope">
+                                                <div class="slds-grid slds-wrap slds-text-align_left">
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xxx-small">
+                                                        <lightning:inputField variant="label-stacked" fieldName="Age__c" />
+                                                    </div>
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xxx-small">
+                                                        <lightning:inputField variant="label-stacked" fieldName="GenderIdentity" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="slds-scope">
+                                                <div class="slds-grid slds-wrap slds-text-align_left">
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xxx-small">
+                                                        <lightning:inputField variant="label-stacked" fieldName="Locality_of_Customer__c" aura:id="localitofCustomer" required="true"/>
+                                                    </div>
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xxx-small">
+                                                        <lightning:inputField variant="label-stacked" fieldName="Company_Name_of_Customer__c" aura:id="companyNameOfCustomer" required="true"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="slds-scope">
+                                                <div class="slds-grid slds-wrap slds-text-align_left">
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xxx-small">
+                                                        <lightning:inputField variant="label-stacked" fieldName="Designation_of_Customer__c" />
+                                                    </div>
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xx-small">
+                                                        <lightning:textArea aura:id="field123" type="text" name="comments" 
+                                                                            label="Site Visit GRE Comments" value="{!v.siteVisitComments}"
+                                                                            required="true" />
+                                                    </div>
+                                                </div>
+                                            </div>
+               
+                                            <!--Site Visit -->
+                                            <!-- <div class="slds-scope">
+                                                <div class="slds-grid slds-wrap slds-text-align_left">
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xx-small">
+                                                        <lightning:textArea aura:id="field123" type="text" name="comments" 
+                                                                            label="Site Visit GRE Comments" value="{!v.siteVisitComments}"
+                                                                            required="true" />
+                                                    </div>
+                                                   <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xx-small">
+                                                        <lightning:select aura:id="field123" name="Site Visit Rating" 
+                                                                          label="Site Visit Rating" value="{!v.selectedRating}" 
+                                                                          required="true">
+                                                            
+                                                            <aura:iteration items="{!v.siteVisitRatings}" var="rating">
+                                                                <option value="{!rating}">{!rating}</option>
+                                                            </aura:iteration>
+                                                        </lightning:select>
+                                                    </div>
+                                                </div>
+                                            </div>-->
+                                            
+                                            
+                                        </div>
+                                    </p><br/>
+                                    <div style="display: flex; justify-content: center;">
+                                        <lightning:button onclick="{!c.cancel}" variant="destructive" label="Cancel" />
+                                        <lightning:button variant="brand" type="submit" label="Save Lead" disabled="{!v.isLoading}"/>
+                                    </div>
+                                </div>
+                            </lightning:recordEditForm> 
+                        </div>
+                        <aura:if isTrue="{!v.isLoading == true}">
+                            <lightning:spinner 
+                                               alternativeText="Loading..." 
+                                               size="medium" 
+                                               variant="brand" />
+                        </aura:if>
+                    </lightning:card>
+                </lightning:tab>
+            </aura:if>
+            
+        </lightning:tabset>
+    </div>
+</aura:component>

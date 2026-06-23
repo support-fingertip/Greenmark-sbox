@@ -1,0 +1,32 @@
+.booking-adj-body {
+    max-height: 65vh;
+    overflow-y: auto;
+}
+
+.changed-row {
+    background-color: #fff7e6;
+}
+
+.booking-adj-total-row {
+    background-color: #fafaf9;
+    font-weight: 600;
+}
+
+.diff-pos {
+    color: #2e844a;
+    font-weight: 600;
+}
+
+.diff-neg {
+    color: #ba0517;
+    font-weight: 600;
+}
+
+.plot-land-input {
+    width: 10rem;
+    display: inline-block;
+}
+
+.round-off-btn {
+    white-space: nowrap;
+}

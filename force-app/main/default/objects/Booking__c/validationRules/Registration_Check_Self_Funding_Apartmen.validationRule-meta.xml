@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Registration_Check_Self_Funding_Apartmen</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(
+    ISCHANGED(Stage__c),
+    ISPICKVAL(Stage__c, &apos;Registration&apos;),
+    ISPICKVAL(Funding_Type__c, &apos;Self&apos;),
+    Pending_Amount__c &gt; 1
+)</errorConditionFormula>
+    <errorMessage>Pending Amount is greater than Zero, Cannot move to registration</errorMessage>
+</ValidationRule>

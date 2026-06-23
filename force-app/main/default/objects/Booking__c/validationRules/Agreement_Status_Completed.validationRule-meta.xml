@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Agreement_Status_Completed</fullName>
+    <active>true</active>
+    <errorConditionFormula>(TEXT(Agreement_Status__c) = &apos;Executed&apos; || TEXT(Agreement_Status__c) = &apos;Executed &amp; Registered&apos;)
+&amp;&amp;  ISBLANK( Agreement_Executed_Date__c )</errorConditionFormula>
+    <errorDisplayField>Agreement_Executed_Date__c</errorDisplayField>
+    <errorMessage>Please enter the Agreement Executed Date when the Agreement Status is Executed</errorMessage>
+</ValidationRule>

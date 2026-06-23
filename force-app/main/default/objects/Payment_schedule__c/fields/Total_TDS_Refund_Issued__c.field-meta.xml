@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Total_TDS_Refund_Issued__c</fullName>
+    <externalId>false</externalId>
+    <label>TDS Refund Given To Customer</label>
+    <summarizedField>Refund__c.Refund_Amount__c</summarizedField>
+    <summaryForeignKey>Refund__c.Payment_Schedule__c</summaryForeignKey>
+    <summaryOperation>sum</summaryOperation>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

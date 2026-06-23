@@ -1,0 +1,41 @@
+<apex:page standardController="Booking__c" renderAs="pdf">
+    <div style="width:100%; height:60px; text-align:center;">
+        <div style="text-align: center;">
+            <img src="{!URLFOR($Resource.reciptlogo)}" width="160" height="80" alt="Company Logo"/>
+        </div>
+    </div>
+    <br/>
+    <div class="header">
+       
+        <p style="text-align:right;">Speed Post and RPAD</p>
+        <p style="text-align:right;">Date: <apex:outputText value="{0,date,MM/dd/yyyy}"><apex:param value="{!TODAY()}" /></apex:outputText></p>
+    </div>
+
+    <p>To,<br/>
+    Mr. Sandeep Kumar Chauhan,<br/>
+    H.No.A-2/175, Paschim Vihar,<br/>
+    New Delhi -110063.</p>
+      
+    <p><strong>Subject: Notice for Compulsory Registration of Sale Deed pertaining to Unit No.243 in Zuari Rain Forest- Goa.</strong></p>
+
+    <p>Ref: The Agreement for Construction and Sale dated 23rd June 2017.</p>
+
+    <p>Sir,</p>
+
+    <p style="text-align:justify;">With reference to the above subject, please note that in spite of our repeated requests to register the Sale Deed pertaining to sale of the unit 243 in Zuari Rain Forest – Goa, hereinafter referred to as “said Property”) under the Agreement for Construction and Sale  dated 23rd June 2017, hereinafter referred to as “ATS”), you have failed to comply with the mandatory registration of the said Property in your favour by appearing before the local Sub-Registrar Office under whose jurisdiction the said Property falls. On your insistence, we have also allowed you to take physical possession of the said Property on good faith trusting that you would be registering the said Property within the statutory time period mentioned under the Real Estate (Regulation and Development) Act, 2016. Non-registration of the said Property amounts to serious statutory violation of the aforesaid Act as well as serious breach of contract entered between you and the Company under the ATS.</p>
+
+    <p style="text-align:justify;">Failure to comply with this legal requirement may result in significant legal consequences, including but not limited to the invalidation of your title over the said Property and you shall be solely responsible and liable for any such consequences, even leading to termination of ATS so entered.</p>
+
+    <p style="text-align:justify;">Please note that under the provisions of the RERA Act, you have to complete the registration within 3 (three) months from the date of grant of Completion/Occupation Certificate. Similarly, as per the Registration Act and the Transfer of Property Act, the said Property is required to be compulsorily registered within a reasonable time period since the said Property was transferred under the ATS and the possession was handed over to you and the title of the property never passes in your name. Further be informed that non-registration of sale deed amounts to intentionally avoidance of payments of Government duty timely and may lead to imposition of penalty as well as legal action.</p>
+
+    <p style="text-align:justify;">Kindly note that we will charge a sum of Rs. 20 psft/month as holding charges after lapse of six months from the date of issuance of Occupancy Certificate till the date of execution of sale deed. Without clearing the said holding charges the unit will not be transferred by virtue of sale deed. To avoid holding charges, please plan and complete registration of your unit before 15.08.2024. In view of the above, we hereby advise you to clear all outstanding due along with Interest (if any) come forward and register the Sale Deed of your said Property allotted to you within 15 (fifteen) days from the date of this letter, failing which we shall proceed to take necessary legal actions against you as per law.</p>
+
+    <p style="text-align:justify;">We are endorsing a copy of the letter to the concerned sub-registrar office for their information and taking necessary action as per the law applicable.</p>
+
+    <p style="text-align:justify;">This is without prejudice to our any other steps/actions rights and claims including termination of the ATS followed by filing of appropriate legal suit, as advised to us.</p>
+
+    <div class="footer">
+        <p>For and on behalf of<br/>Zuari Industries Limited,</p>
+        <p>___________<br/>Authorised Signatory</p>
+    </div>
+</apex:page>

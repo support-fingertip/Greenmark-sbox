@@ -1,0 +1,19 @@
+.ps-row-disabled {
+    background-color: #f9f9f9;
+}
+
+.ps-total-row {
+    background-color: #fafaf9;
+    font-weight: 600;
+}
+
+.ps-pct-input {
+    width: 100%;
+    max-width: 8rem;
+    display: inline-block;
+}
+
+.ps-modal-body {
+    max-height: 65vh;
+    overflow-y: auto;
+}

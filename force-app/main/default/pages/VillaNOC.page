@@ -1,0 +1,219 @@
+<apex:page standardController="Booking__c" extensions="NOCController"
+           renderAs="pdf"
+           applyHtmlTag="false"
+           showHeader="false"
+           cache="true"
+           readOnly="true">
+    <html lang="en">
+        <head>
+            <meta charset="UTF-8"/>
+            <title>No Objection Certificate - Trifecta Projects</title>
+            <style>
+                /* Flying Saucer / iText PDF safe CSS - NO flexbox, NO grid, NO Google Fonts */
+                
+                @page {
+                size: A4;
+                margin: 12mm;
+                border: 0.5px solid #000;
+                }
+                
+                body {
+                font-family: 'Times New Roman', Times, serif;
+                font-size: 13px;
+                color: #000000;
+                }
+                
+                /* ── Page wrapper ── */
+                .page-wrapper {
+                padding: 20px;
+                }
+                
+                /* ── Header: logo floated right ── */
+                .header-block {
+                margin-bottom: 6px;
+                }
+                
+                .logo-right {
+                float: right;
+                }
+                
+                .logo-right img {
+                width: 60px;
+                height: 60px;
+                }
+                
+                /* ── Divider ── */
+                .divider {
+                border: none;
+                border-top: 1px solid #555555;
+                margin-bottom: 10px;
+                clear: both;
+                }
+                
+                /* ── Company name ── */
+                .company-name {
+                text-align: center;
+                font-size: 15px;
+                font-weight: bold;
+                text-decoration: underline;
+                letter-spacing: 1px;
+                margin-bottom: 8px;
+                }
+                
+                /* ── Address ── */
+                .address {
+                text-align: center;
+                font-size: 12.5px;
+                font-weight: bold;
+                line-height: 1.7;
+                margin-bottom: 4px;
+                }
+                
+                .ul {
+                text-decoration: underline;
+                }
+                
+                /* ── Date / Place ── */
+                .date-place {
+                text-align: right;
+                margin-top: 22px;
+                font-size: 13px;
+                line-height: 1.9;
+                }
+                
+                /* ── Certificate title ── */
+                .cert-title {
+                font-size: 13.5px;
+                font-weight: bold;
+                text-decoration: underline;
+                text-align: center;
+                margin-top: 20px;
+                margin-bottom: 16px;
+                letter-spacing: 0.4px;
+                }
+                
+                /* ── Body paragraph ── */
+                .body-text {
+                font-size: 13px;
+                line-height: 1.9;
+                text-align: justify;
+                margin-bottom: 24px;
+                }
+                
+                /* Underline blank fields */
+                .field-blank {
+                border-bottom: 1px solid #000000;
+                display: inline;
+                padding-bottom: 1px;
+                }
+                
+                /* ── Signature table ── */
+                .sig-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 8px;
+                margin-bottom: 36px;
+                }
+                
+                .sig-table th {
+                border: 1px solid #000000;
+                padding: 7px 10px;
+                font-size: 12.5px;
+                font-weight: bold;
+                text-align: left;
+                background-color: #ffffff;
+                }
+                
+                .sig-table td {
+                border: 1px solid #000000;
+                height: 100px;
+                vertical-align: top;
+                padding: 6px;
+                }
+                
+                /* ── Footer ── */
+                .footer {
+                font-size: 13px;
+                line-height: 2;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="page-wrapper">
+                
+                <!-- HEADER: logo floats right -->
+                <div class="header-block">
+                    <div class="logo-right">
+                        <apex:image url="{!URLFOR($Resource.TrifectaLogo)}"
+                                    styleClass="logo-img"
+                                    style="width:60px; height:60px;"/>
+                    </div>
+                </div>
+                
+
+                
+                <!-- COMPANY NAME -->
+                <div class="company-name">TRIFECTA PROJECTS PVT LTD</div>
+                
+                <!-- ADDRESS -->
+                <div class="address">
+                    Trifecta <span class="ul">Adatto</span>, 11th Floor, Survey No. 66/2, 67/1, Whitefield Main Road,<br/>
+                    <span class="ul">Garudacharpalya</span>, <span class="ul">Mahadevapura</span> Post, Bangalore &#8211; 560048, Karnataka.<br/>
+                    Web: www.trifectaprojects.com
+                </div>
+                <!-- DIVIDER -->
+                <hr class="divider"/>
+                
+                <!-- DATE AND PLACE -->
+                <div class="date-place">
+                    <div>Date: --/--/{!bookingInfo.currentYear},</div>
+                    <div>Place: Bengaluru.</div>
+                </div>
+                
+                <!-- CERTIFICATE TITLE -->
+                <div class="cert-title">NO OBJECTION CERTIFICATE</div>
+                
+                <!-- BODY TEXT -->
+                <div class="body-text">
+                    We, <strong>M/s. TRIFECTA PROJECTS PRIVATE LIMITED,</strong> would like to confirm that
+                    <strong> Villa : {!bookingInfo.unitNo}</strong>
+                    belongs to
+                    <strong>  
+                       Mr./Ms. {!bookingInfo.customerName}        
+                        <apex:outputPanel rendered="{!NOT(ISNULL(firstCoApplicant))}">
+                          Mr./Ms.  &amp; {!firstCoApplicant.Name}
+                        </apex:outputPanel>
+                    </strong>
+                    has cleared the payments and the customer been permitted to start interiors in
+                    <strong>{!bookingInfo.project} {!bookingInfo.block}</strong> situated at
+                    {!bookingInfo.projectAddress}
+                </div>
+                
+                <!-- SIGNATURE TABLE -->
+                <table class="sig-table">
+                    <thead>
+                        <tr>
+                            <th>CRM Department</th>
+                            <th>Modification Department</th>
+                            <th>Account&#39;s Department</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <!-- FOOTER -->
+                <div class="footer">
+                    <div>Thanking You,</div>
+                    <div>Yours Faithfully</div>
+                </div>
+                
+            </div>
+        </body>
+    </html>
+</apex:page>

@@ -1,0 +1,278 @@
+.THIS .avaliable{
+    background: #28a745;
+}
+.THIS .booked{
+    background: #ffc107;
+}
+.THIS .notreleased{
+    background: #f6b84c;
+}
+.THIS .blocked{
+    background: #dc3545;
+}
+.THIS .sold{
+    background: #ffc107;
+}
+
+.THIS .app-container {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    background-color: #f4f6f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    height: 100vh; /* Full height */
+}
+
+.THIS .projects-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 20px;
+    flex-wrap: wrap; /* Allow wrapping for smaller screens */
+    position: sticky; /* Keep the header at the top */
+    top: 0;
+    background-color: #ffffff; /* White background */
+    z-index: 10; /* Ensure it's above content */
+    width: 100%;
+}
+
+.THIS .projects-section-header p {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+}
+.THIS .filter-section {
+    display: flex;
+    justify-content: flex-start;
+    gap: 20px;
+    margin-top: 20px;
+    flex-wrap: wrap; /* Allow wrapping for smaller screens */
+    width: 100%;
+    padding-left: 20px; /* Add padding to the left side */
+}
+
+.THIS .slds-col {
+    flex: 1;
+    min-width: 200px; /* Ensure a minimum width */
+    max-width: 300px; /* Prevent it from being too large */
+    word-wrap: break-word; /* Break words to prevent overflow */
+}
+
+/* Status dropdown section */
+.THIS .slds-col.slds-size_1-of-1 {
+    max-width: 250px; /* Limit the width of the status filter */
+    padding: 0;
+    margin-right: 20px; /* Add space between filter and other content */
+}
+
+.THIS .rwp-chart-legend {
+  font-family: Roboto;
+  color: #444;
+  position: relative;
+  font-size: 1rem;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding: 0px;
+  width: 50%;
+}
+.THIS .rwp-chart-legend-Center {
+  margin: 12px auto 12px auto;
+}
+.THIS .rwp-chart-legend-Left,
+.THIS .rwp-chart-legend-Right {
+  width: 100%;
+}
+.THIS .rwp-chart-legend__card-Center {
+  list-style: none;
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  margin: 10px;
+ font-size: 12px;
+}
+.THIS .rwp-chart-legend__card-Left,
+.THIS .rwp-chart-legend__card-Right {
+  list-style: none;
+  flex: 1;
+  flex-basis: 40%;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  margin: 10px 10px 10px 0px;
+}
+.THIS .rwp-chart__icon {
+     width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    margin-right: 8px;
+}
+
+.THIS .project-boxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 10px;
+    margin-top: 5px;
+    max-height: calc(100vh - 250px); /* Make content scrollable */
+    overflow-y: auto; /* Enable scrolling */
+    padding-bottom: 20px;
+}
+
+.THIS .project-box-wrapper {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    transition: all 0.3s ease;
+}
+
+.THIS .project-box-wrapper:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.THIS .project-box-header {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #096c86;
+    margin-bottom: 15px;
+}
+
+.THIS .box-content-subheader {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+.THIS .box-progress-wrapper {
+    margin-top: 20px;
+}
+
+.THIS .box-progress-header {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #096c86;
+}
+
+.THIS .box-progress-bar {
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    height: 10px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.THIS .box-progress {
+    height: 100%;
+    border-radius: 10px;
+}
+
+.THIS .box-progress-percentage {
+    text-align: center;
+    margin-top: 5px;
+    font-size: 0.8rem;
+    color: #096c86;
+}
+
+.THIS .project-box-footer {
+    margin-top: 15px;
+}
+
+.THIS .days-left {
+    font-size: 1rem;
+    color: #096c86;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.THIS .days-left:hover {
+    color: #005c5e;
+}
+
+/* Breadcrumbs */
+.THIS .slds-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap; /* Make sure breadcrumb doesn't overflow */
+}
+
+.THIS .slds-breadcrumb__item {
+    margin-right: 10px;
+    font-size: 1rem;
+    color: #096c86;
+     padding-left: 20px;
+     padding-top: 10px;
+}
+
+.THIS .project-box-wrapper-plot {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 10px; /* Reduce padding to make the box smaller */
+    width: 250px; /* Set a specific width to make the box smaller */
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.THIS .project-box-wrapper-plot:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.THIS .project-box-header-plot {
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.THIS .project-box-footer-plot {
+    text-align: center;
+}
+
+.THIS .project-box-plot {
+    padding: 15px;
+    text-align: center;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+/* Status color coding */
+.THIS .project-box-plot.avaliable {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.THIS .project-box-plot.booked {
+    background-color: #ffc107;
+    color: #fff;
+}
+
+.THIS .project-box-plot.blocked {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+/* For mobile form factor */
+@media (max-width: 768px) {
+    .THIS .projects-section-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .THIS .project-boxes {
+        grid-template-columns: 1fr;
+    }
+
+    .THIS .filter-section {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .THIS .slds-col {
+        width: 100%;
+    }
+}

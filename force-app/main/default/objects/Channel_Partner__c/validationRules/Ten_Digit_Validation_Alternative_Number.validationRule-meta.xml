@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Ten_Digit_Validation_Alternative_Number</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(
+NOT(ISBLANK(Alternate_number__c)),
+OR(
+LEN(Alternate_number__c) &lt;&gt; 10,
+NOT(REGEX(Alternate_number__c, &quot;^[0-9]+$&quot;))
+)
+)</errorConditionFormula>
+    <errorDisplayField>Alternate_number__c</errorDisplayField>
+    <errorMessage>Alternate number must be 10 digits</errorMessage>
+</ValidationRule>

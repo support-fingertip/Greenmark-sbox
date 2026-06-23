@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Default_Interest_Percentage__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(
+TEXT(Project_Type__c) = &quot;Apartments&quot;, &apos;12&apos;,
+IF(
+TEXT(Project_Type__c) = &quot;Villas&quot;, &apos;18&apos;,
+IF(
+TEXT(Project_Type__c) = &quot;Row House&quot;, &apos;12&apos;,
+NULL
+)
+)
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Default Interest Percentage</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

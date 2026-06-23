@@ -1,0 +1,109 @@
+<aura:component controller="RefundController" implements="force:lightningQuickAction,force:hasRecordId,flexipage:availableForRecordHome,flexipage:availableForAllPageTypes" access="global">
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="refundTypes" type="List" default="[]" />
+    <aura:attribute name="paymentModes" type="List" default="[]" />
+    <aura:attribute name="bankNames" type="List" default="[]" />
+    <aura:attribute name="refundType" type="String" />
+    <aura:attribute name="amount" type="Decimal" />
+    <aura:attribute name="refundDate" type="String" />
+    <aura:attribute name="bankName" type="String" />
+    <aura:attribute name="branchName" type="String" />
+    <aura:attribute name="chequeDate" type="String" />
+    <aura:attribute name="transactionChequeNo" type="String" />
+    <aura:attribute name="drawnOn" type="String" />
+    <aura:attribute name="paymentMode" type="String" />
+    <aura:attribute name="reason" type="String" />
+    <aura:attribute name="isSaving" type="Boolean" default="false" />
+    <aura:attribute name="visible" type="boolean" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+        <div class="slds-modal__container">
+            <header class="slds-modal__header">
+                <h2 class="slds-text-heading_medium slds-hyphenate">Create Refund</h2>
+                <lightning:messages />
+            </header>
+            
+            <div class="slds-modal__content slds-p-around_medium">
+                <aura:if isTrue="{!v.isSaving}">
+                    <lightning:spinner alternativeText="Saving" size="medium" />
+                </aura:if>
+                
+                <lightning:layout multipleRows="true">
+                    <lightning:layoutItem size="12" mediumDeviceSize="6" padding="around-small">
+                        <lightning:select aura:id="refundTypeFld" name="refundType" label="Refund Type"
+                                          value="{!v.refundType}" required="true">
+                            <option value="">--None--</option>
+                            <aura:iteration items="{!v.refundTypes}" var="rt">
+                                <option value="{!rt}" text="{!rt}" />
+                            </aura:iteration>
+                        </lightning:select>
+                    </lightning:layoutItem>
+
+                    <lightning:layoutItem size="12" mediumDeviceSize="6" padding="around-small">
+                        <lightning:input type="number" name="amount" label="Refund Amount"
+                                         value="{!v.amount}" required="true" min="0.01" step="0.01"
+                                         formatter="currency" />
+                    </lightning:layoutItem>
+
+                    <lightning:layoutItem size="12" mediumDeviceSize="6" padding="around-small">
+                        <lightning:input type="date" name="refundDate" label="Refund Date"
+                                         value="{!v.refundDate}" />
+                    </lightning:layoutItem>
+
+                    <lightning:layoutItem size="12" mediumDeviceSize="6" padding="around-small">
+                        <lightning:select name="bankName" label="Bank Name" value="{!v.bankName}" required="true">
+                            <option value="">--None--</option>
+                            <aura:iteration items="{!v.bankNames}" var="bn">
+                                <option value="{!bn}" text="{!bn}" />
+                            </aura:iteration>
+                        </lightning:select>
+                    </lightning:layoutItem>
+
+                    <lightning:layoutItem size="12" mediumDeviceSize="6" padding="around-small">
+                        <lightning:input type="text" name="branchName" label="Branch Name"
+                                         value="{!v.branchName}" required="true" />
+                    </lightning:layoutItem>
+
+                    <lightning:layoutItem size="12" mediumDeviceSize="6" padding="around-small">
+                        <lightning:select name="paymentMode" label="Payment Mode" value="{!v.paymentMode}" required="true">
+                            <option value="">--None--</option>
+                            <aura:iteration items="{!v.paymentModes}" var="pm">
+                                <option value="{!pm}" text="{!pm}" />
+                            </aura:iteration>
+                        </lightning:select>
+                    </lightning:layoutItem>
+
+                    <lightning:layoutItem size="12" mediumDeviceSize="6" padding="around-small">
+                        <lightning:input type="text" name="transactionChequeNo" label="Transaction / Cheque No"
+                                         value="{!v.transactionChequeNo}" required="true" />
+                    </lightning:layoutItem>
+
+                    <aura:if isTrue="{!v.paymentMode == 'Cheque'}">
+                        <lightning:layoutItem size="12" mediumDeviceSize="6" padding="around-small">
+                            <lightning:input type="date" name="chequeDate" label="Cheque Date"
+                                             value="{!v.chequeDate}" required="true" />
+                        </lightning:layoutItem>
+                    </aura:if>
+
+                    <lightning:layoutItem size="12" mediumDeviceSize="6" padding="around-small">
+                        <lightning:input type="date" name="drawnOn" label="Drawn On"
+                                         value="{!v.drawnOn}" required="true" />
+                    </lightning:layoutItem>
+
+                    <lightning:layoutItem size="12" mediumDeviceSize="6" padding="around-small">
+                        <lightning:input type="text" name="reason" label="Reason" value="{!v.reason}" required="true" />
+                    </lightning:layoutItem>
+                </lightning:layout>
+            </div>
+            
+            <footer class="slds-modal__footer">
+                <lightning:button variant="neutral" label="Cancel" onclick="{!c.close}"
+                                  disabled="{!v.isSaving}" />
+                <lightning:button variant="brand" label="Create Refund" onclick="{!c.save}"
+                                  disabled="{!v.isSaving}" />
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+</aura:component>

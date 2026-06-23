@@ -1,0 +1,108 @@
+<aura:component controller="UserController" 
+                implements="force:appHostable,flexipage:availableForAllPageTypes,force:hasRecordId,force:lightningQuickAction"
+                access="global">
+    <aura:attribute name="users" type="List[]" />
+    <aura:attribute name="usersListShow" type="List[]" />
+    <aura:attribute name="selectedProfile" type="String" />
+    <aura:attribute name="selectedUserId" type="String" />
+    <aura:attribute name="myBool" type="Boolean" default="true"/>
+    <aura:attribute name="check" type="boolean" default="false"/>
+    
+    <aura:html tag="style">
+        .slds-card {
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+        }
+        .form-container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .form-section {
+            margin-bottom: 1.5rem;
+        }
+        .form-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #032d60;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #dddbda;
+            padding-bottom: 0.5rem;
+        }
+        .slds-select, .slds-input {
+            min-height: 2.5rem;
+        }
+        .action-button {
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+        .checkbox-container {
+            margin: 1rem 0;
+            padding: 0.75rem;
+            background-color: #f3f3f3;
+            border-radius: 0.25rem;
+        }
+    </aura:html>
+
+    <aura:handler name="init" value="{!this}" action="{!c.doinit}" />
+    
+    <div class="slds-card form-container">
+        <div class="form-title">User Assignment</div>
+        
+        <!-- Step 1: Select Profile -->
+        <div class="form-section">
+            <lightning:select 
+                value="{!v.selectedProfile}" 
+                label="Select Profile" 
+                onchange="{!c.getUsersByProfile}"
+                
+                variant="label-hidden">
+                <option value="">Select a profile...</option>
+                <option value="Presales">Pre sales</option>
+                <option value="Sales">Sales</option>
+                <option value="Assistant Pre Sales Manager">Assistant Pre Sales Manager</option>
+            </lightning:select>
+        </div>
+
+        <!-- Step 2: Select Executive -->
+        <aura:if isTrue="{!v.selectedProfile != ''}">
+            <div class="form-section">
+                <lightning:select 
+                    value="{!v.selectedUserId}" 
+                    label="Select Executive" 
+                    
+                    variant="label-hidden">
+                    <option value="">-- Select an executive --</option>
+                    <aura:iteration items="{!v.usersListShow}" var="user">
+                        <option value="{!user.Id}">{!user.Name}</option>
+                    </aura:iteration>
+                </lightning:select>
+            </div>
+        </aura:if>
+        
+        <!-- Additional Options for Sales -->
+        <aura:if isTrue="{!v.selectedProfile == 'Sales'}">
+            <div class="checkbox-container slds-p-around_small">
+                <lightning:input 
+                    type="toggle" 
+                    label="Push To sales and Update Owner" 
+                    name="input1" 
+                    checked="{!v.check}"
+                    messageToggleActive="Yes"
+                    messageToggleInactive="No"
+                    variant="label-hidden"/>
+            </div>
+        </aura:if> 
+        
+        <!-- Submit Button -->
+        <aura:if isTrue="{!and(v.selectedUserId != '',v.selectedProfile != '')}">
+            <div class="action-button">
+                <lightning:button 
+                    variant="brand" 
+                    label="Save Assignment"
+                    title="Save Assignment"
+                    onclick="{!c.saveIt}"
+                    class="slds-button_brand"/>
+            </div>
+        </aura:if>
+    </div>
+</aura:component>

@@ -1,0 +1,169 @@
+<aura:component controller="UnitPriceChangeController"
+                implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction,lightning:actionOverride" access="global" >
+    
+    <aura:attribute name="users" type="object[]" />
+    <aura:attribute name="userId" type="String" />
+    <aura:attribute name="NextUserId" type="String" />
+    <aura:attribute name="SEId" type="String" />
+    <aura:attribute name="showUsers" type="boolean" default="false"/>
+    <aura:attribute name="showFilter" type="boolean" default="false"/>
+    <aura:attribute name="showFilterDate" type="boolean" default="false"/>
+    <aura:attribute name="showupcoming" type="boolean" default="false"/>
+    
+    <aura:attribute name="spinner" type="boolean" default="false"/>
+    <!-- lookup attributes -->
+    <aura:attribute name="allroutes" type="object[]" default="[]"/>
+    <aura:attribute name="searchText" type="string" default=""/>
+    <aura:attribute name="matchUsers" type="object[]" default="[]"/>
+    <aura:handler name="change" value="{!v.searchText}" action="{!c.searchText}"></aura:handler> 
+    
+    <!-- lookup attributes -->
+    
+    <aura:attribute name="searchText2" type="string" default=""/>
+    <aura:attribute name="matchUsers2" type="object[]" default="[]"/>
+    <aura:handler name="change" value="{!v.searchText2}" action="{!c.searchText2}"></aura:handler> 
+    
+    <!-- data tabel attributes -->
+    
+    <aura:attribute name="mydata3" type="Object"/>
+    <aura:attribute name="mycolumns3" type="List"/>
+    
+    <aura:attribute name="mydata4" type="Object"/>
+    <aura:attribute name="mycolumns4" type="List"/>
+    <aura:attribute name="selectedRowsCount4" type="Integer" default="0"/>
+    <aura:attribute name="selectedUsers" type="List" default="[]"/>
+    <aura:attribute name="selectedRows" type="List" default="[]"/>
+    
+    <aura:attribute name="project" type="List" default="[]"/>
+    <aura:attribute name="fieldMap" type="Map"/>
+     <aura:attribute name="fieldMap5" type="Map"/>
+    <aura:attribute name="towerNameText" type="string"/>
+    
+    
+    <aura:attribute name="lead" type="Plot__c" default="{'sobjectType':'Plot__c', 
+                                                     
+                                                     'BHK_Type__c': '','Project__c': '','Property_Type__c': '','Block__c': ''}"/>
+    <aura:attribute name="CreatedDate" type="string" default=""/>
+    <aura:attribute name="FilterCreatedDate" type="string" default=""/> 
+    <aura:attribute name="statusFilter" type="string" default=""/>
+    <aura:attribute name="projectName" type="string" default=""/>
+    <aura:attribute name="bhkType" type="string" default=""/>
+    <aura:attribute name="leadSource" type="string" default=""/>
+    <aura:attribute name="unitStatus" type="string" default=""/>
+    <aura:attribute name="wingValue" type="string" default=""/>
+    <aura:attribute name="towervalue" type="string" default=""/>
+    <aura:attribute name="FromCreatedDateFilter" type="date" default=""/>
+    <aura:attribute name="ToCreatedDateFilter" type="date" default=""/>
+    <aura:attribute name="fieldMap1" type="Map"/>
+    <aura:attribute name="fieldMap2" type="Map"/>
+    <aura:attribute name="fieldMap3" type="Map"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"></aura:handler>
+    
+    <div >
+        <div class="slds-page-header">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title slds-align-middle">
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                            <lightning:icon size="large" iconName="standard:record_update"/>
+                        </div>
+                        <div class="slds-media__body slds-align-middle"><span style="font-size:18px;font-weight: bold;">Unit Price Change</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <lightning:tabset variant="scoped">
+            
+            <lightning:tab label="Change Unit Price" >
+                <div class="slds-page-body">
+                    
+                    <div class="slds-has-flexi-truncate">
+                        <div class="slds-grid  slds-wrap slds-grid_pull-padded-xx-small slds-m-bottom--medium">
+                            
+                            <div class="slds-size_1-of-1 slds-p-horizontal_x-small"> 
+                                <ul class="slds-lookup__list" role="listbox"> 
+                                    <lightning:input value="{!v.searchText2}" aura:id="enter-search" name="enter-search" label="Enter Base Price" type="Double"  messageWhenValueMissing="Enter Unit Price" required="true" /><br/>                                      
+                                    
+                                </ul>
+                            </div>
+                           
+                           
+                      
+                            <div class="slds-size_1-of-3 slds-p-horizontal_x-small">
+                                <lightning:select aura:id="bhkPicklist" value="{!v.lead.BHK_Type__c}" onchange="{!c.handleOnChange}" name="bhkPicklist" label="BHK Type" >
+                                    <option value="">--None--</option>
+                                    <aura:iteration items="{!v.fieldMap}" var="i" indexVar="key">
+                                        <option text="{!i.value}" value="{!i.key}" selected="{!i.key==v.lead.BHK_Type__c}" />
+                                    </aura:iteration>
+                                </lightning:select>
+                                
+                            </div>
+                            <div class="slds-size_1-of-3 slds-p-horizontal_x-small">
+                                <lightning:select aura:id="wingPicklist" value="{!v.lead.Wing__c}" onchange="{!c.handleOnChange}" name="blockPicklist" label="Wing" >
+                                    <option value="">--None--</option>
+                                    <aura:iteration items="{!v.fieldMap3}" var="i" indexVar="key">
+                                        <option text="{!i.value}" value="{!i.key}" selected="{!i.key==v.lead.Wing__c}" />
+                                    </aura:iteration>
+                                </lightning:select>
+                                
+                            </div>
+                             <div class="slds-size_1-of-3 slds-p-horizontal_x-small">
+                                <lightning:select aura:id="unitStatusPicklist" value="{!v.lead.Status__c}" onchange="{!c.handleOnChange}" name="leadSourcePicklist" label="Unit Status" >
+                                    <option value="">--None--</option>
+                                    <aura:iteration items="{!v.fieldMap2}" var="i" indexVar="key">
+                                        <option text="{!i.value}" value="{!i.key}" selected="{!i.key==v.lead.Status__c}" />
+                                    </aura:iteration>
+                                </lightning:select>
+                                
+                            </div>
+                           
+                          
+                        </div>
+                    </div>
+                </div>
+                
+                
+                <aura:if isTrue="{!v.showUsers}">
+                    <aura:if isTrue="{!and(v.mydata3 != '',v.mydata3 != null)}">
+                        <div style="background-color:white;">
+                            <center><h1 class="slds-text-align_center slds-text-heading_medium"><span style="color:maroon;"><b>Plots</b></span></h1></center>
+                            
+                        </div>
+                        
+                        <div style="height: 200px"> 
+                            <h1>Selected Plots: {! v.selectedRowsCount4 }</h1>
+                            <lightning:datatable aura:id="lgtngCmp"
+                                                 keyField="id"
+                                                 data="{!v.mydata3 }"
+                                                 columns="{! v.mycolumns3 }"
+                                                 onrowaction="{!c.handleRowAction3 }"
+                                                 onrowselection="{! c.updateSelectedText4 }"
+                                                 selectedRows="{!v.selectedRows}"/>
+                            
+                        </div>
+                        
+                    </aura:if>
+                    <br/>
+                    
+                    <div class="slds-text-align_center">
+                        <!--<button class="slds-button slds-button-brand" onclick="{!c.docancel2}" >cancel</button>-->
+                        <aura:if isTrue="{!(v.selectedRowsCount4 != 0)}">
+                            <button class="slds-button slds-button--brand" onclick="{!c.changeBeatOwner}" >Change Unit Price</button>
+                        </aura:if>
+                    </div>
+                </aura:if>
+                
+                <aura:if isTrue="{!v.spinner}">
+                    <lightning:spinner class="spins" size="medium" variant="brand"  alternativeText="Loading" />
+                    
+                </aura:if>
+ 
+            </lightning:tab>
+            
+        </lightning:tabset>
+
+    </div>
+    
+    
+    
+</aura:component>

@@ -1,0 +1,36 @@
+<apex:page standardController="Booking__c">
+    <body>
+        <div>
+            
+        </div>
+    </body>
+    <apex:includeLightning />
+    
+    <div id="lightningvf" style="width:100%; height:100%"/>
+    
+        
+    <script>
+    
+    function getParameterByName(name) {
+        var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+        return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+    }
+
+    var bookingId = getParameterByName('id');
+    const projectType = getParameterByName('type');
+
+    $Lightning.use("c:BookingFormApp", function() {
+        $Lightning.createComponent("c:TrifectaCustomerBookingForm",
+            {
+                recordId: bookingId,
+                projectType: projectType // Pass projectType to component
+            },
+            "lightningvf",
+            function(cmp) {
+                  console.log("bookingId"+bookingId);
+                console.log("CSAT Form component loaded with Lead Id and Obj Id");
+            }
+        );
+    });
+    </script>
+</apex:page>

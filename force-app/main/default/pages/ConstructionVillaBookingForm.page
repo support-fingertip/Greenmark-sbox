@@ -1,0 +1,537 @@
+<apex:page standardController="Booking__c" renderAs="pdf" showHeader="false" sidebar="false"
+           applyHtmlTag="false" applyBodyTag="false" standardStylesheets="false" extensions="BookingPDFController">
+    
+    <html>
+        <head>
+            <style>
+                @page {
+                margin-top: 140px; /* Increased to accommodate header height */
+                margin-bottom: 135px;
+                @top-center {
+                content: element(header);
+                }
+                }
+                
+                /* First Page (named page) */
+                @page firstPage {
+                @bottom-center {
+                content: element(footer1);
+                }
+                }
+                
+                /* Second Page */
+                @page secondPage {
+                @bottom-center {
+                content: element(footer2);
+                }
+                }
+                
+                /* Third Page */
+                @page thirdPage {
+                @bottom-center {
+                content: element(footer3);
+                }
+                }
+                
+                /* 4th Page */
+                @page forthPage {
+                @bottom-center {
+                content: element(footer4);
+                }
+                }
+                
+                /* MAKE firstPage THE DEFAULT so no blank unnamed page appears before it */
+                body {
+                page: firstPage;
+                font-family: Arial, sans-serif;
+                font-size:12pt;
+                margin: 0;
+                padding: 10px;
+                }
+                
+                /* page classes for subsequent pages */
+                .page1 {
+                /* do NOT set page: firstPage here — body is already default */
+                }
+                
+                .page2 {
+                page: secondPage;
+                page-break-before: always;
+                }
+                
+                .page3 {
+                page: thirdPage;
+                page-break-before: always;
+                }
+                .page4 {
+                page: forthPage;
+                page-break-before: always;
+                }
+                
+                .header {
+                position: running(header);
+                width: 650px;
+                text-align: center;
+                }
+                
+                table {
+                width: 100%;
+                border-collapse: collapse;
+                }
+                
+                .section-title {
+                font-size: 12pt;
+                font-weight: bold;
+                text-transform: uppercase;
+                padding: 8px 0;
+                }
+                .field-label {
+                font-size: 11pt;
+                padding: 6px 0;
+                }
+                
+                .field-label span {
+                color: #555;
+                margin-left: 3px;
+                }
+                
+                .doc-list {
+                margin-left: 20px;
+                list-style: decimal;
+                margin-top: 5px;
+                margin-bottom: 5px;
+                }
+                
+                .doc-list li {
+                margin-bottom: 3px;
+                font-size: 12pt;
+                }
+                
+                .cost-table td,
+                .payment-table td,
+                .payment-cheque-table td {
+                padding: 5px;
+                border-bottom: 1px dashed #ccc;
+                font-size: 12pt;
+                }
+                
+                .cost-table th,
+                .payment-table th,
+                .payment-cheque-table th {
+                text-align: left;
+                font-weight: bold;
+                padding: 5px;
+                background-color: #f5f5f5;
+                font-size: 12pt;
+                }
+                
+                .total-row {
+                font-weight: bold;
+                font-size: 12pt;
+                padding: 10px 0;
+                }
+                
+                .terms-section ol {
+                padding-left: 20px;
+                margin: 10px 0;
+                }
+                
+                .terms-section li {
+                margin-bottom: 6px;
+                font-size: 10pt;
+                }
+                
+                .declaration {
+                margin: 15px 0;
+                font-size: 12pt;
+                }
+                
+                .signature-cell {
+                text-align: center;
+                padding-top: 30px;
+                font-size: 10pt;
+                vertical-align: bottom;
+                }
+                
+                .signature-line {
+                border-top: 1px dashed #000;
+                width: 75%;
+                margin: 0 auto 5px auto;
+                }
+                
+            </style>
+        </head>
+        
+        <body>
+            
+            <!-- HEADER -->
+            <div class="header">
+                <table style="width:100%; margin-top:5px;">
+                    <tr>
+                        <td style="text-align:left; vertical-align:middle;">
+                            <span style="font-size:16px; font-weight:600;">BOOKING FORM</span>
+                            <div style="margin-top:8px;">
+                                <apex:image url="{!$Resource.VerdeenResplandor}" style="height:64px; vertical-align:middle; margin-right:6px;"/>
+                                <span style="font-size:16px; vertical-align:middle;">/ TRIFECTA INFRA PRIVATE LIMITED</span>
+                            </div>
+                        </td>
+                        
+                        <td style="text-align:right; vertical-align:middle;">
+                            <apex:image url="{!$Resource.TrifectaLogo}" style="height:75px;"/>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            <!-- FOOTER 1 -->
+            <div id="footer1" style="position:running(footer1); text-align:center; font-size:10px;">
+                <div style="text-align:right; padding-right:40px; margin-bottom:6px; font-size:14px;">
+                    Signature Of Customer: <span class="signature-line"></span>
+                </div>
+                <div style="border-top:1px solid #000; padding-top:6px;">
+                    Trifecta Infra Pvt. Ltd, Trifecta Adatto,<br/>
+                    11th Floor, 66/2, 67/1, Whitefield Main Road, Mahadevapura, Bangalore 560048<br/>
+                    Contact: 8088008877 | www.trifectaprojects.com | info@trifectaprojects.com
+                </div>
+            </div>
+            
+            <!-- FOOTER 2 — with SOURCE + SIGNATURE always locked above -->
+            <div id="footer2" style="position:running(footer2); text-align:center; font-size:10px;">
+                <table style="width:100%; margin-bottom:4px;">
+                    <tr>
+                        <td style="text-align:left; font-size:14px;">
+                            Source: <span class="signature-line" style="width:150px;"></span>
+                        </td>
+                        <td style="text-align:right; font-size:14px;">
+                            Signature Of Customer: <span class="signature-line" style="width:150px;"></span>
+                        </td>
+                    </tr>
+                </table>
+                
+                <div style="border-top:1px solid #000; padding-top:6px;">
+                    Trifecta Infra Pvt. Ltd, Trifecta Adatto,<br/>
+                    11th Floor, 66/2, 67/1, Whitefield Main Road, Mahadevapura, Bangalore 560048<br/>
+                    Contact: 8088008877 | www.trifectaprojects.com | info@trifectaprojects.com
+                </div>
+            </div>
+            
+            <!-- FOOTER 3 -->
+            <div id="footer3" style="position:running(footer3); text-align:center; font-size:10px;">
+                
+                <!--  Signature section locked above footer line -->
+                <table style="width:100%; margin-bottom:6px; font-size:14px;">
+                    <tr>
+                        <td style="text-align:center;">
+                            <span class="signature-line" style="width:200px;"></span><br/>
+                            Signature of Customer
+                        </td>
+                        <td style="text-align:center;">
+                            <span class="signature-line" style="width:200px;"></span><br/>
+                            Marketing Representative
+                        </td>
+                    </tr>
+                </table>
+                
+                <div style="border-top:1px solid #000; padding-top:6px;">
+                    Trifecta Infra Pvt. Ltd, Trifecta Adatto,<br/>
+                    11th Floor, 66/2, 67/1, Whitefield Main Road, Mahadevapura, Bangalore 560048<br/>
+                    Contact: 8088008877 | www.trifectaprojects.com | info@trifectaprojects.com
+                </div>
+                
+            </div>
+            
+            <!-- PAGE 1 CONTENT -->
+            <div class="page1">
+                
+                <table>
+                    <tr><td colspan="2" class="section-title">REQUIRED DOCUMENTATION:</td></tr>
+                    <tr>
+                        <td><ol>
+                            <li>Valid Government issued photo identity proof</li>
+                            <li>Two recent passport-size photographs</li>
+                            </ol></td>
+                        
+                        <td><ol start="3">
+                            <li>One photocopy of PAN card</li>
+                            <li>Proof of address</li>
+                            </ol></td>
+                    </tr>
+                </table>
+                
+                <!-- VILLA & AGREEMENT -->
+                <table style="margin-top:30px; width:100%; border-collapse:separate; border-spacing: 0 10px;">
+                    <tr>
+                        <td width="50%" class="section-title" >Plot DETAILS:</td>
+                        <td width="50%" class="section-title">AGREEMENT DETAILS:</td>
+                    </tr>
+                    <tr >
+                        <td style="padding-top:10px;">
+                            Villa Plot Number: <span > {!booking.Unit_Number__c}</span>
+                        </td>
+                        <td style="white-space:nowrap; vertical-align:middle;padding-top:10px;">
+                            SBA (Sq.ft): 
+                            <span >
+                                <apex:outputText value="{0, number, ##,##,###}">
+                                    <apex:param value="{!booking.Super_Built_UpArea__c}" /> 
+                                </apex:outputText> 
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding-top:12px; white-space:nowrap; vertical-align:middle;">
+                           Villa Plot Construction Cost (Inclusive of GST): <span >
+                            <apex:outputText value="{0, number, ##,##,###}">
+                                <apex:param value="{!booking.Construction_Cost__c}" /> 
+                            </apex:outputText>
+                            </span>
+                        </td>
+                        <td></td>
+                    </tr>
+                </table>
+                
+                
+                <!-- CUSTOMER DETAILS -->
+                <table style="margin-top: 25px;width:100%; " >
+                    <tr>
+                        <td class="section-title" height="10px">CUSTOMER DETAILS:</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 50%; vertical-align: top; padding-right: 2%;">
+                            <table>
+                                <tr>
+                                    <td class="field-label">Name: <span >{!booking.First_Applicant_Name__c}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="field-label"> 
+                                        Age: <span  >    
+                                        <apex:outputText value="{0, number, ##,##,###}">
+                                            <apex:param value="{!booking.Age__c}" /> 
+                                        </apex:outputText> 
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="field-label">S/o, D/o, W/o: <span  >{!booking.Son_Daughter_Wife_of1__c}</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="field-label">Occupation: <span >{!booking.Occupation__c}</span></td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td style="width: 50%; vertical-align: top; padding-right: 2%;">
+                            <table>
+                                <tr>
+                                    <td class="field-label">Mobile: <span >{!booking.Mobile__c}</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="field-label">Email: <span >{!booking.Email__c}</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="field-label">PAN: <span >{!booking.PAN_Number__c}</span></td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+                <!--CO-APPLICANT DETAILS -->
+                <table style="margin-top: 25px; width:100%; ">
+                    <tr>
+                        <td class="section-title">CO APPLICANT DETAILS:</td>
+                    </tr>
+                    <apex:repeat value="{!coApplicantList}" var="coAp">
+                        <tr>
+                            <td colspan="2" style="padding-top: 8px; font-weight: bold; text-decoration: underline;">
+                                Co-Applicant {!coAp.index + 1}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width: 50%; vertical-align: top; padding-right: 2%;padding-top: 10px; ">
+                                <table>
+                                    <tr>
+                                        <td class="field-label">Name: <span>{!coAp.coApp.Name}</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="field-label">
+                                            Age: <span>    
+                                            <apex:outputText value="{0, number, ##,##,###}">
+                                                <apex:param value="{!coAp.coApp.Age__c}" /> 
+                                            </apex:outputText> 
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="field-label">S/o, D/o, W/o: <span>{!coAp.coApp.Son_Daughter_Wife_of__c}</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="field-label">Occupation: <span>{!coAp.coApp.Occupation__c}</span></td>
+                                    </tr>
+                                </table>
+                            </td>
+                            <td style="width: 50%; vertical-align: top; padding-right: 2%;">
+                                <table>
+                                    <tr>
+                                        <td class="field-label">Mobile: <span>{!coAp.coApp.Primary_Phone__c}</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="field-label">Email: <span>{!coAp.coApp.Email__c}</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="field-label">PAN: <span>{!coAp.coApp.PAN_Number__c}</span></td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </apex:repeat>
+                    
+                </table>
+                
+                <!-- ADDRESS -->
+                <table style="margin-top:50px; width:100%;">
+                    <tr><td class="section-title">CURRENT ADDRESS:</td><td></td><td class="section-title">PERMANENT ADDRESS:</td></tr>
+                    <tr>
+                        <td>
+                            <span>
+                                {!booking.Address__c} - {!booking.Pincode1__c}
+                            </span>
+                            
+                        </td>
+                        <td></td>
+                        <td>
+                            <span>
+                                {!booking.Permanent_Address1__c} - {!booking.Pincode__c}
+                            </span>
+                            
+                        </td>
+                    </tr>
+                </table>
+                
+            </div>
+            
+            <!-- PAGE 2 -->
+            <div class="page2">
+                
+                <table><tr><td class="section-title">PAYMENTS:</td></tr></table>
+                <table  class="payment-cheque-table" style="margin-top:15px; width:100%; border-collapse:collapse;">
+                    <tr>
+                        <th style="width: 20%;">Receipt Date</th>
+                        <th style="width: 20%;">Mode of Payment</th>
+                        <th style="width: 20%;">Cheque No/Transaction No</th>
+                        <th style="width: 20%;">Amount</th>
+                        <th style="width: 20%;">Bank</th>
+                    </tr>
+                    <apex:repeat value="{!constructionreceiptLineItems}"  var="receipt">
+                        <tr >
+                            <td>
+                                <apex:outputText value="{0, date, dd-MMM-yyyy}">
+                                    <apex:param value="{!receipt.Receipt_Date__c}" />
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                {!receipt.Mode_of_Payment__c}
+                            </td>
+                            
+                            <td >{!receipt.Cheque_no_Transaction_Number__c} </td>
+                            <td  >
+                                <apex:outputText value="{0, Number}">
+                                    <apex:param value="{!receipt.Received_Amount__c}" /> 
+                                </apex:outputText>  
+                            </td>
+                            <td >{!receipt.Bank_Name__c} </td>
+                        </tr>
+                    </apex:repeat>
+                </table>
+                
+                
+                
+                <table style="width:100%; margin-top:25px; border-collapse:collapse;">
+                    <tr><td class="section-title">CONSTRUCTION PAYMENT SCHEDULES:</td></tr>
+                </table>
+                
+                <table class="payment-table" style="margin-top: 10px;width:100%; ">
+                    <tr>
+                        <th style="width: 40%;">PARTICULARS:</th>
+                        <th style="width: 20%;">% Payable:</th>
+                        <th style="width: 20%;">Amount:</th>
+                        <th style="width: 20%;">Remarks:</th>
+                    </tr>
+                    <apex:repeat value="{!constructionpaymentSchdules}"  var="p">
+                        <tr >
+                            <td >{!p.Name} </td>
+                            <td >
+                                <apex:outputText value="{0, Number}">
+                                    <apex:param value="{!p.Payment_percent__c}" /> 
+                                </apex:outputText>  %
+                            </td>
+                            <td  >
+                                <apex:outputText value="{0, Number}">
+                                    <apex:param value="{!p.AmountB__c}" /> 
+                                </apex:outputText>  
+                            </td>
+                            <td ></td>
+                        </tr>
+                    </apex:repeat>
+                </table>
+                
+            </div>
+            
+            <!--  PAGE 3 — WITH CONTROLLED SPACING -->
+            <div class="page3" style=" font-size:11pt; line-height:1.28;">
+                
+                <div class="section-title" style="margin-top:25px; margin-bottom:10px;">
+                    TERMS &amp; CONDITIONS:
+                </div>
+                
+                
+                <div style="padding:0; margin:0; line-height:1.45;">
+                    <div style="margin-bottom:10px;">1. <i>Modification Process:</i> Customers may commence civil modifications only after agreement is signed. Modifications must be completed within 21 days. Delay will attract penalty.</div>
+                    
+                    <div style="margin-bottom:10px;">2. All modifications will be charged extra; construction/structural changes not permitted.</div>
+                    
+                    <div style="margin-bottom:10px;">3. <i>Finalizing Modifications:</i> Once consent is given for modification finalization, no further changes will be accepted. Construction cannot be stopped.</div>
+                    
+                    <div style="margin-bottom:10px;">4. Payments for construction agreement should be made to Trifecta Infra Pvt. Ltd.</div>
+                    
+                    <div style="margin-bottom:10px;">5. <i>Modification Payments:</i> Extra charges must be settled within 7 days from confirmation. Refunds (if any) processed within 10 days.</div>
+                    
+                    <div style="margin-bottom:10px;">6. <i>Drawings Approval:</i> After modifications are confirmed, GFC drawings may take up to 6 weeks. Construction will start immediately after approval.</div>
+                    
+                    <div style="margin-bottom:10px;">7. Monthly construction status updates will be shared by Support Team.</div>
+                    
+                    <div style="margin-bottom:10px;">8. <i>Reporting Issues:</i> All construction-related queries must be raised only to customersupport@trifectaprojects.com.</div>
+                    
+                    <div style="margin-bottom:10px;">9. <i>Appointment for Site Visits:</i> Prior appointments required for site visits. Contact Support Team.</div>
+                    
+                    <div style="margin-bottom:10px;">10. One-time handover includes all installed fixtures.</div>
+                    
+                    <div style="margin-bottom:10px;">11. All transactions subject to the Bangalore Jurisdiction office.</div>
+                    
+                    <div style="margin-bottom:10px;">12. All cheque payments must be made at our corporate office.</div>
+                    
+                    <div style="margin-bottom:10px;">13. Cheque bounce charges ₹1,000 apply.</div>
+                    
+                    <div style="margin-bottom:10px;">14. Maintenance charges at actuals for the first year, payable at handover.</div>
+                </div>
+                
+                <!--  AGREEMENT LINE + COMPANY -->
+                <table style="width:100%; margin-top:12px; font-size:11pt;">
+                    <tr>
+                        <td style="width:60%;">
+                            I/We have read and understood the terms and conditions and confirm that I/We will abide by the same.<br/>
+                            
+                        </td>
+                        <td style="text-align:right;">
+                            <b>For Trifecta Infra Pvt Ltd</b>
+                        </td>
+                    </tr>
+                </table>
+                
+                
+                
+            </div>
+            
+            
+        </body>
+    </html>
+</apex:page>

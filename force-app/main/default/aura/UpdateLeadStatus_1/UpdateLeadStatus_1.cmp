@@ -1,0 +1,194 @@
+<aura:component controller="UpdateLeadStatus1Controller"
+                implements="force:appHostable,force:hasRecordId,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader" access="global" >
+    <aura:attribute name="accounts" type="String[]" default="[]"/>
+    <aura:attribute name="searchText" type="string" default=""/>
+    <aura:attribute name="storeName" type="string" default=""/>
+    <aura:attribute name="leadStatus" type="string" default=""/>
+    <aura:attribute name="leadStage" type="string" default=""/>
+    <aura:attribute name="leadlost" type="string" default=""/>
+    <aura:attribute name="status" type="string" default=""/>
+    <aura:attribute name="value" type="string" default=""/>
+    <aura:attribute name="matchaccounts" type="String[]" default="[]"/>
+    <aura:handler name="change" value="{!v.searchText}" action="{!c.searchText}" />
+    <aura:attribute name="LeadRecord" type="Object"/>
+    <aura:attribute name="SubStatus" type="String"/>
+    <aura:attribute name="reason" type="String"/>
+    <aura:attribute name="project" type="String"/>
+    <aura:attribute name="SelectedProject" type="String"/>
+    <aura:attribute name="project1" type="String"/>
+    <aura:attribute name="projects" type="String"/>
+    <aura:attribute name="projectList" type="list"/>
+    <aura:attribute name="AllocatedprojectList" type="list"/>
+    <aura:attribute name="LeadStages" type="list"/>
+    <!--<aura:attribute name="selectedOption" type="String" />-->
+    <aura:attribute name="isPopup" type="boolean" default="true"/>
+    <aura:attribute name="FollowUpOther" type="boolean" default="false"/>
+    <aura:attribute name="FollowUpRequired" type="boolean" default="true"/>
+    <aura:attribute name="showFields2" type="boolean" default="true"/>
+    <aura:attribute name="spinner" type="boolean" default="false"/>
+    <aura:attribute name="showMessages" type="boolean" default="false"/>
+    <aura:attribute name="disabled" type="boolean" default="false"/>
+    <aura:attribute name="showFields" type="boolean" default="false"/>
+    <aura:attribute name="showFields1" type="boolean" default="false"/>
+    <aura:attribute name="leadsRecord" type="Object"/>
+    <aura:attribute name="selectedDate" type="Date" />
+    <aura:attribute name="selectedTime" type="String" />
+    <aura:attribute name="recordLoadError" type="String"/>
+    <aura:attribute name="filetype" type="List" default="['.png', '.jpg', '.jpeg']" />
+    <aura:attribute name="multiple" type="Boolean" default="true" />
+    <aura:attribute name="ActiveDiv" type="boolean" default="false"/>
+    <aura:attribute name="VarientValue" type="string" default="brand"/>
+    <aura:attribute name="VarientValues" type="string" default="neutral"/>
+    <aura:attribute name="ButtonValue" type="string" default="New Follow Up"/>
+    <aura:attribute name="analysissec" type="boolean" default="false"/>
+    <aura:attribute name="completedSec" type="boolean" default="false"/>
+    <aura:attribute name="MissedFollowup" type="boolean" default="false"/>
+    <aura:attribute name="LastFollowupScheduledDate" type="date" default=""/>
+    <aura:attribute name="LastFollowupDescription" type="string" default=""/>
+    <aura:attribute name="followUpCompleted" type="Boolean" default="false"/>
+    <aura:attribute name="followUpMissedCompleted" type="Boolean" default="false"/>
+    <aura:attribute name="FollowupCompletedDateTime" type="DateTime" />
+     <aura:attribute name="recordTypeId" type="String"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <force:recordData aura:id="recordLoader"
+                      recordId="{!v.recordId}"
+                      fields="Allocated_Project__c,Lead_Status__c,Unqualified_Reason__c,Closed_Lost_Reason__c"
+                      targetFields="{!v.leadsRecord}"
+                      targetError="{!v.recordLoadError}"
+                      recordUpdated="{!c.FetchLeadData}"                 
+                      />
+    
+    <aura:if isTrue="{!v.isPopup}">
+        <div role="dialog"  tabindex="-1" aria-labelledby="header43" aura:id="Modalbox" class="slds-modal slds-fade-in-open slds-modal_medium ">
+            <div class="slds-modal__container">
+                <lightning:buttonIcon iconName="utility:close"
+                                      onclick="{! c.doCancel }"
+                                      alternativeText="close"
+                                      variant="bare-inverse"
+                                      class="slds-modal__close"/>
+                
+                <header class="slds-modal__header">
+                    <h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Update Lead Status </h1>
+                </header>
+                
+                <lightning:recordEditForm recordId="{!v.recordId}" recordTypeId="{!v.recordTypeId}" aura:id="myform" objectApiName="Lead" onload="{!c.handleLoad}"  onsuccess="{!c.handleSuccess}" onsubmit="{!c.handleOnSubmit}" onerror="{!c.handleError}"> 
+                    
+                    <div class="slds-modal__content slds-p-around_medium " id="modal-content-id-1">
+                        <div class="slds-scrollable slds-p-around_small" style="height:20rem;" tabindex="0">
+                        <p>
+                            <!--<lightning:inputField aura:id="leadStatus" fieldName="Lead_Stage__c" onload="{!c.onLeadChange}" onchange="{!c.onLeadChange}" required='true'/>-->
+                            <lightning:select name="LeadStage" aura:id="leadStatus" label="Lead Stage" 
+                                              value="{!v.leadStage}" onchange="{!c.onLeadChange}" required="true">
+                                <aura:iteration items="{!v.LeadStages}" var="stage">
+                                    <option value="{!stage}" selected="{!IF(stage == v.leadsRecord.Lead_Status__c, 'selected', '')}">
+                                        {!stage}
+                                    </option>
+                                </aura:iteration>
+                            </lightning:select>
+                             <aura:if isTrue="{!v.leadStatus=='Site Visit Schedule'}">
+                                <h2 style="font-weight: bold;font-size: 168%;">Site Visit Scheduled</h2>	
+                                <lightning:inputField fieldName="Site_Visit_Schedule_Date__c" required="true" value="" />
+                                 <div class="slds-grid slds-gutters slds-wrap">
+                                    <div class="slds-col slds-size_1-of-2 slds-p-around_x-small">
+                                        <lightning:select name="selectOption" label="Select Project" value="{!v.projects}" aura:id="prj2" onchange="{!c.onProjectChange}" required="true">
+                                            <option value="{!v.project}" selected="{!v.project}">{!v.project}</option>
+                                            <aura:iteration items="{!v.AllocatedprojectList}" var="prj1">
+                                                <option value="{!prj1}">{!prj1}</option>
+                                            </aura:iteration>
+                                        </lightning:select>
+                                    </div>
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!v.leadStatus=='Sv Completed'}">
+                                <h2 style="font-weight: bold;font-size: 168%;">Site Visit Completed</h2>
+                                <lightning:inputField fieldName="SV_Completed_Date_Time__c" required='true' value="" />
+                                <div class="slds-grid slds-gutters slds-wrap">
+                                    <div class="slds-col slds-size_1-of-2 slds-p-around_x-small">
+                                        <lightning:select name="selectOption" label="Select Project" aura:id="ProjectSVCompleted" value="{!v.SelectedProject}" required="true">
+                                            <aura:if isTrue="{!not(empty(v.projectList[0]))}">
+                                                <option value="{!v.projectList[0]}" selected="{!v.projectList[0]}">{!v.projectList[0]}</option>
+                                                <aura:set attribute="else">
+                                                    <option value="">--- None ---</option>
+                                                </aura:set>
+                                                </aura:if>
+                                            <aura:iteration items="{!v.AllocatedprojectList}" var="prj">
+                                                <option value="{!prj}">{!prj}</option>
+                                            </aura:iteration>
+                                            </lightning:select>
+                                    </div>
+                                    <!--<lightning:inputField fieldName="Site_Visit_Schedule_Date__c" required='true' disabled="true" value=""/>-->
+                                    <div class="slds-col slds-size_1-of-2 slds-p-around_x-small">
+                                        <lightning:inputField fieldName="Site_Visit_Feedback__c" value="" required="true" />
+                                    </div>
+                                </div>
+                                <lightning:inputField fieldName='Lead_not_interested__c' aura:id="LeadNotIntersted" onchange="{!c.LeadNotIntersted}" />
+                            </aura:if>
+                            <aura:if isTrue="{!(v.leadStatus=='Unqualified')}">
+                             <lightning:inputField fieldName="Unqualified_Reason__c" required='true'/>
+                               
+                            </aura:if>
+                            <aura:if isTrue="{!(v.leadStatus=='Closed Lost')}">               
+                                <lightning:inputField fieldName="Closed_Lost_Reason__c" aura:id="leadlost"  required='true' onchange="{!c.onLeadlost}"/> 
+                                <lightning:inputField fieldName="Other_Reason__c" required='true'/>
+                                
+                                <aura:if isTrue="{!(v.leadlost=='Fake/ Invalid')}">              
+                                    <lightning:inputField fieldName="Fake_Invalid_Reason__c"/>
+                                </aura:if>
+                                <aura:if isTrue="{!(v.leadlost=='Budget issue')}">              
+                                    <lightning:inputField fieldName="Budget_Type__c" required='true'/>
+                                </aura:if>
+                                <aura:if isTrue="{!(v.leadlost=='Location Issue')}">              
+                                    <lightning:inputField fieldName="Preferred_Location__c" required='true'/>
+                                    <lightning:inputField fieldName="Locality__c" required='true'/>
+                                </aura:if>
+                                <aura:if isTrue="{!(v.leadlost=='Floor Preference')}">              
+                                    <lightning:inputField fieldName="Preferred_Floors__c" required='true'/>
+                                </aura:if>
+                            </aura:if>
+                            <aura:if isTrue="{!v.completedSec}">
+                                <h2 style="font-weight: bold;font-size: 168%;">Mark Follow-up as Completed</h2>
+                                <!--<lightning:inputField fieldName="Follow_up_scheduled_date__c" disabled="true" />-->
+                                <lightning:inputField fieldName="Follow_up_Status__c" style="display:none;" value="Completed" />
+                                <lightning:input label="Last Follow-up Scheduled Date and Time" value="{!v.LastFollowupScheduledDate}" type="datetime" disabled="true" />
+                                <div class="slds-grid slds-gutters slds-wrap">
+                                    <div class="slds-col slds-size_1-of-2 slds-p-around_x-small">
+                                        <!--<lightning:inputField fieldName="Follow_up_completed_Date__c" disabled="true" value="{!v.FollowupCompletedDateTime}"/>-->
+                                        <lightning:inputField fieldName="Follow_Up_Comment__c" aura:id="FollowUpComments" onchange="{!c.FollowUpComments}" required="true" value="" />
+                                    </div>
+                                </div>
+                            </aura:if>
+                            <!--<aura:if isTrue="{! AND(AND(v.leadStatus != 'SV Schedule', v.leadStatus != 'Closed Lost'), AND(v.leadStatus != 'Qualification'))}">-->
+                            	<aura:if isTrue="{! OR(v.leadStatus == 'RNR',v.leadStatus == 'Pre Sales Follow Up')}">
+                                <!-- Bold Heading for New Follow-up Creation -->
+                                <h2 style="font-weight: bold;font-size: 168%;">New Follow-up Creation</h2>
+                                <lightning:inputField fieldName="Next_follow_up_Date__c" value="" required="{!v.FollowUpRequired}" />
+                                <div class="slds-grid slds-gutters slds-wrap">
+                                    <div class="slds-col slds-size_1-of-2 slds-p-around_x-small">
+                                        <lightning:inputField fieldName="Followup_Subject__c" value="" required="{!v.FollowUpRequired}" />
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-2 slds-p-around_x-small">
+                                        <lightning:inputField fieldName="Follow_Up_Description__c" value="" />
+                                    </div>
+                                </div>
+                                <!--</aura:if>-->
+                            </aura:if>
+                            
+                          
+                        </p>
+                        
+                    </div>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning:button label="Cancel" title="Cancel" onclick="{!c.doCancel }" />
+                        <lightning:button class="slds-m-top_small" variant="brand" type="submit" name="update" label="Update" />
+                    </footer>
+                </lightning:recordEditForm>        
+            </div>
+        </div> 
+    </aura:if>
+    <div>
+        <aura:if isTrue="{!v.spinner}">
+            <lightning:spinner class="spins" size="large" variant="brand" alternativeText="Loading" />
+        </aura:if>
+    </div>
+</aura:component>
