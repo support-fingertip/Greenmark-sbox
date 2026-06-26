@@ -129,8 +129,10 @@ private class SiteVisitFormControllerTest {
 
             // Test createSv
             DateTime dt = System.now();
+            // Pre Sales lead with a sales user -> manual reassignment applies
             SiteVisitFormController.createSv('Test Remark', dt, 'Trifecta Vanto', lad.Id, 'Warm','','','',testUser.Id);
-                 SiteVisitFormController.createSv('Test Remark', dt, 'Trifecta Vanto', lad3.Id, 'Warm','','','','');
+            // Sales-stage lead with a sales user -> guard blocks manual reassignment (falls back)
+                 SiteVisitFormController.createSv('Test Remark', dt, 'Trifecta Vanto', lad3.Id, 'Warm','','','',testUser.Id);
             
         }
     }

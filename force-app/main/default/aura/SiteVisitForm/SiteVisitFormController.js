@@ -46,7 +46,10 @@
                 component.set("v.leadId", leadDetails.leadId);
                 component.set("v.siteVisitComments", '');
                 component.set("v.selectedRating", 'None');
-                if(otpStatus == 'Active Lead Exist' || otpStatus == 'Lead exists but In-Active'){ 
+                component.set("v.salesUserId", '');
+                component.set("v.salesUserSearchText", '');
+                component.set("v.searchedSalesUsers", []);
+                if(otpStatus == 'Active Lead Exist' || otpStatus == 'Lead exists but In-Active'){
                     var action1 = component.get("c.getLead");
                     action1.setParams({ "leadId": leadDetails.leadId});
                     action1.setCallback(this, function(response) {
