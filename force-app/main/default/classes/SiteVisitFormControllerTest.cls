@@ -123,7 +123,7 @@ private class SiteVisitFormControllerTest {
             String result2 = SiteVisitFormController.checkLeadWithPhoneProject(lad1.Allocated_Project__c, sv1.OTP__c);
 
             SiteVisitFormController.getLead(lad.Id);
-            SiteVisitFormController.leadNotExists(lad1.Id, 'Warm', 'remarks');
+            SiteVisitFormController.leadNotExists(lad1.Id, 'Warm', 'remarks', testUser.Id);
             SiteVisitFormController.getDependentMap( lad, 'Source_Type__c', 'Lead_source__c');
             SiteVisitFormController.extractPicklistValues('lad','Source_Type__c');
 
