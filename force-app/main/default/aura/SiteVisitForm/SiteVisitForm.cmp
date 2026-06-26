@@ -23,8 +23,6 @@
     <aura:attribute name="visitType" type="string" />
     <aura:attribute name="leadRecordToSave" type="Lead"  default="{}"/>
     <aura:attribute name="selectedRating" type="String" />
-    <aura:attribute name="leadStageOptions" type="List" />
-    <aura:attribute name="selectedLeadStage" type="String" />
     <aura:attribute name="siteVisitComments" type="String" />
     <aura:attribute name="LeadComments" type="String" />
     <aura:attribute name="selectedSource" type="String" />
@@ -45,6 +43,11 @@
     <aura:attribute name="searchedcpExectives" type="Object[]" default="[]"/>
     <aura:attribute name="cpExeSearchText" type="String" />
     <aura:attribute name="cpExecutiveId" type="String" />
+
+    <aura:attribute name="salesUserList" type="Object[]" default="[]"/>
+    <aura:attribute name="searchedSalesUsers" type="Object[]" default="[]"/>
+    <aura:attribute name="salesUserSearchText" type="String" />
+    <aura:attribute name="salesUserId" type="String" />
     
     <aura:attribute name="autoMapSoucingMember" type="Boolean" default="false"/>
     <aura:attribute name="autoMapChannelPartner" type="Boolean" default="false"/>
@@ -365,12 +368,50 @@
                                 </div>
                                 <div class="slds-grid slds-wrap slds-text-align_left">
                                     <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xx-small">
-                                        <lightning:select aura:id="field123" name="leadStage" label="Lead Stage" value="{!v.selectedLeadStage}" required="true">
-                                            <option value="None">--None--</option>
-                                            <aura:iteration items="{!v.leadStageOptions}" var="stage">
-                                                <option value="{!stage}">{!stage}</option>
-                                            </aura:iteration>
-                                        </lightning:select>
+                                        <div class="slds-combobox_container">
+                                            <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" onchange="{!c.searchSalesUser}">
+                                                <lightning:input
+                                                                 value="{!v.salesUserSearchText}"
+                                                                 aura:id="field1"
+                                                                 name="enter-search"
+                                                                 label="Sales User"
+                                                                 type="search"
+                                                                 id="combobox-id-sales"
+                                                                 aria-autocomplete="list"
+                                                                 aria-controls="listbox-id-sales"
+                                                                 aria-expanded="false"
+                                                                 aria-haspopup="listbox"
+                                                                 autoComplete="off"
+                                                                 role="combobox"
+                                                                 placeholder="Search Sales User"/>
+                                            </div>
+                                            <div class="{!not(empty(v.searchedSalesUsers)) ? 'slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click slds-is-open' : 'slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click'}" aura:id="open">
+                                                <div id="listbox-id-sales" class="slds-dropdown slds-dropdown_length-with-icon-7 slds-dropdown_fluid" role="listbox">
+                                                    <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                                        <aura:if isTrue="{!v.searchedSalesUsers}">
+                                                            <aura:iteration items="{!v.searchedSalesUsers}" var="item">
+                                                                <a data-id="{!item.Id}" data-name="{!item.Name}" onclick="{!c.updateSalesUser}">
+                                                                    <li role="presentation" class="slds-listbox__item">
+                                                                        <div id="option1" class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+                                                                            <span class="slds-media__figure slds-listbox__option-icon">
+                                                                                <span class="slds-icon_container slds-icon-standard-account">
+                                                                                    <lightning:icon iconName="standard:user" size="xx-small"/>&nbsp;
+                                                                                </span>
+                                                                            </span>
+                                                                            <span class="slds-media__body">
+                                                                                <div class="slds-lookup__result-text">
+                                                                                    <span class="slds-listbox__option-text slds-listbox__option-text_entity" style="white-space:normal">{!item.Name}</span>
+                                                                                </div>
+                                                                            </span>
+                                                                        </div>
+                                                                    </li>
+                                                                </a>
+                                                            </aura:iteration>
+                                                        </aura:if>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
