@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomNotificationType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customNotifTypeName>Lead Re-Enquiry Notification</customNotifTypeName>
+    <desktop>true</desktop>
+    <developerName>Lead_Re_Enquiry_Notification</developerName>
+    <masterLabel>Lead Re-Enquiry Notification</masterLabel>
+    <mobile>true</mobile>
+</CustomNotificationType>
