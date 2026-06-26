@@ -129,8 +129,8 @@ private class SiteVisitFormControllerTest {
 
             // Test createSv
             DateTime dt = System.now();
-            SiteVisitFormController.createSv('Test Remark', dt, 'Trifecta Vanto', lad.Id, 'Warm','','','','Sales');
-                 SiteVisitFormController.createSv('Test Remark', dt, 'Trifecta Vanto', lad3.Id, 'Warm','','','','Pre Sales');
+            SiteVisitFormController.createSv('Test Remark', dt, 'Trifecta Vanto', lad.Id, 'Warm','','','',testUser.Id);
+                 SiteVisitFormController.createSv('Test Remark', dt, 'Trifecta Vanto', lad3.Id, 'Warm','','','','');
             
         }
     }

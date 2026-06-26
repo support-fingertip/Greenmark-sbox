@@ -7,11 +7,11 @@
                 var data = response.getReturnValue();
                 component.set("v.projects", data.projects);
                 component.set("v.siteVisitRatings", data.siteVisitRatings);
-                component.set("v.leadStageOptions", data.leadStages);
                 component.set("v.sourceToSubSoruce", data.sourceToSubSoruce);
                 component.set("v.sectionLabels", data.countryMap);
                 component.set("v.channelPartnerList", data.channelPatnerList);
                 component.set("v.cpExectiveList", data.CpUsersList);
+                component.set("v.salesUserList", data.salesUsersList);
             }
         });
         $A.enqueueAction(action);
@@ -57,9 +57,6 @@
                             var returnValue = response.getReturnValue()
                             component.set('v.leadRecord',returnValue.Lead);
                             component.set('v.siteVisit',returnValue.siteVisit);
-                            if(returnValue.Lead && returnValue.Lead.RecordType){
-                                component.set("v.selectedLeadStage", returnValue.Lead.RecordType.Name);
-                            }
  
                             if(otpStatus == 'Active Lead Exist'){
                                 helper.toastMsg('Success','Lead Status','Active Lead Exist');
@@ -88,7 +85,9 @@
         component.set("v.otpStatus",null);
         component.set("v.siteVisitComments", '');
         component.set("v.selectedRating", 'None');
-        component.set("v.selectedLeadStage", 'None');
+        component.set("v.salesUserId", '');
+        component.set("v.salesUserSearchText", '');
+        component.set("v.searchedSalesUsers", []);
     },
     cancel : function(component, event, helper) {
         component.set("v.selectedProject",'None');
@@ -98,7 +97,9 @@
         component.set("v.otpStatus",null);
         component.set("v.siteVisitComments", '');
         component.set("v.selectedRating", 'None');
-        component.set("v.selectedLeadStage", 'None');
+        component.set("v.salesUserId", '');
+        component.set("v.salesUserSearchText", '');
+        component.set("v.searchedSalesUsers", []);
         component.set("v.tabId", "1");
         component.set("v.leadId",'');
     },
@@ -308,7 +309,6 @@
         var siteVisitComments = component.get("v.siteVisitComments");
         var location = component.get("v.location");
         var selectedRating = component.get("v.selectedRating");
-        var selectedLeadStage = component.get("v.selectedLeadStage");
         var leadId = component.get("v.leadId");
         var selectedDateTime = new Date(dateValue);
         var now = new Date();
@@ -335,10 +335,6 @@
             helper.toastMsg('Error', 'Error', 'Please enter location');
             return;
         }
-        if (!selectedLeadStage || selectedLeadStage == 'None') {
-            helper.toastMsg('Error', 'Error', 'Please select Lead Stage');
-            return;
-        }
         component.set("v.isLoading", true);
         // Apex call
         var action = component.get("c.createSv");
@@ -351,7 +347,7 @@
             "sourcingMember": component.get("v.cpExecutiveId"),
             "channelPartner": component.get("v.channelPartnerId"),
             "location":component.get("v.location"),
-            "leadStage": selectedLeadStage
+            "salesUser": component.get("v.salesUserId")
         });
         
         action.setCallback(this, function(response) {
@@ -450,6 +446,41 @@
         component.set('v.cpExeSearchText',Name);
         component.set('v.searchedcpExectives', []);
     },
-    
+
+    /**Search Sales Users **/
+    searchSalesUser: function (component, event, helper) {
+        var salesUsers = component.get("v.salesUserList");
+        var searchText = component.get('v.salesUserSearchText');
+
+        var matchSalesUsers = [];
+        if (searchText != '') {
+
+            for (var i = 0; i < salesUsers.length; i++) {
+
+                if (salesUsers[i].Name.toLowerCase().indexOf(searchText.toLowerCase()) != -1) {
+                    matchSalesUsers.push(salesUsers[i]);
+                }
+            }
+            if (matchSalesUsers.length > 0) {
+                component.set('v.searchedSalesUsers', matchSalesUsers);
+            }
+            else
+            {
+                component.set('v.searchedSalesUsers', []);
+            }
+        } else {
+            component.set('v.searchedSalesUsers', []);
+            component.set('v.salesUserSearchText', '');
+            component.set('v.salesUserId', '');
+        }
+    },
+    updateSalesUser: function (component, event, helper) {
+        var eid = event.currentTarget.dataset.id;
+        var Name = event.currentTarget.dataset.name;
+        component.set('v.salesUserId', eid);
+        component.set('v.salesUserSearchText',Name);
+        component.set('v.searchedSalesUsers', []);
+    },
+
 
 })

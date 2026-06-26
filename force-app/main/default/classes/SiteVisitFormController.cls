@@ -3,7 +3,6 @@ public without sharing class SiteVisitFormController {
     {
         @AuraEnabled public List<String> projects = new List<String> ();
         @AuraEnabled public List<String> siteVisitRatings = new List<String> ();
-        @AuraEnabled public List<String> leadStages = new List<String> ();
         @AuraEnabled public Map<String, String> countryMap = new Map<String, String> ();
         @AuraEnabled public Map<String, Map<String, String>> sourceToSubSoruce = new  Map<String, Map<String, String>>();
         @AuraEnabled public Lead Lead;
@@ -11,6 +10,7 @@ public without sharing class SiteVisitFormController {
         
         @AuraEnabled public list<Channel_Partner__c> channelPatnerList;
         @AuraEnabled public list<User> CpUsersList;
+        @AuraEnabled public list<User> salesUsersList;
         
         @AuraEnabled public boolean autoMapSoucingMember;
         @AuraEnabled public boolean autoMapChannelPartner;
@@ -20,7 +20,6 @@ public without sharing class SiteVisitFormController {
         DataBox dt = new DataBox();
         dt.projects = GetPicklistValues.extractPicklistValues('Lead','Allocated_Project__c');
         dt.siteVisitRatings = GetPicklistValues.extractPicklistValues('Site_Visit__c','Site_Visit_rating__c');
-        dt.leadStages = GetPicklistValues.extractPicklistValues('Site_Visit__c','Lead_Stage__c');
         Map<String, String> countryMap = new Map<String, String>();
         List<Country_Code_Mapping__mdt> countryMetadata = [SELECT Label, CountryCode__c FROM Country_Code_Mapping__mdt ];
         for (Country_Code_Mapping__mdt country : countryMetadata) {
@@ -30,6 +29,7 @@ public without sharing class SiteVisitFormController {
         dt.sourceToSubSoruce = getDependentMap(new Lead(), 'Source_Type__c', 'Lead_source__c');
         dt.channelPatnerList = [select Id,Name from Channel_Partner__c where Active__c = true];
         dt.CpUsersList = [select Id,Name from User where Profile.Name ='CP Sourcing Member'];
+        dt.salesUsersList = [SELECT Id, Name FROM User WHERE IsActive = true AND Profile.Name = 'Sales' ORDER BY Name];
         return dt;
     }
     @AuraEnabled
@@ -132,24 +132,32 @@ public without sharing class SiteVisitFormController {
     * @param selectedUser (Optional) User ID who attended the visit.
     */
     @AuraEnabled
-    public static void createSv(String remark, Datetime svDate, String selectedProject, String leadId, String selectedRating,String sourcingMember, String channelPartner,String location, String leadStage) {
+    public static void createSv(String remark, Datetime svDate, String selectedProject, String leadId, String selectedRating,String sourcingMember, String channelPartner,String location, String salesUser) {
 
         System.debug('Input Params => Remark: ' + remark + ', SV Date: ' + svDate + ', Project: ' + selectedProject +
-                     ',leadId: ' + leadId + ', selectedRating: ' + selectedRating + ', leadStage: ' + leadStage);
+                     ',leadId: ' + leadId + ', selectedRating: ' + selectedRating + ', salesUser: ' + salesUser);
         //=====================
       	//Lead Pushing to Sales
       	//=====================
         Lead ld = [SELECT Id,Lead_Status__c,Pre_sales_user__c,OwnerId,Lead_Transfer_Note__c,RecordTypeId,Sales_user__c,
                    Lead_Assigned__c,Allocated_Project__c,Pushed_On__c,Pushed_By__c,Lead_Owner_Profile__c,Push_To_Sales__c
                    FROM Lead WHERE Id=:LeadId];
-        String stageRecordType = String.isBlank(leadStage) || leadStage == 'None' ? 'Sales' : leadStage;
-        ld.RecordTypeId = Schema.SObjectType.Lead.getRecordTypeInfosByName().get(stageRecordType).getRecordTypeId();
+        ld.RecordTypeId = Schema.SObjectType.Lead.getRecordTypeInfosByName().get('Sales').getRecordTypeId();
         ld.Pushed_On__c = system.now();
         ld.Pushed_By__c = UserInfo.getUserId();
-        //If Lead is in Sales not Closed lost Stage if pre sales user also sales user 
+        //If a Sales User is selected manually on the GRE form, assign the lead to that user directly.
+        //Otherwise fall back to the existing push-to-sales / round-robin behavior.
+        if(String.isNotBlank(salesUser))
+        {
+            ld.OwnerId = salesUser;
+            ld.Sales_User__c = salesUser;
+            ld.Lead_Assigned__c = true;
+            ld.Push_To_Sales__c = false;
+        }
+        //If Lead is in Sales not Closed lost Stage if pre sales user also sales user
         //then lead owner will become the sales user
         //if lead is in sales and closed lost or pre sales it will push to sales
-        if(ld.Lead_Owner_Profile__c == 'Sales' && ld.Lead_Status__c != 'Closed Lost')
+        else if(ld.Lead_Owner_Profile__c == 'Sales' && ld.Lead_Status__c != 'Closed Lost')
         {
             ld.Lead_Assigned__c = true;
             ld.Sales_User__c = ld.OwnerId;
@@ -223,7 +231,6 @@ public without sharing class SiteVisitFormController {
             visit.Comments__c = remark;
             visit.Project__c = selectedProject;
             visit.Location__c = location;
-            visit.Lead_Stage__c = stageRecordType;
             if(channelPartner != null && channelPartner != '')
             {
                 visit.Channel_Partner__c = channelPartner;
@@ -247,7 +254,6 @@ public without sharing class SiteVisitFormController {
             visit.Comments__c = remark;
             visit.Project__c = selectedProject;
             visit.Location__c = location;
-            visit.Lead_Stage__c = stageRecordType;
             if(channelPartner != null && channelPartner != '')
             {
                 visit.Channel_Partner__c = channelPartner;
@@ -278,7 +284,6 @@ public without sharing class SiteVisitFormController {
             newVisit.Project__c = selectedProject;
             newVisit.Comments__c = remark;
             newVisit.Location__c = location;
-            newVisit.Lead_Stage__c = stageRecordType;
             if(channelPartner != null && channelPartner != '')
             {
                 newVisit.Channel_Partner__c = channelPartner;
