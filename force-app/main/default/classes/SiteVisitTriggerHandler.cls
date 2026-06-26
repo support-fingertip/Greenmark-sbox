@@ -3,9 +3,9 @@ public  without sharing class SiteVisitTriggerHandler {
     public static void beforeInsert(List<Site_Visit__c> newSiteVisits)
     {
         for (Site_Visit__c sv : newSiteVisits) {
-            if (sv.Lead_Record_Type_Name__c != null) {
+            if (sv.Lead_Stage__c == null && sv.Lead_Record_Type_Name__c != null) {
                 sv.Lead_Stage__c =sv.Lead_Record_Type_Name__c;
-                
+
             }
             if(sv.Credit_Source__c != null)
             {

@@ -7,6 +7,7 @@
                 var data = response.getReturnValue();
                 component.set("v.projects", data.projects);
                 component.set("v.siteVisitRatings", data.siteVisitRatings);
+                component.set("v.leadStageOptions", data.leadStages);
                 component.set("v.sourceToSubSoruce", data.sourceToSubSoruce);
                 component.set("v.sectionLabels", data.countryMap);
                 component.set("v.channelPartnerList", data.channelPatnerList);
@@ -56,6 +57,9 @@
                             var returnValue = response.getReturnValue()
                             component.set('v.leadRecord',returnValue.Lead);
                             component.set('v.siteVisit',returnValue.siteVisit);
+                            if(returnValue.Lead && returnValue.Lead.RecordType){
+                                component.set("v.selectedLeadStage", returnValue.Lead.RecordType.Name);
+                            }
  
                             if(otpStatus == 'Active Lead Exist'){
                                 helper.toastMsg('Success','Lead Status','Active Lead Exist');
@@ -84,6 +88,7 @@
         component.set("v.otpStatus",null);
         component.set("v.siteVisitComments", '');
         component.set("v.selectedRating", 'None');
+        component.set("v.selectedLeadStage", 'None');
     },
     cancel : function(component, event, helper) {
         component.set("v.selectedProject",'None');
@@ -93,6 +98,7 @@
         component.set("v.otpStatus",null);
         component.set("v.siteVisitComments", '');
         component.set("v.selectedRating", 'None');
+        component.set("v.selectedLeadStage", 'None');
         component.set("v.tabId", "1");
         component.set("v.leadId",'');
     },
@@ -302,6 +308,7 @@
         var siteVisitComments = component.get("v.siteVisitComments");
         var location = component.get("v.location");
         var selectedRating = component.get("v.selectedRating");
+        var selectedLeadStage = component.get("v.selectedLeadStage");
         var leadId = component.get("v.leadId");
         var selectedDateTime = new Date(dateValue);
         var now = new Date();
@@ -327,7 +334,11 @@
         if (!location) {
             helper.toastMsg('Error', 'Error', 'Please enter location');
             return;
-        } 
+        }
+        if (!selectedLeadStage || selectedLeadStage == 'None') {
+            helper.toastMsg('Error', 'Error', 'Please select Lead Stage');
+            return;
+        }
         component.set("v.isLoading", true);
         // Apex call
         var action = component.get("c.createSv");
@@ -339,7 +350,8 @@
             "selectedRating": selectedRating,
             "sourcingMember": component.get("v.cpExecutiveId"),
             "channelPartner": component.get("v.channelPartnerId"),
-            "location":component.get("v.location")
+            "location":component.get("v.location"),
+            "leadStage": selectedLeadStage
         });
         
         action.setCallback(this, function(response) {

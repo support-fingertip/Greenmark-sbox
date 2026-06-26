@@ -23,6 +23,8 @@
     <aura:attribute name="visitType" type="string" />
     <aura:attribute name="leadRecordToSave" type="Lead"  default="{}"/>
     <aura:attribute name="selectedRating" type="String" />
+    <aura:attribute name="leadStageOptions" type="List" />
+    <aura:attribute name="selectedLeadStage" type="String" />
     <aura:attribute name="siteVisitComments" type="String" />
     <aura:attribute name="LeadComments" type="String" />
     <aura:attribute name="selectedSource" type="String" />
@@ -174,7 +176,15 @@
                                                     {!v.leadRecord.Credit_Sub_Source__c}
                                                 </aura:if>
                                             </td>
-                                            
+
+                                        </tr>
+                                        <tr>
+                                            <td style="font-size: 15px;">
+                                                <b>Lead Stage : </b>
+                                                <aura:if isTrue="{!v.leadRecord.RecordType.Name != null}">
+                                                    {!v.leadRecord.RecordType.Name}
+                                                </aura:if>
+                                            </td>
                                         </tr>
                                         <aura:if isTrue="{!v.leadRecord.Credit_Sub_Source__c == 'Channel Partner'}">
                                             <tr> 
@@ -297,7 +307,15 @@
                                             {!v.leadRecord.Credit_Sub_Source__c}
                                         </aura:if>
                                     </td>
-                                    
+
+                                </tr>
+                                <tr>
+                                    <td style="font-size: 15px;">
+                                        <b>Lead Stage : </b>
+                                        <aura:if isTrue="{!v.leadRecord.RecordType.Name != null}">
+                                            {!v.leadRecord.RecordType.Name}
+                                        </aura:if>
+                                    </td>
                                 </tr>
                                 <aura:if isTrue="{!v.leadRecord.Credit_Sub_Source__c == 'Channel Partner'}">
                                     <tr> 
@@ -345,8 +363,18 @@
                                         <lightning:input aura:id="field123" type="text" name="location" label="Location" value="{!v.location}" required="true" />
                                     </div>
                                 </div>
+                                <div class="slds-grid slds-wrap slds-text-align_left">
+                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xx-small">
+                                        <lightning:select aura:id="field123" name="leadStage" label="Lead Stage" value="{!v.selectedLeadStage}" required="true">
+                                            <option value="None">--None--</option>
+                                            <aura:iteration items="{!v.leadStageOptions}" var="stage">
+                                                <option value="{!stage}">{!stage}</option>
+                                            </aura:iteration>
+                                        </lightning:select>
+                                    </div>
+                                </div>
                             </div>
-                            
+
                             <!-- Channel Partner Related Subsection -->
                             <div class="slds-scope">
                                 <div class="slds-text-heading_small slds-m-bottom_x-small slds-m-top_small">
