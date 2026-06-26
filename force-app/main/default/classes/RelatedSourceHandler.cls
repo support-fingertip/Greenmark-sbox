@@ -351,21 +351,22 @@ public without sharing class RelatedSourceHandler {
     }
 
     // BRD 4.1.7 - sends an in-app (bell) notification to the lead owner on re-enquiry.
+    // Reuses NotificationController.sendCustomNotification (same pattern as the rest of the app).
     // Fully guarded so it can never block lead creation if the notification type is absent.
     public static void sendReEnquiryNotification(Set<Id> leadIds){
         try{
+            // Short-circuit if the notification type isn't present yet (keeps it bulk-safe).
             List<CustomNotificationType> types = [SELECT Id FROM CustomNotificationType
                                                   WHERE DeveloperName = 'Lead_Re_Enquiry_Notification' LIMIT 1];
             if(types.isEmpty()) return;
-            Id typeId = types[0].Id;
             for(Lead l : [SELECT Id, Name, OwnerId FROM Lead WHERE Id IN :leadIds]){
                 if(l.OwnerId != null && String.valueOf(l.OwnerId).startsWith('005')){
-                    CustomNotificationService.notificationSend(
-                        'Customer Re-Enquired',
-                        l.Id,
-                        'Customer re-enquired for lead: ' + l.Name,
+                    NotificationController.sendCustomNotification(
                         new Set<String>{ String.valueOf(l.OwnerId) },
-                        typeId
+                        'Customer Re-Enquired',
+                        'Customer re-enquired for lead: ' + l.Name,
+                        l.Id,
+                        'Lead_Re_Enquiry_Notification'
                     );
                 }
             }
