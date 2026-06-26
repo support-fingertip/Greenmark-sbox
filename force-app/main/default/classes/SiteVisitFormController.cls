@@ -3,6 +3,7 @@ public without sharing class SiteVisitFormController {
     {
         @AuraEnabled public List<String> projects = new List<String> ();
         @AuraEnabled public List<String> siteVisitRatings = new List<String> ();
+        @AuraEnabled public List<String> leadStages = new List<String> ();
         @AuraEnabled public Map<String, String> countryMap = new Map<String, String> ();
         @AuraEnabled public Map<String, Map<String, String>> sourceToSubSoruce = new  Map<String, Map<String, String>>();
         @AuraEnabled public Lead Lead;
@@ -19,6 +20,7 @@ public without sharing class SiteVisitFormController {
         DataBox dt = new DataBox();
         dt.projects = GetPicklistValues.extractPicklistValues('Lead','Allocated_Project__c');
         dt.siteVisitRatings = GetPicklistValues.extractPicklistValues('Site_Visit__c','Site_Visit_rating__c');
+        dt.leadStages = GetPicklistValues.extractPicklistValues('Site_Visit__c','Lead_Stage__c');
         Map<String, String> countryMap = new Map<String, String>();
         List<Country_Code_Mapping__mdt> countryMetadata = [SELECT Label, CountryCode__c FROM Country_Code_Mapping__mdt ];
         for (Country_Code_Mapping__mdt country : countryMetadata) {
@@ -112,7 +114,7 @@ public without sharing class SiteVisitFormController {
         DataBox dt = new DataBox();
         dt.Lead =  [select id,LastName,Name,Phone__c,Lead_Owner_Full_Name__c,OwnerId,Lead_Owner_Profile__c,Source_Type__c,Lead_source__c,Secondary_Phone__c,Credit_Channel_Partner__c,
                     Credit_Channel_Partner__r.Name,Sourcing_Member__r.Name,Sourcing_Member__c, Email,Lead_ID__c, Secondary_Email__c,Lead_Status__c,
-                    Credit_Source__c,Credit_Sub_Source__c from Lead where Id =: leadId Limit 1];
+                    Credit_Source__c,Credit_Sub_Source__c,RecordType.Name from Lead where Id =: leadId Limit 1];
         list<Site_Visit__c> siteVisitList = [select Id,Name,Date__c,Site_Visit_Create_Owner__c,SDate__c from Site_Visit__c
                                              where SLead__c =:leadId and (Status__c ='Scheduled' OR Status__c ='Rescheduled') limit 1];
         // Assign Site Visit (null if not found)
@@ -130,17 +132,18 @@ public without sharing class SiteVisitFormController {
     * @param selectedUser (Optional) User ID who attended the visit.
     */
     @AuraEnabled
-    public static void createSv(String remark, Datetime svDate, String selectedProject, String leadId, String selectedRating,String sourcingMember, String channelPartner,String location) {
-        
+    public static void createSv(String remark, Datetime svDate, String selectedProject, String leadId, String selectedRating,String sourcingMember, String channelPartner,String location, String leadStage) {
+
         System.debug('Input Params => Remark: ' + remark + ', SV Date: ' + svDate + ', Project: ' + selectedProject +
-                     ',leadId: ' + leadId + ', selectedRating: ' + selectedRating);
+                     ',leadId: ' + leadId + ', selectedRating: ' + selectedRating + ', leadStage: ' + leadStage);
         //=====================
       	//Lead Pushing to Sales
       	//=====================
         Lead ld = [SELECT Id,Lead_Status__c,Pre_sales_user__c,OwnerId,Lead_Transfer_Note__c,RecordTypeId,Sales_user__c,
                    Lead_Assigned__c,Allocated_Project__c,Pushed_On__c,Pushed_By__c,Lead_Owner_Profile__c,Push_To_Sales__c
                    FROM Lead WHERE Id=:LeadId];
-        ld.RecordTypeId = Schema.SObjectType.Lead.getRecordTypeInfosByName().get('Sales').getRecordTypeId();
+        String stageRecordType = String.isBlank(leadStage) || leadStage == 'None' ? 'Sales' : leadStage;
+        ld.RecordTypeId = Schema.SObjectType.Lead.getRecordTypeInfosByName().get(stageRecordType).getRecordTypeId();
         ld.Pushed_On__c = system.now();
         ld.Pushed_By__c = UserInfo.getUserId();
         //If Lead is in Sales not Closed lost Stage if pre sales user also sales user 
@@ -220,6 +223,7 @@ public without sharing class SiteVisitFormController {
             visit.Comments__c = remark;
             visit.Project__c = selectedProject;
             visit.Location__c = location;
+            visit.Lead_Stage__c = stageRecordType;
             if(channelPartner != null && channelPartner != '')
             {
                 visit.Channel_Partner__c = channelPartner;
@@ -243,6 +247,7 @@ public without sharing class SiteVisitFormController {
             visit.Comments__c = remark;
             visit.Project__c = selectedProject;
             visit.Location__c = location;
+            visit.Lead_Stage__c = stageRecordType;
             if(channelPartner != null && channelPartner != '')
             {
                 visit.Channel_Partner__c = channelPartner;
@@ -273,6 +278,7 @@ public without sharing class SiteVisitFormController {
             newVisit.Project__c = selectedProject;
             newVisit.Comments__c = remark;
             newVisit.Location__c = location;
+            newVisit.Lead_Stage__c = stageRecordType;
             if(channelPartner != null && channelPartner != '')
             {
                 newVisit.Channel_Partner__c = channelPartner;
