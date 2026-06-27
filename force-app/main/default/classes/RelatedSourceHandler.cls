@@ -4,7 +4,6 @@ public without sharing class RelatedSourceHandler {
     public static List<Lead> updateList = new List<Lead>();
     public static List<Related_source__c> rsList = new List<Related_source__c>();
     public static Map<Id,Lead> matchedMap = new  Map<Id,Lead>();
-    public static Set<Id> reEngagedLeadIds = new Set<Id>(); // BRD 4.1.7 - main leads to notify owner on re-enquiry
     public static datetime startTime;
     public static datetime endTime;  
     
@@ -343,38 +342,7 @@ public without sharing class RelatedSourceHandler {
             delete deleteList;
             deleteList.clear();
         }
-        // BRD 4.1.7 - notify the lead owner when the customer re-enquired (Re-Engaged)
-        if(!reEngagedLeadIds.isEmpty()){
-            sendReEnquiryNotification(reEngagedLeadIds);
-            reEngagedLeadIds.clear();
-        }
     }
-
-    // BRD 4.1.7 - sends an in-app (bell) notification to the lead owner on re-enquiry.
-    // Reuses NotificationController.sendCustomNotification (same pattern as the rest of the app).
-    // Fully guarded so it can never block lead creation if the notification type is absent.
-    public static void sendReEnquiryNotification(Set<Id> leadIds){
-        try{
-            // Short-circuit if the notification type isn't present yet (keeps it bulk-safe).
-            List<CustomNotificationType> types = [SELECT Id FROM CustomNotificationType
-                                                  WHERE DeveloperName = 'Lead_Re_Enquiry_Notification' LIMIT 1];
-            if(types.isEmpty()) return;
-            for(Lead l : [SELECT Id, Name, OwnerId FROM Lead WHERE Id IN :leadIds]){
-                if(l.OwnerId != null && String.valueOf(l.OwnerId).startsWith('005')){
-                    NotificationController.sendCustomNotification(
-                        new Set<String>{ String.valueOf(l.OwnerId) },
-                        'Customer Re-Enquired',
-                        'Customer re-enquired for lead: ' + l.Name,
-                        l.Id,
-                        'Lead_Re_Enquiry_Notification'
-                    );
-                }
-            }
-        } catch(Exception e){
-            system.debug('Re-enquiry notification failed: ' + e.getMessage());
-        }
-    }
-
     //in Duplicate is Present exising data in system
     public static void addRelatedSource(Lead nld){
         Related_source__c rs = new Related_source__c();
@@ -471,7 +439,6 @@ public without sharing class RelatedSourceHandler {
         else{
             ld.Lead_Type__c ='Re-Engaged';
             ld.Re_Engaged_Date__c = system.now();
-            reEngagedLeadIds.add(nld.Main_Lead__c); // BRD 4.1.7 - notify owner of re-enquiry
             if(nld.Main_Lead_Age__c > 45 )
             {  
                 //Enquiry Date - 16/12/2025 Added by - Durga Prasad

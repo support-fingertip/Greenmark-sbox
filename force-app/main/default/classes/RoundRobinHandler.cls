@@ -33,7 +33,7 @@ public without sharing class RoundRobinHandler {
                                         (select Name,User__c,User__r.Availability__c from Round_Robin_Members__r
                                          where Active__c = true AND user__r.isActive=true AND user__r.is_working__c=TRUE
                                            AND User__r.Week_off_days__c excludes(:dayOfWeek) AND User_Type__c=:usType
-                                         order by Last_Assigned_time_user__c,createddate asc nulls first)
+                                         order by Last_Assigned_Time__c,createddate asc nulls first)
                                      from Round_Robin__c
                                      where Active__c = true AND Project_Assigned__c in :projectinterested
                                        AND (Round_Robin_Type__c = 'Project' OR Round_Robin_Type__c = null)]){
@@ -47,7 +47,7 @@ public without sharing class RoundRobinHandler {
                                         (select Name,User__c,User__r.Availability__c from Round_Robin_Members__r
                                          where Active__c = true AND user__r.isActive=true AND user__r.is_working__c=TRUE
                                            AND User__r.Week_off_days__c excludes(:dayOfWeek) AND User_Type__c=:usType
-                                         order by Last_Assigned_time_user__c,createddate asc nulls first)
+                                         order by Last_Assigned_Time__c,createddate asc nulls first)
                                      from Round_Robin__c
                                      where Active__c = true AND Round_Robin_Type__c = 'Source'
                                        AND Lead_Source_Type__c in :sourceinterested]){
@@ -60,7 +60,7 @@ public without sharing class RoundRobinHandler {
                                     (select Name,User__c,User__r.Availability__c from Round_Robin_Members__r
                                      where Active__c = true AND user__r.isActive=true AND user__r.is_working__c=TRUE
                                        AND User__r.Week_off_days__c excludes(:dayOfWeek) AND User_Type__c=:usType
-                                     order by Last_Assigned_time_user__c,createddate asc nulls first)
+                                     order by Last_Assigned_Time__c,createddate asc nulls first)
                                  from Round_Robin__c
                                  where Active__c = true AND Round_Robin_Type__c = 'Common' limit 1]){
             commonMembers = rr.Round_Robin_Members__r;
@@ -68,6 +68,7 @@ public without sharing class RoundRobinHandler {
 
         Map<String,Integer> counters = new Map<String,Integer>();
         Map<id,user> rrMemberMapToUpdate = new Map<id,user>();
+        Map<Id,Round_Robin_Member__c> memberUpdates = new Map<Id,Round_Robin_Member__c>(); // BRD 4.1.9 - member-level last-assigned time (ratio)
 
         for(Lead l : toAssign){
             List<Round_Robin_Member__c> queue = null;
@@ -102,15 +103,22 @@ public without sharing class RoundRobinHandler {
                 }
                 l.Reassigned_By__c    = UserInfo.getUserId();
                 l.Re_assigned_date__c = system.now();
+                Long nowTime = system.now().getTime();
+                // Stamp the MEMBER row so a user added multiple times (ratio) rotates independently.
+                memberUpdates.put(m.Id, new Round_Robin_Member__c(Id = m.Id, Last_Assigned_Time__c = nowTime));
+                // Keep the user-level stamp too (backward compatible).
                 user u = new user();
                 u.Id = m.User__c;
-                u.LastAssignmentTime1__c = system.now().getTime();
+                u.LastAssignmentTime1__c = nowTime;
                 rrMemberMapToUpdate.put(m.User__c, u);
             }
             counter++;
             counters.put(key, counter);
         }
 
+        if(!memberUpdates.isEmpty()){
+            UPDATE memberUpdates.values();
+        }
         if(rrMemberMapToUpdate.values().size() > 0){
             UPDATE rrMemberMapToUpdate.values();
             rrMemberMapToUpdate.clear();
