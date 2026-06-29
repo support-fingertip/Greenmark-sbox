@@ -5,7 +5,10 @@ public without sharing class RelatedSourceHandler {
     public static List<Related_source__c> rsList = new List<Related_source__c>();
     public static Map<Id,Lead> matchedMap = new  Map<Id,Lead>();
     public static datetime startTime;
-    public static datetime endTime;  
+    public static datetime endTime;
+    // Active executives (Pre Sales user of a previously Booked lead) used to re-assign a
+    // Re-Opened lead back to the same executive instead of round-robin. Populated in afterinsertLogic2.
+    public static Set<Id> activeReopenExecIds = new Set<Id>();
     
     public static void cpmethod (list<Lead> ldlst){
         Map<String, Channel_partner__c> cpMap = new Map<String, Channel_partner__c>();
@@ -258,7 +261,25 @@ public without sharing class RelatedSourceHandler {
             system.debug(newPhoneMap.size());
             system.debug(newemailMap.size());
         }
-        
+
+        // For Re-Opened leads whose previous status was 'Booked', collect the executive who booked
+        // the customer (Main_Pre_Sales_User__c) and keep only the active ones. Used in addRelatedSource
+        // to assign the Re-Opened lead back to the same executive instead of sending it to round-robin.
+        Set<Id> reopenExecCandidates = new Set<Id>();
+        for(Lead nld : ldList){
+            if(nld.Delete_Lead__c && nld.Main_Lead__c != null
+               && nld.Main_lead_status__c == 'Booked' && nld.Channel_Partner__c == null
+               && !nld.Walking_Lead_Form__c && nld.Main_Pre_Sales_User__c != null){
+                reopenExecCandidates.add(nld.Main_Pre_Sales_User__c);
+            }
+        }
+        activeReopenExecIds = new Set<Id>();
+        if(!reopenExecCandidates.isEmpty()){
+            for(User u : [SELECT Id FROM User WHERE Id IN :reopenExecCandidates AND IsActive = true]){
+                activeReopenExecIds.add(u.Id);
+            }
+        }
+
         for(Lead nld : ldList){
             string allocatedProject='';
             system.debug('-------'+ nld.Delete_Lead__c);
@@ -434,7 +455,20 @@ public without sharing class RelatedSourceHandler {
                  ld.RecordTypeId=SalesRecTypeId;
                  ld.Lead_Status__c='SV Done';
              }
-             
+
+             //If a previously Booked customer's lead is Re-Opened for the same project, assign it back
+             //to the SAME executive who booked the customer (Main_Pre_Sales_User__c) instead of round-robin.
+             //Applies only to direct re-opens (not Channel Partner / GRE) and only when that executive is
+             //still active; otherwise Lead_Assigned__c stays false and it falls back to round-robin as before.
+             if(nld.Main_lead_status__c == 'Booked' && nld.Channel_Partner__c == null && !nld.Walking_Lead_Form__c
+                && nld.Main_Pre_Sales_User__c != null && activeReopenExecIds.contains(nld.Main_Pre_Sales_User__c))
+             {
+                 ld.OwnerId = nld.Main_Pre_Sales_User__c;
+                 ld.Pre_Sales_User__c = nld.Main_Pre_Sales_User__c;
+                 ld.Lead_Assigned__c = true;
+                 ld.Lead_Transfered__c = true;
+             }
+
          }
         else{
             ld.Lead_Type__c ='Re-Engaged';

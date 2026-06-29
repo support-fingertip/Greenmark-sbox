@@ -29,7 +29,7 @@ public without sharing class SiteVisitFormController {
         dt.sourceToSubSoruce = getDependentMap(new Lead(), 'Source_Type__c', 'Lead_source__c');
         dt.channelPatnerList = [select Id,Name from Channel_Partner__c where Active__c = true];
         dt.CpUsersList = [select Id,Name from User where Profile.Name ='CP Sourcing Member'];
-        dt.salesUsersList = [SELECT Id, Name FROM User WHERE IsActive = true AND Profile.Name = 'Sales' ORDER BY Name];
+        dt.salesUsersList = [SELECT Id, Name FROM User WHERE IsActive = true AND Availability__c = true AND Profile.Name = 'Sales' ORDER BY Name];
         return dt;
     }
     @AuraEnabled
@@ -140,14 +140,17 @@ public without sharing class SiteVisitFormController {
       	//Lead Pushing to Sales
       	//=====================
         Lead ld = [SELECT Id,Lead_Status__c,Pre_sales_user__c,OwnerId,Lead_Transfer_Note__c,RecordTypeId,Sales_user__c,
-                   Lead_Assigned__c,Allocated_Project__c,Pushed_On__c,Pushed_By__c,Lead_Owner_Profile__c,Push_To_Sales__c
+                   Lead_Assigned__c,Allocated_Project__c,Pushed_On__c,Pushed_By__c,Lead_Owner_Profile__c,Push_To_Sales__c,RecordType.Name
                    FROM Lead WHERE Id=:LeadId];
+        //Capture the lead's current stage before the record type is pushed to Sales.
+        //Only a Pre Sales lead may be manually re-assigned to a sales user.
+        Boolean isPreSales = (ld.RecordType.Name == 'Pre Sales');
         ld.RecordTypeId = Schema.SObjectType.Lead.getRecordTypeInfosByName().get('Sales').getRecordTypeId();
         ld.Pushed_On__c = system.now();
         ld.Pushed_By__c = UserInfo.getUserId();
-        //If a Sales User is selected manually on the GRE form, assign the lead to that user directly.
-        //Otherwise fall back to the existing push-to-sales / round-robin behavior.
-        if(String.isNotBlank(salesUser))
+        //If a Sales User is selected manually on the GRE form (and the lead is in Pre Sales stage),
+        //assign the lead to that user directly. Otherwise fall back to the existing push-to-sales behavior.
+        if(String.isNotBlank(salesUser) && isPreSales)
         {
             ld.OwnerId = salesUser;
             ld.Sales_User__c = salesUser;
@@ -297,26 +300,43 @@ public without sharing class SiteVisitFormController {
         
     }
     @AuraEnabled
-    public static void leadNotExists(Id leadId,String selectedRating, String remark) {
-        //Once lead is created it will create new visit
-        Lead ld = [select id,name,Lead_source__c,Sub_Source__c,Pre_sales_user__c,Sales_user__c,Allocated_Project__c,OwnerId from Lead where Id =: leadId];
+    public static void leadNotExists(Id leadId,String selectedRating, String remark, String salesUser) {
+        //Once a walk-in lead is created, assign it to the selected sales executive
+        //and log a completed (SV Done) site visit.
+        Lead ld = [select id,name,Lead_source__c,Sub_Source__c,Pre_sales_user__c,Sales_user__c,Allocated_Project__c,
+                   OwnerId,RecordTypeId,Lead_Assigned__c,Push_To_Sales__c,Pushed_On__c,Pushed_By__c,IsPushed__c
+                   from Lead where Id =: leadId];
+
+        //Assign the new walk-in lead to the manually selected sales executive (push to sales)
+        if(String.isNotBlank(salesUser))
+        {
+            ld.OwnerId = salesUser;
+            ld.Sales_User__c = salesUser;
+            ld.Lead_Assigned__c = true;
+            ld.Push_To_Sales__c = false;
+            ld.RecordTypeId = Schema.SObjectType.Lead.getRecordTypeInfosByName().get('Sales').getRecordTypeId();
+            ld.Pushed_On__c = system.now();
+            ld.Pushed_By__c = UserInfo.getUserId();
+            ld.IsPushed__c = true;
+        }
+        ld.Lead_Status__c = 'SV Done';
+        ld.Site_Visit_Conducted_Date__c = system.now();
+        update ld;
+
+        //Auto-create the completed walk-in site visit
         Site_Visit__c sv = new Site_Visit__c();
         sv.SLead__c = ld.Id;
         sv.Date__c = Datetime.now().addMinutes(1);
         sv.Source__c = ld.Lead_source__c;
-        sv.OwnerId = ld.OwnerId;
+        sv.OwnerId = String.isNotBlank(salesUser) ? salesUser : ld.OwnerId;
         sv.Project__c = ld.Allocated_Project__c;
         sv.GRE_Verified_Time__c = Datetime.now().addMinutes(1);
         sv.Site_Visit_Entry_Time__c = Datetime.now().addMinutes(1);
-        sv.Status__c = 'Verified by GRE';
+        sv.SV_Completed_Date_Time__c = system.now();
+        sv.Site_Visit_Type__c = 'First Site Visit';
+        sv.Status__c = 'Completed';
         sv.Comments__c = remark;
         insert sv;
-        
-        //ld.OwnerId = ld.Sales_User__c;
-        //ld.Pre_sales_user__c = ld.Sales_User__c;
-        ld.Lead_Status__c = 'SV Scheduled';
-        ld.Site_Visit_Conducted_Date__c = system.now();
-        update ld;
     }
 
     

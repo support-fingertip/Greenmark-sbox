@@ -123,14 +123,16 @@ private class SiteVisitFormControllerTest {
             String result2 = SiteVisitFormController.checkLeadWithPhoneProject(lad1.Allocated_Project__c, sv1.OTP__c);
 
             SiteVisitFormController.getLead(lad.Id);
-            SiteVisitFormController.leadNotExists(lad1.Id, 'Warm', 'remarks');
+            SiteVisitFormController.leadNotExists(lad1.Id, 'Warm', 'remarks', testUser.Id);
             SiteVisitFormController.getDependentMap( lad, 'Source_Type__c', 'Lead_source__c');
             SiteVisitFormController.extractPicklistValues('lad','Source_Type__c');
 
             // Test createSv
             DateTime dt = System.now();
+            // Pre Sales lead with a sales user -> manual reassignment applies
             SiteVisitFormController.createSv('Test Remark', dt, 'Trifecta Vanto', lad.Id, 'Warm','','','',testUser.Id);
-                 SiteVisitFormController.createSv('Test Remark', dt, 'Trifecta Vanto', lad3.Id, 'Warm','','','','');
+            // Sales-stage lead with a sales user -> guard blocks manual reassignment (falls back)
+                 SiteVisitFormController.createSv('Test Remark', dt, 'Trifecta Vanto', lad3.Id, 'Warm','','','',testUser.Id);
             
         }
     }

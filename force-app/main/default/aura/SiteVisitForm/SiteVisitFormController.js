@@ -46,7 +46,10 @@
                 component.set("v.leadId", leadDetails.leadId);
                 component.set("v.siteVisitComments", '');
                 component.set("v.selectedRating", 'None');
-                if(otpStatus == 'Active Lead Exist' || otpStatus == 'Lead exists but In-Active'){ 
+                component.set("v.salesUserId", '');
+                component.set("v.salesUserSearchText", '');
+                component.set("v.searchedSalesUsers", []);
+                if(otpStatus == 'Active Lead Exist' || otpStatus == 'Lead exists but In-Active'){
                     var action1 = component.get("c.getLead");
                     action1.setParams({ "leadId": leadDetails.leadId});
                     action1.setCallback(this, function(response) {
@@ -183,8 +186,9 @@
         
         var localitofCustomer = component.find("localitofCustomer").get("v.value");
         var companyNameOfCustomer = component.find("companyNameOfCustomer").get("v.value");
-        
-        
+        var salesUser = component.get("v.salesUserId");
+
+
         if(!pattern.test(leadName)|| !pattern.test(leadFirstName)) {
             component.set("v.isSubmitting", false);
             helper.toastMsg('Warning','Name','Please enter alphabets only in Name!');
@@ -198,7 +202,11 @@
         if (!siteVisitComments ) {
             helper.toastMsg('Error', 'Error', 'Please enter Site Visit Comments');
             return;
-        } 
+        }
+        if (!salesUser) {
+            helper.toastMsg('Error', 'Error', 'Please select a Sales Executive');
+            return;
+        }
         if ((!selectedRating || selectedRating =='None') && (otpStatus == "Active Lead Exist")) {
             helper.toastMsg('Error', 'Error', 'Please select Site Visit Rating');
             return;
@@ -275,12 +283,13 @@
         var myRecordId = record.id;
         var siteVisitComments = component.get("v.siteVisitComments");
         var selectedRating = component.get("v.selectedRating");
-        
+
         var action = component.get("c.leadNotExists");
         action.setParams({
             "leadId" : myRecordId,
             "selectedRating": selectedRating,
-            "remark": siteVisitComments
+            "remark": siteVisitComments,
+            "salesUser": component.get("v.salesUserId")
         });
         action.setCallback(this, function(response){
             var state = response.getState();
@@ -294,6 +303,9 @@
                 component.set("v.selectedProject",'None');
                 component.set("v.phone",'');
                 component.set("v.leadId",'');
+                component.set("v.salesUserId",'');
+                component.set("v.salesUserSearchText",'');
+                component.set("v.searchedSalesUsers",[]);
             }else{
                 helper.toastMsg('Error','Error','Something Went Wrong')
             }

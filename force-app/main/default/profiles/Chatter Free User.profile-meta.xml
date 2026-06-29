@@ -8621,6 +8621,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Round_Robin__c.Round_Robin_Type__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>SMS_Setting__mdt.Active__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -9766,27 +9771,27 @@
         <layout>Payment_schedule__c-Payment schedule Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>Plot__c-Unit Layout</layout>
+        <layout>Plot__c-Appartment Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>Plot__c-Unit Layout</layout>
+        <layout>Plot__c-Appartment Layout</layout>
         <recordType>Plot__c.Apartment</recordType>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>Plot__c-Unit Layout</layout>
+        <layout>Plot__c-Appartment Layout</layout>
         <recordType>Plot__c.Appartment</recordType>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>Plot__c-Unit Layout</layout>
-        <recordType>Plot__c.Plot</recordType>
+        <layout>Plot__c-Appartment Layout</layout>
+        <recordType>Plot__c.Villa</recordType>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>Plot__c-Unit Layout</layout>
+        <layout>Plot__c-Row House Layout</layout>
         <recordType>Plot__c.Row_House</recordType>
     </layoutAssignments>
     <layoutAssignments>
         <layout>Plot__c-Unit Layout</layout>
-        <recordType>Plot__c.Villa</recordType>
+        <recordType>Plot__c.Plot</recordType>
     </layoutAssignments>
     <layoutAssignments>
         <layout>Pricebook2-Price Book Layout</layout>

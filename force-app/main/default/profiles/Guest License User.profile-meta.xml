@@ -8621,6 +8621,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Round_Robin__c.Round_Robin_Type__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>SMS_Setting__mdt.Active__c</field>
         <readable>false</readable>
     </fieldPermissions>

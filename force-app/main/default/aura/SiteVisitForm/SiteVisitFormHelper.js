@@ -17,7 +17,8 @@
         action.setParams({
             "leadId" : leadId,
             "selectedRating": selectedRating,
-            "remark": siteVisitComments
+            "remark": siteVisitComments,
+            "salesUser": component.get("v.salesUserId")
         });
         action.setCallback(this, function(response){
             var state = response.getState();
