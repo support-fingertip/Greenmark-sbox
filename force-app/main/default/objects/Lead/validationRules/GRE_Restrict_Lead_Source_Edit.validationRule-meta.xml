@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>GRE_Restrict_Lead_Source_Edit</fullName>
+    <active>true</active>
+    <description>Prevents GRE users from editing the Lead Source (Source Type / Lead Source / Sub Source) on an existing lead. Creation is unaffected (NOT ISNEW), so GRE can still set the source when creating a walk-in lead.</description>
+    <errorConditionFormula>AND(
+    $Profile.Name = &quot;GRE&quot;,
+    NOT(ISNEW()),
+    OR(
+        ISCHANGED(Lead_source__c),
+        ISCHANGED(Source_Type__c),
+        ISCHANGED(Sub_Source__c)
+    )
+)</errorConditionFormula>
+    <errorMessage>You do not have access to edit the Lead Source. Please contact your administrator.</errorMessage>
+</ValidationRule>
