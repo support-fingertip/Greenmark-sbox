@@ -8,16 +8,25 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
+    env:
+      SF_AUTOUPDATE_DISABLE: "true"
+      SF_DISABLE_TELEMETRY: "true"
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: Install Salesforce CLI
         run: |
-          npm install --global @salesforce/cli
+          npm install --global @salesforce/cli@2.x
           sf --version
       
       - name: Authenticate to Salesforce
