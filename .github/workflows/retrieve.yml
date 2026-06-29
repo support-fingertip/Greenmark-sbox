@@ -26,7 +26,7 @@ jobs:
  
       - name: Install Salesforce CLI
         run: |
-          npm install --global @salesforce/cli
+          npm install --global @salesforce/cli@2.x
           sf --version
  
       - name: Authenticate to Salesforce
