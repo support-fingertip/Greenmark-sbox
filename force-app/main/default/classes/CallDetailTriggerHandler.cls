@@ -61,8 +61,14 @@ public class CallDetailTriggerHandler {
                 ld.First_Call_Time__c = firstCallMap.get(ld.Id);
                 ld.Last_Call_Time__c  = lastCallMap.get(ld.Id);
             }
-            
+
             database.update(leadsToUpdate,false);
+
+            // TAT (Turnaround Time) breach evaluation for the first call - BRD 4.1.10
+            List<Lead> tatLeads = TATCalculationHelper.evaluateCallTAT(leadIds, firstCallMap);
+            if (!tatLeads.isEmpty()) {
+                database.update(tatLeads, false);
+            }
         }
     }
 }
