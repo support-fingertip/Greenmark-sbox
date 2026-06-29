@@ -4395,7 +4395,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>Lead.Credit_Source__c</field>
         <readable>true</readable>
     </fieldPermissions>
