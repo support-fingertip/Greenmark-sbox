@@ -394,7 +394,8 @@ public without sharing class RelatedSourceHandler {
        
         Lead ld = new Lead();
         ld.Id=nld.Main_Lead__c;
-        // Lead validity thresholds - admin configurable via Lead_Validity_Config__mdt (fallback 45/90)
+        // Lead validity thresholds - admin configurable via Lead_Validity_Config__mdt (fallback 45/90).
+        // Thresholds live in custom metadata so admins can change them in Setup without code changes.
         Lead_Validity_Config__mdt validityCfg = Lead_Validity_Config__mdt.getInstance('Default');
         Decimal sourceValidityDays = (validityCfg != null && validityCfg.Source_Validity_Days__c != null)
                                      ? validityCfg.Source_Validity_Days__c : 45;

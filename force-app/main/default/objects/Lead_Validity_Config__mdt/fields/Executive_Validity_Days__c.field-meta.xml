@@ -4,6 +4,7 @@
     <externalId>false</externalId>
     <fieldManageability>DeveloperControlled</fieldManageability>
     <label>Executive Validity Days</label>
+    <description>Days a lead stays with the same executive on re-engagement (default 90).</description>
     <inlineHelpText>Number of days a lead stays with the same executive on re-engagement. Beyond this, it is reassigned via project round robin. Default 90.</inlineHelpText>
     <precision>5</precision>
     <required>false</required>

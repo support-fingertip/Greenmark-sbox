@@ -4,6 +4,7 @@
     <externalId>false</externalId>
     <fieldManageability>DeveloperControlled</fieldManageability>
     <label>Source Validity Days</label>
+    <description>Days a source retains lead credit (default 45).</description>
     <inlineHelpText>Number of days a source retains lead credit. After this, a re-enquiry from a new source takes the credit. Default 45.</inlineHelpText>
     <precision>5</precision>
     <required>false</required>
