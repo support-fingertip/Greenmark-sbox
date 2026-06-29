@@ -176,8 +176,10 @@
         var selectedReason = component.get("v.selectedReason");
         var curLead = component.get("v.leadRecord");
         var callCount = component.get("v.callCount");
+        var leadStatus = component.get("v.leadStatus");
        // alert(selectedReason)
-        if(selectedReason == 'RNR'){
+        // When the target Lead Status is 'Closed Lost', the 7-call (RNR) validation does not apply.
+        if(selectedReason == 'RNR' && leadStatus !== 'Closed Lost'){
             
            // alert(curLead.No_Of_Times_Unqualified__c);
             //alert(curLead.callCount);
