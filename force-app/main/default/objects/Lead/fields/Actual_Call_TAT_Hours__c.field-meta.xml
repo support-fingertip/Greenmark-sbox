@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Actual_Call_TAT_Hours__c</fullName>
+    <externalId>false</externalId>
+    <label>Actual Call TAT (Hours)</label>
+    <inlineHelpText>Actual hours taken from lead assignment (Enquiry Date) to the first call.</inlineHelpText>
+    <precision>6</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

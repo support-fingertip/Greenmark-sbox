@@ -20,6 +20,11 @@ trigger SLeadTrigger on Lead (before insert, after insert, before update, after 
                         {
                             led.Created_Date__c = system.now();
                         }
+                        //Lead Assigned Time - start point for TAT (Turnaround Time) calculation
+                        if(led.Lead_Assigned_Time__c == null)
+                        {
+                            led.Lead_Assigned_Time__c = system.now();
+                        }
                         if( led.Source_Type__c != null && led.Source_Type__c != '')
                         {
                               led.Credit_Source__c = led.Source_Type__c;
