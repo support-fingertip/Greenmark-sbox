@@ -1,4 +1,4 @@
-// Coverage for RoundRobinMemberTriggerHandler.
+// Coverage for RoundRobinMemberTriggerHandler v2.
 @isTest
 public class RoundRobinMemberTriggerHandlerTest {
 
