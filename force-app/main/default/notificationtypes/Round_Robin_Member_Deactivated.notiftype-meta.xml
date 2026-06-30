@@ -3,5 +3,4 @@
     <customNotifTypeName>Round_Robin_Member_Deactivated</customNotifTypeName>
     <desktop>true</desktop>
     <mobile>true</mobile>
-    <title>Round Robin Member Deactivated</title>
 </CustomNotificationType>
