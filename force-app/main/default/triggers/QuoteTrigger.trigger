@@ -1,9 +1,14 @@
-trigger QuoteTrigger on Quote__c (before insert,after update) {
+trigger QuoteTrigger on Quote__c (before insert,after insert,after update) {
     if(trigger.isInsert)
     {
         if(trigger.isBefore)
         {
             QuoteApprovalHandler.beforeInsert(trigger.New);
+        }
+        else
+        {
+            // Kenyt.AI quotation sent (BRD 4.12.2 #3) - no-op until template configured/active
+            KenytWhatsAppService.send('QUOTE_SENT', trigger.newMap.keySet(), 'Quote__c');
         }
     }
     /*

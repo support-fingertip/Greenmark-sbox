@@ -333,9 +333,14 @@ trigger SLeadTrigger on Lead (before insert, after insert, before update, after 
                     if(label.Enable_whatsapp_notifications == 'TRUE'){
                         WhatsappController ctrl = new WhatsappController(newLeads,'1');
                         System.enqueueJob(ctrl);
-                        
+
                         SMSHandler ctrl2 = new SMSHandler(newLeads,'1');
                         System.enqueueJob(ctrl2);
+                    }
+
+                    // Kenyt.AI welcome message (BRD 4.12.2 #1) - no-op until template is configured/active
+                    if(!newLeads.isEmpty()){
+                        KenytWhatsAppService.send('LEAD_WELCOME', new Map<Id,Lead>(newLeads).keySet(), 'Lead');
                     }
                    
                 } 

@@ -65,8 +65,27 @@ trigger SiteVisitTrigger on Site_Visit__c (before insert,After Update, after ins
                     System.enqueueJob(smsctrl);
                 }
             }
-            
+
+            // Kenyt.AI site-visit messages (BRD 4.12.2) - no-op until templates configured/active
+            if(Trigger.isInsert){
+                // #2 Appointment confirmation / Site Visit creation
+                KenytWhatsAppService.send('SV_CREATED', Trigger.newMap.keySet(), 'Site_Visit__c');
+            }
+            if(Trigger.isUpdate){
+                // #8 Post site-visit completion (thank you + feedback)
+                Set<Id> svCompleted = new Set<Id>();
+                for(Site_Visit__c vis : Trigger.new){
+                    if(vis.Status__c == 'Completed'
+                       && vis.Status__c != Trigger.oldMap.get(vis.Id).Status__c){
+                        svCompleted.add(vis.Id);
+                    }
+                }
+                if(!svCompleted.isEmpty()){
+                    KenytWhatsAppService.send('SV_POST', svCompleted, 'Site_Visit__c');
+                }
+            }
+
         }
     }
-    
+
 }
