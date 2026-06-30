@@ -14,6 +14,18 @@
         var user=component.get('v.usr');
         helper.onChange(component,event,'');
     },
+    workingChange:function(component, event, helper){
+        var isWorking = event.getSource().get("v.checked");
+        var user = component.get('v.usr');
+        user.is_working__c = isWorking;
+        // Rule: if user marks "Leave" (not working), move Available status to "Unavailable".
+        if(!isWorking){
+            user.Availability__c = false;
+            component.set("v.toggleClass", "custom2-toggle-style"); // Red for offline
+        }
+        component.set('v.usr', user);
+        helper.onChange(component,event,'');
+    },
     closePopUP:function(component, event, helper){
         var user=component.get('v.usr');
         user.Availability__c = true;

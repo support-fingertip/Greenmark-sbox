@@ -17,11 +17,15 @@
                             <aura:if isTrue="{!v.isCti}">
                                 {!v.label} &nbsp;
                                 <lightning:input class="slds-p-right_medium"  type="toggle" name="{!v.usr.id}"  checked="{!v.usr.Availability__c}" value="{!v.usr.Availability__c}" onchange="{!c.selectChange}" messageToggleActive="Available"  messageToggleInactive="Offline"/>
-                                <lightning:icon size="xx-small" iconName="{!v.usr.Availability__c ? 'action:approval' : 'action:close'}"/>  
+                                <lightning:icon size="xx-small" iconName="{!v.usr.Availability__c ? 'action:approval' : 'action:close'}"/>
+                                <lightning:input class="slds-p-left_medium slds-p-right_medium" type="toggle" checked="{!v.usr.is_working__c}" value="{!v.usr.is_working__c}" onchange="{!c.workingChange}" messageToggleActive="Working" messageToggleInactive="Leave"/>
+                                <lightning:icon size="xx-small" iconName="{!v.usr.is_working__c ? 'action:approval' : 'action:close'}"/>
                                 <aura:set attribute="else">
                                     {!v.label} &nbsp;   <!--{!'slds-p-right_medium ' + v.toggleClass}-->
                                     <lightning:input class="{!'slds-p-right_medium ' + v.toggleClass}" type="toggle" name="{!v.usr.id}"  checked="{!v.usr.Availability__c}" value="{!v.usr.Availability__c}" onchange="{!c.selectChange}" messageToggleActive="Available"  messageToggleInactive="Offline"/>
                                     <lightning:icon size="xx-small" iconName="{!v.usr.Availability__c ? 'action:approval' : 'action:close'}"/>
+                                    <lightning:input class="slds-p-left_medium slds-p-right_medium" type="toggle" checked="{!v.usr.is_working__c}" value="{!v.usr.is_working__c}" onchange="{!c.workingChange}" messageToggleActive="Working" messageToggleInactive="Leave"/>
+                                    <lightning:icon size="xx-small" iconName="{!v.usr.is_working__c ? 'action:approval' : 'action:close'}"/>
                                 </aura:set>
                             </aura:if>
                         </div>
