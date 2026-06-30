@@ -10,7 +10,7 @@
  *   - an email
  * to the member's User.
  */
-// Sends bell + email to the executive on member deactivation (BRD 4.1.9).
+// Sends bell + email to the executive on member deactivation (BRD 4.1.9) v2.
 public without sharing class RoundRobinMemberTriggerHandler {
 
     private static final String NOTIF_TYPE = 'Round_Robin_Member_Deactivated';
