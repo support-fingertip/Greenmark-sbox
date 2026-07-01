@@ -59,7 +59,6 @@
     <aura:attribute name="autoMapChannelPartner" type="Boolean" default="false"/>
     
     <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
-    <aura:handler name="scanned" event="c:qrScannedEvt" action="{!c.handleQrScanned}" />
     
     <div>
         <div class="slds-page-header">
@@ -225,6 +224,7 @@
                     <button class="slds-button slds-button_destructive" onclick="{!c.clearValues}">Clear</button>
                 </div>
             </lightning:tab>
+            <aura:if isTrue="{!$Browser.formFactor != 'DESKTOP'}">
             <lightning:tab label="Search Lead with QR" id="4">
                 <div class="slds-scope slds-text-align_left qr-tab">
                     <!-- Header -->
@@ -254,8 +254,8 @@
                         <div class="slds-m-vertical_small slds-text-color_error slds-text-body_regular">{!v.qrError}</div>
                     </aura:if>
 
-                    <!-- Camera viewport (Locker-exempt child; visible only while scanning) -->
-                    <c:qrScanner aura:id="qrScannerCmp"/>
+                    <!-- Native mobile QR scanner (Salesforce mobile app only) -->
+                    <c:qrScannerMobile aura:id="qrScannerCmp" onscanned="{!c.handleQrScanned}"/>
 
                     <!-- Empty state: nothing scanned and not scanning -->
                     <aura:if isTrue="{!v.showDetails == false}">
@@ -335,6 +335,7 @@
                     </aura:if>
                 </div>
             </lightning:tab>
+            </aura:if>
             <aura:if isTrue="{!v.otpStatus == 'Active Lead Exist'}">
                 <lightning:tab label="Update Site Visit" id="2">
                     <lightning:card>
