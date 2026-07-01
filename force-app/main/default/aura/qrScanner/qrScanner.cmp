@@ -5,21 +5,20 @@
     <aura:attribute name="instance" type="Object"/>
 
     <aura:registerEvent name="scanned" type="c:qrScannedEvt"/>
+    <aura:method name="startScan" action="{!c.startScan}" description="Start the camera scan."/>
     <aura:method name="reset" action="{!c.reset}" description="Stop any active scan and clear the scanner state."/>
     <ltng:require scripts="{!$Resource.html5QrCode}" afterScriptsLoaded="{!c.scriptsLoaded}"/>
 
     <div class="slds-scope">
-        <aura:if isTrue="{!v.scanning == false}">
-            <button class="slds-button slds-button_brand" onclick="{!c.startScan}">Scan QR</button>
-        </aura:if>
-
-        <div class="{!v.scanning ? 'slds-m-top_small' : 'slds-hide'}">
-            <div id="qr-reader-el" style="width:300px; max-width:100%;"></div>
-            <button class="slds-button slds-button_destructive slds-m-top_small" onclick="{!c.cancelScan}">Cancel</button>
+        <div class="{!v.scanning ? 'slds-m-vertical_small' : 'slds-hide'}">
+            <div id="qr-reader-el" style="width:300px; max-width:100%; margin:0 auto;"></div>
+            <div class="slds-align_absolute-center slds-m-top_small">
+                <button class="slds-button slds-button_destructive" onclick="{!c.cancelScan}">Cancel</button>
+            </div>
         </div>
 
         <aura:if isTrue="{!v.error != null}">
-            <div class="slds-text-color_error slds-m-top_small">{!v.error}</div>
+            <div class="slds-text-color_error slds-m-top_small slds-text-align_center">{!v.error}</div>
         </aura:if>
     </div>
 </aura:component>

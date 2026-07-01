@@ -41,10 +41,18 @@
         });
         $A.enqueueAction(action);
     },
+    // Parent-owned "Scan QR" button; triggers the Locker-exempt scanner child.
+    startQrScan : function(component, event, helper) {
+        component.set("v.qrError", null);
+        component.set("v.qrScanning", true);
+        var scanner = component.find("qrScannerCmp");
+        if (scanner) { scanner.startScan(); }
+    },
     // "Search Lead with QR" tab: QR only replaces the input. Once the Lead is
     // identified, run the identical Search Lead flow via helper.handleLeadResult.
     handleQrScanned : function(component, event, helper) {
         var status = event.getParam("status");
+        component.set("v.qrScanning", false);
         if (status === "cancelled") {
             component.set("v.qrError", "QR scan cancelled.");
             return;

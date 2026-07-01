@@ -1,2 +1,116 @@
 .THIS {
 }
+
+/* ---- Search Lead with QR tab ---- */
+.THIS .qr-tab {
+    padding: 1rem 1.25rem;
+}
+
+.THIS .qr-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+.THIS .qr-header-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: #1b96ff;
+}
+.THIS .qr-header-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #16325c;
+}
+.THIS .qr-header-sub {
+    color: #5c6b7a;
+    font-size: 0.85rem;
+}
+
+.THIS .qr-actions {
+    margin-bottom: 1rem;
+}
+
+.THIS .qr-empty {
+    border: 2px dashed #c9d6e5;
+    border-radius: 10px;
+    padding: 2rem 1rem;
+    text-align: center;
+    background: #fbfcfe;
+    margin-top: 0.5rem;
+}
+.THIS .qr-empty-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #eaf3ff;
+    margin-bottom: 0.75rem;
+}
+.THIS .qr-empty-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #16325c;
+}
+.THIS .qr-empty-sub {
+    color: #5c6b7a;
+    margin-top: 0.25rem;
+}
+
+.THIS .qr-section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #16325c;
+    margin: 1.25rem 0 0.5rem;
+}
+.THIS .qr-section-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #ff9a3c;
+}
+
+.THIS .qr-lead-card {
+    border: 1px solid #e3e8ef;
+    border-radius: 8px;
+    background: #fff;
+    padding: 1rem 1.25rem;
+}
+.THIS .qr-lead-table {
+    width: 100%;
+    table-layout: fixed;
+}
+.THIS .qr-lead-table td {
+    padding: 0.45rem 0.5rem;
+    font-size: 0.9rem;
+    vertical-align: top;
+    width: 50%;
+}
+.THIS .qr-lead-table b {
+    color: #3a4a5a;
+    font-weight: 600;
+}
+
+.THIS .qr-footer {
+    display: flex;
+    align-items: center;
+    background: #eef4fb;
+    border: 1px solid #dbe7f5;
+    border-radius: 6px;
+    padding: 0.6rem 0.85rem;
+    margin-top: 0.85rem;
+    color: #3a4a5a;
+    font-size: 0.85rem;
+}
