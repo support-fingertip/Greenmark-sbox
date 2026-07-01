@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CspTrustedSite xmlns="http://soap.sforce.com/2006/04/metadata">
+    <context>All</context>
+    <description>Allows the Site Visit QR image (api.qrserver.com) to render in components.</description>
+    <endpointUrl>https://api.qrserver.com</endpointUrl>
+    <isActive>true</isActive>
+</CspTrustedSite>

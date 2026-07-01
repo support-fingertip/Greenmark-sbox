@@ -1,0 +1,38 @@
+<aura:component implements="flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickActionWithoutHeader"
+                access="global"
+                controller="SiteVisitQRService">
+    <aura:attribute name="recordId" type="Id"/>
+    <aura:attribute name="qrUrl" type="String"/>
+    <aura:attribute name="isLoading" type="Boolean" default="false"/>
+    <aura:attribute name="error" type="String"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+
+    <lightning:card title="Site Visit QR Code">
+        <div class="slds-p-around_medium slds-align_absolute-center" style="flex-direction:column;">
+
+            <aura:if isTrue="{!v.qrUrl != null}">
+                <img src="{!v.qrUrl}" alt="Site Visit QR Code"
+                     style="width:250px; height:250px;" class="slds-box slds-box_x-small"/>
+                <aura:set attribute="else">
+                    <aura:if isTrue="{!v.error != null}">
+                        <p class="slds-text-color_error slds-p-vertical_small">{!v.error}</p>
+                        <aura:set attribute="else">
+                            <lightning:spinner alternativeText="Loading" size="small"/>
+                        </aura:set>
+                    </aura:if>
+                </aura:set>
+            </aura:if>
+
+            <p class="slds-text-body_small slds-text-color_weak slds-p-top_x-small slds-text-align_center">
+                Scan to open this Site Visit (owner / GRE only).
+            </p>
+
+            <lightning:button class="slds-m-top_medium"
+                              variant="brand"
+                              label="Send QR Code"
+                              iconName="utility:email"
+                              onclick="{!c.sendQr}"
+                              disabled="{!v.isLoading}"/>
+        </div>
+    </lightning:card>
+</aura:component>
