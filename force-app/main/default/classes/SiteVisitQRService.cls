@@ -107,3 +107,4 @@ public with sharing class SiteVisitQRService {
         return res.getStatusCode() == 200 ? res.getBodyAsBlob() : null;
     }
 }
+
