@@ -59,7 +59,7 @@
     <aura:attribute name="autoMapChannelPartner" type="Boolean" default="false"/>
     
     <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
-    <aura:handler event="c:qrScannedEvt" action="{!c.handleQrScanned}" />
+    <aura:handler name="scanned" event="c:qrScannedEvt" action="{!c.handleQrScanned}" />
     
     <div>
         <div class="slds-page-header">
