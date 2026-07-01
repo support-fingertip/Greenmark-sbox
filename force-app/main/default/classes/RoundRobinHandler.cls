@@ -95,6 +95,7 @@ public without sharing class RoundRobinHandler {
             if(m != null && m.User__c != null){
                 l.ownerId = m.User__c;
                 l.Lead_Assigned__c = true;
+                l.Lead_Assigned_Time__c = System.now();
                 if(usType == 'Pre Sales'){
                     l.Pre_sales_user__c = m.User__c;
                 }else{

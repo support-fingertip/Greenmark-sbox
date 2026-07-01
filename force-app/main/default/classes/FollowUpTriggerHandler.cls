@@ -1,5 +1,34 @@
 public class FollowUpTriggerHandler {
-    
+
+    /**
+     * Captures the first follow-up time on the Lead and evaluates the
+     * follow-up TAT (Turnaround Time) breach - BRD 4.1.10.
+     */
+    public static void afterInsert(list<Follow_up__c> newFollowups)
+    {
+        // Earliest follow-up datetime per lead from this insert batch.
+        Map<Id, DateTime> followupTimeMap = new Map<Id, DateTime>();
+        for(Follow_up__c flp : newFollowups)
+        {
+            if(flp.SLead__c == null) continue;
+            DateTime created = (flp.CreatedDate != null) ? flp.CreatedDate : System.now();
+            if(!followupTimeMap.containsKey(flp.SLead__c)
+               || created < followupTimeMap.get(flp.SLead__c))
+            {
+                followupTimeMap.put(flp.SLead__c, created);
+            }
+        }
+
+        if(followupTimeMap.isEmpty()) return;
+
+        List<Lead> tatLeads = TATCalculationHelper.evaluateFollowupTAT(
+            followupTimeMap.keySet(), followupTimeMap);
+        if(!tatLeads.isEmpty())
+        {
+            database.update(tatLeads, false);
+        }
+    }
+
     public static void beforeInsert(list<Follow_up__c> newFollowups)
     {
         for(Follow_up__c flp : newFollowups)

@@ -394,6 +394,13 @@ public without sharing class RelatedSourceHandler {
        
         Lead ld = new Lead();
         ld.Id=nld.Main_Lead__c;
+        // Lead validity thresholds - admin configurable via Lead_Validity_Config__mdt (fallback 45/90).
+        // Thresholds live in custom metadata so admins can change them in Setup without code changes.
+        Lead_Validity_Config__mdt validityCfg = Lead_Validity_Config__mdt.getInstance('Default');
+        Decimal sourceValidityDays = (validityCfg != null && validityCfg.Source_Validity_Days__c != null)
+                                     ? validityCfg.Source_Validity_Days__c : 45;
+        Decimal executiveValidityDays = (validityCfg != null && validityCfg.Executive_Validity_Days__c != null)
+                                        ? validityCfg.Executive_Validity_Days__c : 90;
         ld.Last_Source_Of_Enquiry__c =nld.Source_Type__c;
         ld.Last_Sub_Source__c =  nld.Lead_source__c;
         if(nld.Campaign__c != null){ ld.Last_Campagin__c = nld.Campaign__c;}
@@ -473,8 +480,8 @@ public without sharing class RelatedSourceHandler {
         else{
             ld.Lead_Type__c ='Re-Engaged';
             ld.Re_Engaged_Date__c = system.now();
-            if(nld.Main_Lead_Age__c > 45 )
-            {  
+            if(nld.Main_Lead_Age__c > sourceValidityDays )
+            {
                 //Enquiry Date - 16/12/2025 Added by - Durga Prasad
                 ld.Enquiry_Date__c = system.now();
                 ld.Credit_Source__c =nld.Source_Type__c;
@@ -490,7 +497,7 @@ public without sharing class RelatedSourceHandler {
             
             //After 90 days if it is re-enaging we need to assign to new Executive 
             //with Pre Sales user and Lead Status as New
-            if(nld.Main_Lead_Age__c > 90)
+            if(nld.Main_Lead_Age__c > executiveValidityDays)
             {
                 string RecTypeId = Schema.SObjectType.Lead.getRecordTypeInfosByName().get('Pre Sales').getRecordTypeId();
                 ld.Lead_status__c ='New';

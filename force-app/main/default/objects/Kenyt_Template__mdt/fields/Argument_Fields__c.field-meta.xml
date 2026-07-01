@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Argument_Fields__c</fullName>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>Ordered, comma-separated field API names on the source record used to fill the template variables (Arguments). e.g. Name,Allocated_Project__c</inlineHelpText>
+    <label>Argument Fields</label>
+    <length>500</length>
+    <type>LongTextArea</type>
+    <visibleLines>3</visibleLines>
+</CustomField>
