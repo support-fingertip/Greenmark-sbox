@@ -1,9 +1,9 @@
 <template>
     <lightning-card>
-        <div class="slds-p-horizontal_medium slds-p-bottom_medium">
+        <div class="slds-p-horizontal_small slds-p-bottom_small">
             <!-- Header -->
             <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-p-bottom_x-small">
-                <div>
+                <div class="header-text">
                     <h2 class="slds-text-heading_small header-title">Lead History (by Phone Number)</h2>
                     <p class="slds-text-body_small slds-text-color_weak">{subtitle}</p>
                 </div>
@@ -16,51 +16,49 @@
                 </lightning-button-icon>
             </div>
 
-            <!-- Table -->
+            <!-- One card per matching Lead -->
             <template lwc:if={hasLeads}>
-                <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-table_fixed-layout">
-                    <thead>
-                        <tr class="slds-line-height_reset">
-                            <th scope="col"><div class="slds-truncate" title="Lead Name">Lead Name</div></th>
-                            <th scope="col"><div class="slds-truncate" title="Phone Number">Phone Number</div></th>
-                            <th scope="col"><div class="slds-truncate" title="Project">Project</div></th>
-                            <th scope="col"><div class="slds-truncate" title="Status">Status</div></th>
-                            <th scope="col"><div class="slds-truncate" title="Owner">Owner</div></th>
-                            <th scope="col"><div class="slds-truncate" title="Created Date">Created Date</div></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <template for:each={leads} for:item="lead">
-                            <tr key={lead.id} class="slds-hint-parent">
-                                <td data-label="Lead Name">
-                                    <div class="slds-truncate">
-                                        <lightning-formatted-url
-                                            value={lead.recordUrl}
-                                            label={lead.name}
-                                            target="_self">
-                                        </lightning-formatted-url>
-                                    </div>
-                                </td>
-                                <td data-label="Phone Number"><div class="slds-truncate" title={lead.phone}>{lead.phone}</div></td>
-                                <td data-label="Project"><div class="slds-truncate" title={lead.project}>{lead.project}</div></td>
-                                <td data-label="Status">
-                                    <lightning-badge label={lead.status}></lightning-badge>
-                                </td>
-                                <td data-label="Owner"><div class="slds-truncate" title={lead.ownerName}>{lead.ownerName}</div></td>
-                                <td data-label="Created Date">
-                                    <lightning-formatted-date-time
-                                        value={lead.createdDate}
-                                        year="numeric" month="short" day="2-digit"
-                                        hour="2-digit" minute="2-digit">
-                                    </lightning-formatted-date-time>
-                                </td>
-                            </tr>
-                        </template>
-                    </tbody>
-                </table>
+                <template for:each={leads} for:item="lead">
+                    <article key={lead.id} class="slds-box slds-box_x-small slds-m-bottom_x-small lead-card">
+                        <!-- Name + Status -->
+                        <div class="slds-grid slds-wrap slds-grid_align-spread slds-grid_vertical-align-center lead-card__head">
+                            <lightning-formatted-url
+                                class="lead-name"
+                                value={lead.recordUrl}
+                                label={lead.name}
+                                target="_self">
+                            </lightning-formatted-url>
+                            <lightning-badge label={lead.status} class="slds-m-left_xx-small"></lightning-badge>
+                        </div>
+
+                        <!-- Fields -->
+                        <div class="lead-field">
+                            <span class="lead-label">Phone</span>
+                            <span class="lead-value">{lead.phone}</span>
+                        </div>
+                        <div class="lead-field">
+                            <span class="lead-label">Project</span>
+                            <span class="lead-value">{lead.project}</span>
+                        </div>
+                        <div class="lead-field">
+                            <span class="lead-label">Owner</span>
+                            <span class="lead-value">{lead.ownerName}</span>
+                        </div>
+                        <div class="lead-field">
+                            <span class="lead-label">Created</span>
+                            <span class="lead-value">
+                                <lightning-formatted-date-time
+                                    value={lead.createdDate}
+                                    year="numeric" month="short" day="2-digit"
+                                    hour="2-digit" minute="2-digit">
+                                </lightning-formatted-date-time>
+                            </span>
+                        </div>
+                    </article>
+                </template>
 
                 <!-- Footer -->
-                <p class="slds-text-body_small slds-text-color_weak slds-p-top_small">
+                <p class="slds-text-body_small slds-text-color_weak slds-p-top_x-small">
                     <lightning-icon icon-name="utility:info" size="xx-small" class="slds-m-right_xx-small"></lightning-icon>
                     {footer}
                 </p>
