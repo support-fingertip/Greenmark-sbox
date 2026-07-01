@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Source_Validity_Days__c</fullName>
+    <description>Days a source retains lead credit (default 45).</description>
     <externalId>false</externalId>
     <fieldManageability>DeveloperControlled</fieldManageability>
-    <label>Source Validity Days</label>
-    <description>Days a source retains lead credit (default 45).</description>
     <inlineHelpText>Number of days a source retains lead credit. After this, a re-enquiry from a new source takes the credit. Default 45.</inlineHelpText>
+    <label>Source Validity Days</label>
     <precision>5</precision>
     <required>false</required>
     <scale>0</scale>

@@ -3,8 +3,8 @@
     <fullName>Event__c</fullName>
     <externalId>false</externalId>
     <fieldManageability>DeveloperControlled</fieldManageability>
-    <label>Event</label>
     <inlineHelpText>Unique trigger key the Apex service looks up, e.g. LEAD_WELCOME, SV_CREATED, QUOTE_SENT, BOOKING_CONFIRMED, SV_REMINDER_1, SV_REMINDER_2, SV_POST.</inlineHelpText>
+    <label>Event</label>
     <length>80</length>
     <required>false</required>
     <type>Text</type>

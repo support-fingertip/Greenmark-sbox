@@ -3,8 +3,8 @@
     <fullName>Template_Name__c</fullName>
     <externalId>false</externalId>
     <fieldManageability>DeveloperControlled</fieldManageability>
-    <label>Template Name</label>
     <inlineHelpText>The Kenyt template name (TemplateName) to send for this event.</inlineHelpText>
+    <label>Template Name</label>
     <length>120</length>
     <required>false</required>
     <type>Text</type>

@@ -3,8 +3,8 @@
     <fullName>Base_URL__c</fullName>
     <externalId>false</externalId>
     <fieldManageability>DeveloperControlled</fieldManageability>
-    <label>Base URL</label>
     <inlineHelpText>Kenyt region base URL, e.g. https://india.kenyt.ai</inlineHelpText>
+    <label>Base URL</label>
     <length>255</length>
     <required>false</required>
     <type>Text</type>

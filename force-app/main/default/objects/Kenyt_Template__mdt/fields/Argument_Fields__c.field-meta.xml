@@ -3,8 +3,8 @@
     <fullName>Argument_Fields__c</fullName>
     <externalId>false</externalId>
     <fieldManageability>DeveloperControlled</fieldManageability>
-    <label>Argument Fields</label>
     <inlineHelpText>Ordered, comma-separated field API names on the source record used to fill the template variables (Arguments). e.g. Name,Allocated_Project__c</inlineHelpText>
+    <label>Argument Fields</label>
     <length>500</length>
     <type>LongTextArea</type>
     <visibleLines>3</visibleLines>

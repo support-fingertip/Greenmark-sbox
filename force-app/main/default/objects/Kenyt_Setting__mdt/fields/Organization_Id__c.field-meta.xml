@@ -3,8 +3,8 @@
     <fullName>Organization_Id__c</fullName>
     <externalId>false</externalId>
     <fieldManageability>DeveloperControlled</fieldManageability>
-    <label>Organization Id</label>
     <inlineHelpText>Kenyt Organization ID, passed as the organizationId query param.</inlineHelpText>
+    <label>Organization Id</label>
     <length>100</length>
     <required>false</required>
     <type>Text</type>

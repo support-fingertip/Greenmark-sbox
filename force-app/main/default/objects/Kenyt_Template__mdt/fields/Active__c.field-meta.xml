@@ -4,7 +4,7 @@
     <defaultValue>false</defaultValue>
     <externalId>false</externalId>
     <fieldManageability>DeveloperControlled</fieldManageability>
-    <label>Active</label>
     <inlineHelpText>Only active templates are sent. Lets you turn a scenario on/off without code.</inlineHelpText>
+    <label>Active</label>
     <type>Checkbox</type>
 </CustomField>

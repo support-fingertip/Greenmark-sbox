@@ -3,8 +3,8 @@
     <fullName>Auth_Token__c</fullName>
     <externalId>false</externalId>
     <fieldManageability>DeveloperControlled</fieldManageability>
-    <label>Auth Token</label>
     <inlineHelpText>CRM Auth Token from Kenyt, passed as the authToken query param.</inlineHelpText>
+    <label>Auth Token</label>
     <length>255</length>
     <required>false</required>
     <type>Text</type>

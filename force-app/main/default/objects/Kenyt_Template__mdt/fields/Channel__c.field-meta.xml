@@ -3,16 +3,29 @@
     <fullName>Channel__c</fullName>
     <externalId>false</externalId>
     <fieldManageability>DeveloperControlled</fieldManageability>
-    <label>Channel</label>
     <inlineHelpText>WhatsApp/SMS use Phone; Email uses Email.</inlineHelpText>
+    <label>Channel</label>
     <required>false</required>
     <type>Picklist</type>
     <valueSet>
+        <restricted>true</restricted>
         <valueSetDefinition>
             <sorted>false</sorted>
-            <value><fullName>WhatsApp</fullName><default>true</default><label>WhatsApp</label></value>
-            <value><fullName>SMS</fullName><default>false</default><label>SMS</label></value>
-            <value><fullName>Email</fullName><default>false</default><label>Email</label></value>
+            <value>
+                <fullName>WhatsApp</fullName>
+                <default>true</default>
+                <label>WhatsApp</label>
+            </value>
+            <value>
+                <fullName>SMS</fullName>
+                <default>false</default>
+                <label>SMS</label>
+            </value>
+            <value>
+                <fullName>Email</fullName>
+                <default>false</default>
+                <label>Email</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

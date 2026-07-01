@@ -3,8 +3,8 @@
     <fullName>Default_Bot_Id__c</fullName>
     <externalId>false</externalId>
     <fieldManageability>DeveloperControlled</fieldManageability>
-    <label>Default Bot Id</label>
     <inlineHelpText>Default Kenyt BotId used when a template record does not specify its own.</inlineHelpText>
+    <label>Default Bot Id</label>
     <length>50</length>
     <required>false</required>
     <type>Text</type>
