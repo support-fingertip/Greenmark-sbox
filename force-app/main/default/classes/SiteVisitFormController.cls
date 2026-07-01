@@ -124,6 +124,52 @@ public without sharing class SiteVisitFormController {
         return dt;
     }
     /**
+    * Resolves a scanned QR value (a Site Visit Id or the SiteVisitQR URL) to the
+    * related Lead Id, so the "Search Lead with QR" tab can reuse getLead().
+    */
+    @AuraEnabled
+    public static String getLeadIdFromScan(String scannedValue) {
+        if (String.isBlank(scannedValue)) {
+            throw new AuraHandledException('Please scan or enter a QR value.');
+        }
+        String svId = extractSiteVisitId(scannedValue.trim());
+        if (String.isBlank(svId)) {
+            throw new AuraHandledException('Could not read a Site Visit Id from the scanned value.');
+        }
+        List<Site_Visit__c> svs = [SELECT Id, SLead__c FROM Site_Visit__c WHERE Id = :svId LIMIT 1];
+        if (svs.isEmpty()) {
+            throw new AuraHandledException('No Site Visit found for the scanned code.');
+        }
+        if (svs[0].SLead__c == null) {
+            throw new AuraHandledException('This Site Visit is not linked to a Lead.');
+        }
+        return svs[0].SLead__c;
+    }
+
+    // Extracts an 18/15-char Site Visit Id from a raw Id or a URL like ...?id=<id> or .../<id>
+    private static String extractSiteVisitId(String val) {
+        if (val.contains('id=')) {
+            val = val.substringAfter('id=');
+            if (val.contains('&')) {
+                val = val.substringBefore('&');
+            }
+        } else if (val.contains('/')) {
+            val = val.substringAfterLast('/');
+        }
+        if (val.length() == 15 || val.length() == 18) {
+            try {
+                Id parsed = (Id) val;
+                if (parsed.getSObjectType() == Site_Visit__c.SObjectType) {
+                    return val;
+                }
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /**
     * Creates or updates a Site Visit based on the provided details.
     * @param remark Notes or feedback for the visit.
     * @param svDate Date and time of the site visit.

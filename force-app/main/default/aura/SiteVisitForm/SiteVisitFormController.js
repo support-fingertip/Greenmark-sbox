@@ -81,9 +81,55 @@
         });
         $A.enqueueAction(action);
     },
+    // "Search Lead with QR" tab: resolve the scanned Site Visit to its Lead and
+    // reuse the existing getLead flow + Lead Details panel (shown in the Search Lead tab).
+    searchWithQR : function(component, event, helper) {
+        var scan = component.get("v.qrScanValue");
+        if(!scan){
+            helper.toastMsg('Error','Error','Please scan or enter the QR value.');
+            return;
+        }
+        component.set("v.showDetails", false);
+        component.set("v.isLoading", true);
+        var action = component.get("c.getLeadIdFromScan");
+        action.setParams({ "scannedValue": scan });
+        action.setCallback(this, function(response){
+            var state = response.getState();
+            if(state === "SUCCESS"){
+                var leadId = response.getReturnValue();
+                var action1 = component.get("c.getLead");
+                action1.setParams({ "leadId": leadId });
+                action1.setCallback(this, function(resp2){
+                    if(resp2.getState() === "SUCCESS"){
+                        var rv = resp2.getReturnValue();
+                        component.set("v.leadId", leadId);
+                        component.set("v.leadRecord", rv.Lead);
+                        component.set("v.siteVisit", rv.siteVisit);
+                        component.set("v.otpStatus", "Active Lead Exist");
+                        component.set("v.showDetails", true);
+                        component.set("v.isLoading", false);
+                        component.set("v.tabId", "1");
+                        helper.toastMsg('Success','Lead','Lead details loaded.');
+                    } else {
+                        component.set("v.isLoading", false);
+                        helper.toastMsg('Error','Error','Unable to load lead details.');
+                    }
+                });
+                $A.enqueueAction(action1);
+            } else {
+                component.set("v.isLoading", false);
+                var msg = 'Unable to fetch lead from the scanned QR.';
+                var errs = response.getError();
+                if(errs && errs[0] && errs[0].message){ msg = errs[0].message; }
+                helper.toastMsg('Error','Error', msg);
+            }
+        });
+        $A.enqueueAction(action);
+    },
     clearValues : function(component, event, helper) {
         component.set("v.selectedProject",'None');
         component.set("v.phone",'');
+        component.set("v.qrScanValue",'');
         component.set("v.showDetails",false);
         component.set("v.otpStatus",null);
         component.set("v.siteVisitComments", '');
