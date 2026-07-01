@@ -81,16 +81,17 @@
         });
         $A.enqueueAction(action);
     },
-    // "Search Lead with QR" tab: camera-based scanning that resolves the scanned
-    // Site Visit to its Lead and renders the Lead Details in this same tab.
-    qrScriptsLoaded : function(component, event, helper) {
-        component.set("v.qrScriptsReady", true);
-    },
-    startQrScan : function(component, event, helper) {
-        helper.startScan(component);
-    },
-    cancelQrScan : function(component, event, helper) {
-        helper.cancelScan(component);
+    // "Search Lead with QR" tab: handle the decoded value from the qrScanner child,
+    // resolve the Site Visit -> Lead and render Lead Details in this same tab.
+    handleQrScanned : function(component, event, helper) {
+        var status = event.getParam("status");
+        component.set("v.qrShowDetails", false);
+        if (status === "cancelled") {
+            component.set("v.qrError", "QR scan cancelled.");
+            return;
+        }
+        component.set("v.qrError", null);
+        helper.processScan(component, event.getParam("value"));
     },
     clearValues : function(component, event, helper) {
         component.set("v.selectedProject",'None');
@@ -105,7 +106,6 @@
         component.set("v.searchedSalesUsers", []);
         component.set("v.qrShowDetails", false);
         component.set("v.qrError", null);
-        helper.cancelScan(component, true);
     },
     cancel : function(component, event, helper) {
         component.set("v.selectedProject",'None');

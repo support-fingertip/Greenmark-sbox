@@ -59,7 +59,7 @@
     <aura:attribute name="autoMapChannelPartner" type="Boolean" default="false"/>
     
     <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
-    <ltng:require scripts="{!$Resource.html5QrCode}" afterScriptsLoaded="{!c.qrScriptsLoaded}" />
+    <aura:handler event="c:qrScannedEvt" action="{!c.handleQrScanned}" />
     
     <div>
         <div class="slds-page-header">
@@ -227,18 +227,8 @@
             </lightning:tab>
             <lightning:tab label="Search Lead with QR" id="4">
                 <div class="slds-scope slds-p-around_small slds-text-align_left">
-                    <!-- Scan control -->
-                    <aura:if isTrue="{!v.qrScanning == false}">
-                        <lightning:button variant="brand" label="Scan QR" iconName="utility:touch_action"
-                                          onclick="{!c.startQrScan}" disabled="{!v.isLoading}"/>
-                    </aura:if>
-
-                    <!-- Camera viewport (kept in the DOM; hidden until scanning) -->
-                    <div class="{!v.qrScanning ? 'slds-m-top_small' : 'slds-hide'}">
-                        <div aura:id="qrReader" id="qr-reader" style="width:300px; max-width:100%;"></div>
-                        <lightning:button class="slds-m-top_small" variant="destructive"
-                                          label="Cancel" onclick="{!c.cancelQrScan}"/>
-                    </div>
+                    <!-- Locker-exempt (API 39) camera scanner child; fires c:qrScannedEvt -->
+                    <c:qrScanner/>
 
                     <!-- Loading -->
                     <aura:if isTrue="{!v.isLoading == true}">

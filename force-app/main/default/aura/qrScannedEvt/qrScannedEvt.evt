@@ -1,0 +1,4 @@
+<aura:event type="COMPONENT" access="global" description="Fired by qrScanner when a QR is decoded or the scan is cancelled.">
+    <aura:attribute name="status" type="String" description="scanned | cancelled"/>
+    <aura:attribute name="value" type="String" description="Decoded QR text when status = scanned"/>
+</aura:event>
