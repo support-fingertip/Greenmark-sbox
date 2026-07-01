@@ -56,8 +56,7 @@
         action.setParams({ "scannedValue": event.getParam("value") });
         action.setCallback(this, function(response) {
             if (response.getState() === "SUCCESS") {
-                // Show the result exactly like Search Lead (Tab 1 details + Update Site Visit tab).
-                component.set("v.tabId", "1");
+                // Same shared business logic as Search Lead; result renders in THIS (QR) tab.
                 helper.handleLeadResult(component, response.getReturnValue());
             } else {
                 component.set("v.isLoading", false);
