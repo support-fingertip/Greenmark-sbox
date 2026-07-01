@@ -401,6 +401,10 @@ public without sharing class RelatedSourceHandler {
                                      ? validityCfg.Source_Validity_Days__c : 45;
         Decimal executiveValidityDays = (validityCfg != null && validityCfg.Executive_Validity_Days__c != null)
                                         ? validityCfg.Executive_Validity_Days__c : 90;
+        // Toggle - when ON a Re-Opened (previously Booked) lead goes back to the same executive;
+        // when OFF it falls through to round robin. Admin-configurable in Setup. Default ON.
+        Boolean reopenToSameExec = (validityCfg == null || validityCfg.Reopen_To_Same_Executive__c == null)
+                                   ? true : validityCfg.Reopen_To_Same_Executive__c;
         ld.Last_Source_Of_Enquiry__c =nld.Source_Type__c;
         ld.Last_Sub_Source__c =  nld.Lead_source__c;
         if(nld.Campaign__c != null){ ld.Last_Campagin__c = nld.Campaign__c;}
@@ -467,7 +471,8 @@ public without sharing class RelatedSourceHandler {
              //to the SAME executive who booked the customer (Main_Pre_Sales_User__c) instead of round-robin.
              //Applies only to direct re-opens (not Channel Partner / GRE) and only when that executive is
              //still active; otherwise Lead_Assigned__c stays false and it falls back to round-robin as before.
-             if(nld.Main_lead_status__c == 'Booked' && nld.Channel_Partner__c == null && !nld.Walking_Lead_Form__c
+             //Controlled by the Reopen_To_Same_Executive__c toggle - when OFF it always falls to round robin.
+             if(reopenToSameExec && nld.Main_lead_status__c == 'Booked' && nld.Channel_Partner__c == null && !nld.Walking_Lead_Form__c
                 && nld.Main_Pre_Sales_User__c != null && activeReopenExecIds.contains(nld.Main_Pre_Sales_User__c))
              {
                  ld.OwnerId = nld.Main_Pre_Sales_User__c;
