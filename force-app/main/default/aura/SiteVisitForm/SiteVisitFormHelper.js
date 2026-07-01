@@ -57,6 +57,26 @@
         return fallback;
     },
 
+    // Shared reset for both the Search Lead and Search Lead with QR "Clear" actions.
+    clearAll : function(component) {
+        component.set("v.selectedProject", 'None');
+        component.set("v.phone", '');
+        component.set("v.qrScanValue", '');
+        component.set("v.showDetails", false);
+        component.set("v.otpStatus", null);
+        component.set("v.leadRecord", {});
+        component.set("v.leadId", null);
+        component.set("v.siteVisit", {});
+        component.set("v.siteVisitComments", '');
+        component.set("v.selectedRating", 'None');
+        component.set("v.salesUserId", '');
+        component.set("v.salesUserSearchText", '');
+        component.set("v.searchedSalesUsers", []);
+        component.set("v.qrShowDetails", false);
+        component.set("v.qrError", null);
+        component.set("v.isLoading", false);
+    },
+
     createSitevisit : function(component, event, helper,leadId)
     {
         var siteVisitComments = component.get("v.siteVisitComments");

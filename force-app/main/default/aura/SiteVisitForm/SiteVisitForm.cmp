@@ -228,7 +228,9 @@
             <lightning:tab label="Search Lead with QR" id="4">
                 <div class="slds-scope slds-p-around_small slds-text-align_left">
                     <!-- Locker-exempt (API 39) camera scanner child; fires c:qrScannedEvt -->
-                    <c:qrScanner/>
+                    <c:qrScanner aura:id="qrScannerCmp"/>
+
+                    <button class="slds-button slds-button_destructive slds-m-top_small" onclick="{!c.clearQr}">Clear</button>
 
                     <!-- Loading -->
                     <aura:if isTrue="{!v.isLoading == true}">

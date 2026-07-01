@@ -5,6 +5,7 @@
     <aura:attribute name="instance" type="Object"/>
 
     <aura:registerEvent name="scanned" type="c:qrScannedEvt"/>
+    <aura:method name="reset" action="{!c.reset}" description="Stop any active scan and clear the scanner state."/>
     <ltng:require scripts="{!$Resource.html5QrCode}" afterScriptsLoaded="{!c.scriptsLoaded}"/>
 
     <div class="slds-scope">
