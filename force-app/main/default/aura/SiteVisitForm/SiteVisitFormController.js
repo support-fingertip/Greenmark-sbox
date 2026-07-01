@@ -66,18 +66,14 @@
         $A.enqueueAction(action);
     },
     clearValues : function(component, event, helper) {
-        component.set("v.selectedProject",'None');
-        component.set("v.phone",'');
-        component.set("v.qrScanValue",'');
-        component.set("v.showDetails",false);
-        component.set("v.otpStatus",null);
-        component.set("v.siteVisitComments", '');
-        component.set("v.selectedRating", 'None');
-        component.set("v.salesUserId", '');
-        component.set("v.salesUserSearchText", '');
-        component.set("v.searchedSalesUsers", []);
-        component.set("v.qrShowDetails", false);
-        component.set("v.qrError", null);
+        helper.clearAll(component);
+    },
+    // Clear for the "Search Lead with QR" tab: same reset as Search Lead Clear,
+    // plus reset the scanner child back to its initial state.
+    clearQr : function(component, event, helper) {
+        helper.clearAll(component);
+        var scanner = component.find("qrScannerCmp");
+        if (scanner) { scanner.reset(); }
     },
     cancel : function(component, event, helper) {
         component.set("v.selectedProject",'None');
