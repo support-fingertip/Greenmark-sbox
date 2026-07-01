@@ -57,55 +57,13 @@ public without sharing class SiteVisitFormController {
                                               PhoneProject__c,SecondaryPhoneProject__c
                                               FROM Related_Source__c WHERE 
                                               (PhoneProject__c = :searchTextProject or SecondaryPhoneProject__c =:searchTextProject) LIMIT 1 ];
-            String leadname;
-            String OwnerName;
-            String leadId;
-            String phone;
-            String leadStatus;
+            Lead matched;
             if (!leadList.isEmpty()) {
-                Lead ld = leadList[0];
-                leadname = ld.Name;
-                phone = ld.Phone__c;
-                leadId = ld.Id;
-                
-                if(ld.Lead_Status__c != 'Lead Lost' && ld.Lead_Status__c != 'Closed Lost'){
-                    leadStatus = 'Active Lead Exist';
-                    isLeadExists = true;
-                }
-                else{
-                    leadStatus = 'Lead exists but In-Active';
-                    isLeadExists = true;
-                }
+                matched = leadList[0];
+            } else if (!reList.isEmpty()) {
+                matched = reList[0].SLead__r;
             }
-            else if(!reList.isEmpty()){
-                Related_Source__c rd = reList[0];
-                leadname = rd.SLead__r.Name;
-                phone = rd.SLead__r.Phone__c;
-                leadId = rd.SLead__r.Id;
-                if(rd.SLead__r.Lead_Status__c != 'Lead Lost' || rd.SLead__r.Lead_Status__c != 'Closed Lost'){
-                    leadStatus = 'Active Lead Exist';
-                    isLeadExists = true;
-                }
-                else{
-                    leadStatus = 'Lead exists but In-Active';
-                    isLeadExists = true;
-                }
-            } 
-            else {
-                leadStatus = 'No Lead Exists';
-                isLeadExists = false;
-            }
-            jsonResponse = '{';
-            if(isLeadExists == true){
-                jsonResponse += '"leadId":"' + leadId + '",';
-                jsonResponse += '"leadname":"' + leadname + '",';
-                jsonResponse += '"phone":"' + phone + '",';
-                jsonResponse += '"leadStatus":"' + leadStatus + '"';
-            }
-            else{
-                jsonResponse += '"leadStatus":"' + leadStatus + '"';
-            }
-            jsonResponse += '}';
+            jsonResponse = buildLeadJson(matched);
         }
         return jsonResponse;
     }
@@ -148,6 +106,35 @@ public without sharing class SiteVisitFormController {
             throw new AuraHandledException('Lead not found.');
         }
         return svs[0].SLead__c;
+    }
+
+    /**
+    * QR equivalent of checkLeadWithPhoneProject: resolves the scanned value to the
+    * Lead (reusing getLeadIdFromScan for SV resolution + owner/GRE authorization)
+    * and returns the SAME JSON, so the JS handleLeadResult path is identical.
+    */
+    @AuraEnabled
+    public static String checkLeadFromScan(String scannedValue) {
+        Id leadId = getLeadIdFromScan(scannedValue);
+        List<Lead> leads = [SELECT Id, Name, Phone__c, Lead_Status__c FROM Lead WHERE Id = :leadId LIMIT 1];
+        return buildLeadJson(leads.isEmpty() ? null : leads[0]);
+    }
+
+    // Shared JSON builder for the lead-search flows (phone/email/leadId and QR scan).
+    private static String buildLeadJson(Lead ld) {
+        String jsonResponse = '{';
+        if (ld != null) {
+            String leadStatus = (ld.Lead_Status__c != 'Lead Lost' && ld.Lead_Status__c != 'Closed Lost')
+                ? 'Active Lead Exist' : 'Lead exists but In-Active';
+            jsonResponse += '"leadId":"' + ld.Id + '",';
+            jsonResponse += '"leadname":"' + ld.Name + '",';
+            jsonResponse += '"phone":"' + ld.Phone__c + '",';
+            jsonResponse += '"leadStatus":"' + leadStatus + '"';
+        } else {
+            jsonResponse += '"leadStatus":"No Lead Exists"';
+        }
+        jsonResponse += '}';
+        return jsonResponse;
     }
 
     // Extracts an 18/15-char Site Visit Id from a raw Id or a URL like ...?id=<id> or .../<id>

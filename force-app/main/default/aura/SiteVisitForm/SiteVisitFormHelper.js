@@ -9,41 +9,46 @@
         toastEvent.fire();
     },
 
-    // ---------- QR: resolve scanned value -> Lead, render in the QR tab ----------
-    processScan : function(component, decodedText) {
+    // ---------- Shared post-identification flow (Search Lead AND Search Lead with QR) ----------
+    // leadDetailsString is the JSON returned by checkLeadWithPhoneProject / checkLeadFromScan.
+    handleLeadResult : function(component, leadDetailsString) {
         var helper = this;
-        component.set("v.isLoading", true);
-        var action = component.get("c.getLeadIdFromScan");
-        action.setParams({ "scannedValue": decodedText });
-        action.setCallback(this, function(response) {
-            if (response.getState() === "SUCCESS") {
-                helper.loadLead(component, response.getReturnValue());
-            } else {
+        var leadDetails = JSON.parse(leadDetailsString);
+        var otpStatus = leadDetails.leadStatus;
+        component.set("v.leadName", leadDetails.leadname);
+        component.set("v.phonenumer", leadDetails.phone);
+        component.set("v.otpStatus", leadDetails.leadStatus);
+        component.set("v.leadId", leadDetails.leadId);
+        component.set("v.siteVisitComments", '');
+        component.set("v.selectedRating", 'None');
+        component.set("v.salesUserId", '');
+        component.set("v.salesUserSearchText", '');
+        component.set("v.searchedSalesUsers", []);
+        if (otpStatus === 'Active Lead Exist' || otpStatus === 'Lead exists but In-Active') {
+            var action1 = component.get("c.getLead");
+            action1.setParams({ "leadId": leadDetails.leadId });
+            action1.setCallback(this, function(response) {
                 component.set("v.isLoading", false);
-                component.set("v.qrError", helper.errMsg(response, "Invalid QR Code."));
-            }
-        });
-        $A.enqueueAction(action);
-    },
-
-    loadLead : function(component, leadId) {
-        var helper = this;
-        var action = component.get("c.getLead");
-        action.setParams({ "leadId": leadId });
-        action.setCallback(this, function(response) {
+                if (response.getState() === "SUCCESS") {
+                    component.set("v.showDetails", true);
+                    var returnValue = response.getReturnValue();
+                    component.set("v.leadRecord", returnValue.Lead);
+                    component.set("v.siteVisit", returnValue.siteVisit);
+                    if (otpStatus === 'Active Lead Exist') {
+                        helper.toastMsg('Success', 'Lead Status', 'Active Lead Exist');
+                    } else {
+                        helper.toastMsg('Success', 'Lead Status', 'Lead exists but In-Active');
+                    }
+                }
+            });
+            $A.enqueueAction(action1);
+        } else if (otpStatus === 'No Lead Exists') {
+            component.set("v.showDetails", true);
             component.set("v.isLoading", false);
-            if (response.getState() === "SUCCESS") {
-                var rv = response.getReturnValue();
-                component.set("v.leadRecord", rv.Lead);
-                component.set("v.leadId", leadId);
-                component.set("v.siteVisit", rv.siteVisit);
-                component.set("v.qrShowDetails", true);
-                component.set("v.qrError", null);
-            } else {
-                component.set("v.qrError", helper.errMsg(response, "Lead not found."));
-            }
-        });
-        $A.enqueueAction(action);
+            helper.toastMsg('Error', 'Lead Status', 'No Lead Exists');
+        } else {
+            component.set("v.isLoading", false);
+        }
     },
 
     errMsg : function(response, fallback) {

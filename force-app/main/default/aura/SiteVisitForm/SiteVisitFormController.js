@@ -35,63 +35,36 @@
         var action = component.get("c.checkLeadWithPhoneProject");
         action.setParams({ "project_name": selectedProject, "searchText": phone });
         action.setCallback(this, function(response) {
-            var state = response.getState();
-            if (state === "SUCCESS") {
-                var leadDetailsString = response.getReturnValue();
-                var leadDetails = JSON.parse(leadDetailsString);
-                var otpStatus = leadDetails.leadStatus;
-                component.set("v.leadName", leadDetails.leadname);
-                component.set("v.phonenumer", leadDetails.phone);
-                component.set("v.otpStatus", leadDetails.leadStatus);
-                component.set("v.leadId", leadDetails.leadId);
-                component.set("v.siteVisitComments", '');
-                component.set("v.selectedRating", 'None');
-                component.set("v.salesUserId", '');
-                component.set("v.salesUserSearchText", '');
-                component.set("v.searchedSalesUsers", []);
-                if(otpStatus == 'Active Lead Exist' || otpStatus == 'Lead exists but In-Active'){
-                    var action1 = component.get("c.getLead");
-                    action1.setParams({ "leadId": leadDetails.leadId});
-                    action1.setCallback(this, function(response) {
-                        var state = response.getState();
-                        if (state === "SUCCESS") {
-                             component.set("v.showDetails",true);
-                            component.set("v.isLoading", false);
-                            var returnValue = response.getReturnValue()
-                            component.set('v.leadRecord',returnValue.Lead);
-                            component.set('v.siteVisit',returnValue.siteVisit);
- 
-                            if(otpStatus == 'Active Lead Exist'){
-                                helper.toastMsg('Success','Lead Status','Active Lead Exist');
-                            }
-                            if (otpStatus == 'Lead exists but In-Active') {
-                                helper.toastMsg('Success', 'Lead Status', 'Lead exists but In-Active');
-                            }
-                            
-                        }
-                    });
-                    $A.enqueueAction(action1);
-                }
-                else if(otpStatus == 'No Lead Exists'){
-                     component.set("v.showDetails",true);
-                    component.set("v.isLoading", false);
-                    helper.toastMsg('Error','Lead Status','No Lead Exists');
-                }
+            if (response.getState() === "SUCCESS") {
+                helper.handleLeadResult(component, response.getReturnValue());
             }
         });
         $A.enqueueAction(action);
     },
-    // "Search Lead with QR" tab: handle the decoded value from the qrScanner child,
-    // resolve the Site Visit -> Lead and render Lead Details in this same tab.
+    // "Search Lead with QR" tab: QR only replaces the input. Once the Lead is
+    // identified, run the identical Search Lead flow via helper.handleLeadResult.
     handleQrScanned : function(component, event, helper) {
         var status = event.getParam("status");
-        component.set("v.qrShowDetails", false);
         if (status === "cancelled") {
             component.set("v.qrError", "QR scan cancelled.");
             return;
         }
         component.set("v.qrError", null);
-        helper.processScan(component, event.getParam("value"));
+        component.set("v.showDetails", false);
+        component.set("v.isLoading", true);
+        var action = component.get("c.checkLeadFromScan");
+        action.setParams({ "scannedValue": event.getParam("value") });
+        action.setCallback(this, function(response) {
+            if (response.getState() === "SUCCESS") {
+                // Show the result exactly like Search Lead (Tab 1 details + Update Site Visit tab).
+                component.set("v.tabId", "1");
+                helper.handleLeadResult(component, response.getReturnValue());
+            } else {
+                component.set("v.isLoading", false);
+                component.set("v.qrError", helper.errMsg(response, "Invalid QR Code."));
+            }
+        });
+        $A.enqueueAction(action);
     },
     clearValues : function(component, event, helper) {
         component.set("v.selectedProject",'None');
