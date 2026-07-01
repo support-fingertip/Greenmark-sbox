@@ -57,6 +57,10 @@
             component.set("v.qrError", "QR scan cancelled.");
             return;
         }
+        if (status === "error") {
+            component.set("v.qrError", event.getParam("message") || "Unable to scan the QR code.");
+            return;
+        }
         component.set("v.qrError", null);
         component.set("v.showDetails", false);
         component.set("v.isLoading", true);
