@@ -10,22 +10,48 @@
     },
 
     // ---------- QR camera scanning ("Search Lead with QR" tab) ----------
+    // Returns the html5-qrcode constructor from whichever global the library exposed it on.
+    getQrLib : function() {
+        var w = window;
+        if (w.__Html5QrcodeLibrary__ && w.__Html5QrcodeLibrary__.Html5Qrcode) {
+            return w.__Html5QrcodeLibrary__.Html5Qrcode;
+        }
+        if (w.Html5Qrcode) {
+            return w.Html5Qrcode;
+        }
+        return null;
+    },
+
     startScan : function(component) {
         component.set("v.qrError", null);
         component.set("v.qrShowDetails", false);
+        // The library is ~375KB; poll for it (it may still be loading) instead of failing immediately.
+        this.waitForLibAndScan(component, 0);
+    },
 
-        var lib = window.__Html5QrcodeLibrary__;
-        if (!component.get("v.qrScriptsReady") || !lib || !lib.Html5Qrcode) {
-            component.set("v.qrError", "QR scanner is still loading. Please try again in a moment.");
+    waitForLibAndScan : function(component, attempt) {
+        var Html5Qrcode = this.getQrLib();
+        if (Html5Qrcode) {
+            this.beginScan(component, Html5Qrcode);
             return;
         }
+        if (attempt >= 50) { // ~10s
+            component.set("v.qrError", "QR scanner failed to load. Please refresh the page and try again.");
+            return;
+        }
+        var helper = this;
+        window.setTimeout($A.getCallback(function() {
+            helper.waitForLibAndScan(component, attempt + 1);
+        }), 200);
+    },
 
+    beginScan : function(component, Html5Qrcode) {
         component.set("v.qrScanning", true);
         var helper = this;
         // Give the reader container a tick to render before starting the camera.
         window.setTimeout($A.getCallback(function() {
             try {
-                var scanner = new lib.Html5Qrcode("qr-reader");
+                var scanner = new Html5Qrcode("qr-reader");
                 component.set("v.qrInstance", scanner);
                 scanner.start(
                     { facingMode: "environment" },
