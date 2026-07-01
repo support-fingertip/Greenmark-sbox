@@ -230,7 +230,7 @@
                     <!-- Header -->
                     <div class="qr-header">
                         <span class="qr-header-icon">
-                            <lightning:icon iconName="utility:qrcode" size="small" variant="inverse"/>
+                            <lightning:icon iconName="utility:apps" size="small" variant="inverse"/>
                         </span>
                         <div>
                             <div class="qr-header-title">Search Lead with QR</div>
@@ -262,7 +262,7 @@
                         <aura:if isTrue="{!v.qrScanning == false}">
                             <div class="qr-empty">
                                 <span class="qr-empty-icon">
-                                    <lightning:icon iconName="utility:qrcode" size="medium"/>
+                                    <lightning:icon iconName="utility:apps" size="medium"/>
                                 </span>
                                 <div class="qr-empty-title">No QR scanned yet.</div>
                                 <div class="qr-empty-sub">Click <b>"Scan QR"</b> to scan a customer's Site Visit QR Code.</div>
@@ -325,7 +325,7 @@
                         <aura:set attribute="else">
                             <div class="qr-empty">
                                 <span class="qr-empty-icon">
-                                    <lightning:icon iconName="utility:adduser" size="medium"/>
+                                    <lightning:icon iconName="utility:new" size="medium"/>
                                 </span>
                                 <div class="qr-empty-title">No lead found for this QR.</div>
                                 <div class="qr-empty-sub">Use the <b>Create New Lead</b> tab to create a walk-in lead.</div>
