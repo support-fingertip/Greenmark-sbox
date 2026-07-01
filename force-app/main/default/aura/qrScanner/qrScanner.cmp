@@ -1,0 +1,24 @@
+<aura:component access="global"
+                description="Locker-exempt (API 39) camera QR scanner. Loads html5-qrcode and fires qrScannedEvt with the decoded text.">
+    <aura:attribute name="scanning" type="Boolean" default="false"/>
+    <aura:attribute name="error" type="String"/>
+    <aura:attribute name="instance" type="Object"/>
+
+    <aura:registerEvent name="scanned" type="c:qrScannedEvt"/>
+    <ltng:require scripts="{!$Resource.html5QrCode}" afterScriptsLoaded="{!c.scriptsLoaded}"/>
+
+    <div class="slds-scope">
+        <aura:if isTrue="{!v.scanning == false}">
+            <button class="slds-button slds-button_brand" onclick="{!c.startScan}">Scan QR</button>
+        </aura:if>
+
+        <div class="{!v.scanning ? 'slds-m-top_small' : 'slds-hide'}">
+            <div id="qr-reader-el" style="width:300px; max-width:100%;"></div>
+            <button class="slds-button slds-button_destructive slds-m-top_small" onclick="{!c.cancelScan}">Cancel</button>
+        </div>
+
+        <aura:if isTrue="{!v.error != null}">
+            <div class="slds-text-color_error slds-m-top_small">{!v.error}</div>
+        </aura:if>
+    </div>
+</aura:component>
