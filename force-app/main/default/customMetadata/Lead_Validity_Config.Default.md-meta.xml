@@ -10,4 +10,8 @@
         <field>Source_Validity_Days__c</field>
         <value xsi:type="xsd:double">90.0</value>
     </values>
+    <values>
+        <field>Reopen_To_Same_Executive__c</field>
+        <value xsi:type="xsd:boolean">true</value>
+    </values>
 </CustomMetadata>
