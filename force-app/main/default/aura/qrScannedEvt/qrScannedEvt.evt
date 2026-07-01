@@ -2,3 +2,4 @@
     <aura:attribute name="status" type="String" description="scanned | cancelled"/>
     <aura:attribute name="value" type="String" description="Decoded QR text when status = scanned"/>
 </aura:event>
+
