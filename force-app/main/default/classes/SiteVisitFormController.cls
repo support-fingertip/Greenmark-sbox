@@ -130,18 +130,22 @@ public without sharing class SiteVisitFormController {
     @AuraEnabled
     public static String getLeadIdFromScan(String scannedValue) {
         if (String.isBlank(scannedValue)) {
-            throw new AuraHandledException('Please scan or enter a QR value.');
+            throw new AuraHandledException('Invalid QR Code.');
         }
         String svId = extractSiteVisitId(scannedValue.trim());
         if (String.isBlank(svId)) {
-            throw new AuraHandledException('Could not read a Site Visit Id from the scanned value.');
+            throw new AuraHandledException('Invalid QR Code.');
         }
         List<Site_Visit__c> svs = [SELECT Id, SLead__c FROM Site_Visit__c WHERE Id = :svId LIMIT 1];
         if (svs.isEmpty()) {
-            throw new AuraHandledException('No Site Visit found for the scanned code.');
+            throw new AuraHandledException('Site Visit not found.');
+        }
+        // Reuse the same owner / assigned-GRE / GRE-profile check as the QR redirect page.
+        if (!SiteVisitQRController.isAuthorized(svId)) {
+            throw new AuraHandledException('Access to the record is prohibited.');
         }
         if (svs[0].SLead__c == null) {
-            throw new AuraHandledException('This Site Visit is not linked to a Lead.');
+            throw new AuraHandledException('Lead not found.');
         }
         return svs[0].SLead__c;
     }
