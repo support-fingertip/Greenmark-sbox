@@ -58,8 +58,15 @@ jobs:
           if [ -z "$CHANGED_FILES" ]; then
             echo "No Salesforce metadata changes found. Skipping deploy."
           else
+            # Aura/LWC deploy as whole bundles: collapse any changed bundle file to its
+            # bundle directory (and de-dup). Non-bundle files pass through unchanged.
+            DEPLOY_PATHS=$(echo "$CHANGED_FILES" | sed -E 's#(.*/(aura|lwc)/[^/]+)/.*#\1#' | sort -u)
+
+            echo "Deploy paths:"
+            echo "$DEPLOY_PATHS"
+
             sf project deploy start \
-              --source-dir $CHANGED_FILES \
+              --source-dir $DEPLOY_PATHS \
               --target-org deployment-org \
               --wait 30
           fi
