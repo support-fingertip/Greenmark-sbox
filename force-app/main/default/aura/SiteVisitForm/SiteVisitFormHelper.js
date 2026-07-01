@@ -74,6 +74,7 @@
         component.set("v.searchedSalesUsers", []);
         component.set("v.qrShowDetails", false);
         component.set("v.qrError", null);
+        component.set("v.qrScanning", false);
         component.set("v.isLoading", false);
     },
 

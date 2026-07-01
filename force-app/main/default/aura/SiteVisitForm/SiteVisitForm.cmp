@@ -226,108 +226,101 @@
                 </div>
             </lightning:tab>
             <lightning:tab label="Search Lead with QR" id="4">
-                <div class="slds-scope slds-p-around_small slds-text-align_left">
-                    <!-- Locker-exempt (API 39) camera scanner child; fires c:qrScannedEvt -->
-                    <c:qrScanner aura:id="qrScannerCmp"/>
+                <div class="slds-scope slds-text-align_left qr-tab">
+                    <!-- Header -->
+                    <div class="qr-header">
+                        <span class="qr-header-icon">
+                            <lightning:icon iconName="utility:qrcode" size="small" variant="inverse"/>
+                        </span>
+                        <div>
+                            <div class="qr-header-title">Search Lead with QR</div>
+                            <div class="qr-header-sub">Scan the customer's Site Visit QR Code to fetch lead details.</div>
+                        </div>
+                    </div>
 
-                    <button class="slds-button slds-button_destructive slds-m-top_small" onclick="{!c.clearQr}">Clear</button>
+                    <!-- Actions -->
+                    <div class="qr-actions">
+                        <lightning:button variant="brand" label="Scan QR" iconName="utility:touch_action" onclick="{!c.startQrScan}"/>
+                        <lightning:button class="slds-m-left_x-small" variant="destructive" label="Clear" iconName="utility:close" onclick="{!c.clearQr}"/>
+                    </div>
 
                     <!-- Loading -->
                     <aura:if isTrue="{!v.isLoading == true}">
-                        <div class="slds-m-top_small"><lightning:spinner alternativeText="Loading" size="small" variant="brand"/></div>
+                        <div class="slds-m-vertical_small"><lightning:spinner alternativeText="Loading" size="small" variant="brand"/></div>
                     </aura:if>
 
                     <!-- Error message -->
                     <aura:if isTrue="{!v.qrError != null}">
-                        <div class="slds-m-top_small slds-text-color_error slds-text-body_regular">{!v.qrError}</div>
+                        <div class="slds-m-vertical_small slds-text-color_error slds-text-body_regular">{!v.qrError}</div>
                     </aura:if>
 
-                    <!-- Lead Details: own UI in the QR tab, populated by the shared handleLeadResult flow -->
-                    <aura:if isTrue="{!v.showDetails == true}">
-                        <lightning:card class="slds-m-top_small">
-                            <aura:set attribute="title">
-                                <div style="display: flex; align-items: center;">
-                                    <lightning:icon iconName="standard:lead_list" size="medium" alternativeText="Lead Icon" />
-                                    <b><span style="margin-left: 5px; font-size: 20px;">Lead Details</span></b>
-                                </div>
-                            </aura:set>
-                            <hr style="margin-top: 5px; border-top: 1px solid #ccc;"/>
-                            <div style="text-align: left; padding-left: 20px;">
-                                <table>
-                                    <tr>
-                                        <td width="50%" style="font-size: 15px;">
-                                            <b>Lead Name : </b>
-                                            <aura:if isTrue="{!v.leadRecord.Name != null}">
-                                                <a href="javascript:void(0);" onclick="{!c.openLead}" data-id="{!v.leadId}">
-                                                    {!v.leadRecord.Name}
-                                                </a>
-                                            </aura:if>
-                                        </td>
-                                        <td width="50%" style="font-size: 15px;">
-                                            <b>Phone Number : </b>
-                                            <aura:if isTrue="{!v.leadRecord.Phone__c != null}">{!v.leadRecord.Phone__c}</aura:if>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td width="50%" style="font-size: 15px;">
-                                            <b>Lead Id : </b>
-                                            <aura:if isTrue="{!v.leadRecord.Lead_ID__c != null}">{!v.leadRecord.Lead_ID__c}</aura:if>
-                                        </td>
-                                        <td width="50%" style="font-size: 15px;">
-                                            <b>Email : </b>
-                                            <aura:if isTrue="{!v.leadRecord.Email != null}">{!v.leadRecord.Email}</aura:if>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td width="50%" style="font-size: 15px;">
-                                            <b>Secondary Phone : </b>
-                                            <aura:if isTrue="{!v.leadRecord.Secondary_Phone__c != null}">{!v.leadRecord.Secondary_Phone__c}</aura:if>
-                                        </td>
-                                        <td width="50%" style="font-size: 15px;">
-                                            <b>Secondary Email : </b>
-                                            <aura:if isTrue="{!v.leadRecord.Secondary_Email__c != null}">{!v.leadRecord.Secondary_Email__c}</aura:if>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="font-size: 15px;">
-                                            <b>Lead Owner Name : </b>
-                                            <aura:if isTrue="{!v.leadRecord.Lead_Owner_Full_Name__c != null}">{!v.leadRecord.Lead_Owner_Full_Name__c}</aura:if>
-                                        </td>
-                                        <td style="font-size: 15px;">
-                                            <b>Lead Status : </b>
-                                            <aura:if isTrue="{!v.leadRecord.Lead_Status__c != null}">{!v.leadRecord.Lead_Status__c}</aura:if>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="font-size: 15px;">
-                                            <b>Lead Source : </b>
-                                            <aura:if isTrue="{!v.leadRecord.Credit_Source__c != null}">{!v.leadRecord.Credit_Source__c}</aura:if>
-                                        </td>
-                                        <td style="font-size: 15px;">
-                                            <b> Sub Source : </b>
-                                            <aura:if isTrue="{!v.leadRecord.Credit_Sub_Source__c != null}">{!v.leadRecord.Credit_Sub_Source__c}</aura:if>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="font-size: 15px;">
-                                            <b>Lead Stage : </b>
-                                            <aura:if isTrue="{!v.leadRecord.RecordType.Name != null}">{!v.leadRecord.RecordType.Name}</aura:if>
-                                        </td>
-                                    </tr>
-                                    <aura:if isTrue="{!v.leadRecord.Credit_Sub_Source__c == 'Channel Partner'}">
-                                        <tr>
-                                            <td style="font-size: 15px;">
-                                                <b>Channel Partner : </b>
-                                                <aura:if isTrue="{!v.leadRecord.Credit_Channel_Partner__c != null}">{!v.leadRecord.Credit_Channel_Partner__r.Name}</aura:if>
-                                            </td>
-                                        </tr>
-                                    </aura:if>
-                                </table>
+                    <!-- Camera viewport (Locker-exempt child; visible only while scanning) -->
+                    <c:qrScanner aura:id="qrScannerCmp"/>
+
+                    <!-- Empty state: nothing scanned and not scanning -->
+                    <aura:if isTrue="{!v.showDetails == false}">
+                        <aura:if isTrue="{!v.qrScanning == false}">
+                            <div class="qr-empty">
+                                <span class="qr-empty-icon">
+                                    <lightning:icon iconName="utility:qrcode" size="medium"/>
+                                </span>
+                                <div class="qr-empty-title">No QR scanned yet.</div>
+                                <div class="qr-empty-sub">Click <b>"Scan QR"</b> to scan a customer's Site Visit QR Code.</div>
                             </div>
-                            <p class="slds-text-body_small slds-text-color_weak slds-p-around_small">
-                                Use the <b>Update Site Visit</b> tab to continue (enabled automatically for active leads).
-                            </p>
-                        </lightning:card>
+                        </aura:if>
+                    </aura:if>
+
+                    <!-- Lead Details (own UI in the QR tab, populated by the shared handleLeadResult flow) -->
+                    <aura:if isTrue="{!v.showDetails == true}">
+                        <div class="qr-section-title">
+                            <span class="qr-section-icon"><lightning:icon iconName="utility:list" size="x-small" variant="inverse"/></span>
+                            Lead Details
+                        </div>
+                        <div class="qr-lead-card">
+                            <table class="qr-lead-table">
+                                <tr>
+                                    <td>
+                                        <b>Lead Name : </b>
+                                        <aura:if isTrue="{!v.leadRecord.Name != null}">
+                                            <a href="javascript:void(0);" onclick="{!c.openLead}" data-id="{!v.leadId}">{!v.leadRecord.Name}</a>
+                                        </aura:if>
+                                    </td>
+                                    <td>
+                                        <b>Phone Number : </b>
+                                        <aura:if isTrue="{!v.leadRecord.Phone__c != null}">{!v.leadRecord.Phone__c}</aura:if>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><b>Lead Id : </b><aura:if isTrue="{!v.leadRecord.Lead_ID__c != null}">{!v.leadRecord.Lead_ID__c}</aura:if></td>
+                                    <td><b>Email : </b><aura:if isTrue="{!v.leadRecord.Email != null}">{!v.leadRecord.Email}</aura:if></td>
+                                </tr>
+                                <tr>
+                                    <td><b>Secondary Phone : </b><aura:if isTrue="{!v.leadRecord.Secondary_Phone__c != null}">{!v.leadRecord.Secondary_Phone__c}</aura:if></td>
+                                    <td><b>Secondary Email : </b><aura:if isTrue="{!v.leadRecord.Secondary_Email__c != null}">{!v.leadRecord.Secondary_Email__c}</aura:if></td>
+                                </tr>
+                                <tr>
+                                    <td><b>Lead Owner Name : </b><aura:if isTrue="{!v.leadRecord.Lead_Owner_Full_Name__c != null}">{!v.leadRecord.Lead_Owner_Full_Name__c}</aura:if></td>
+                                    <td><b>Lead Status : </b><aura:if isTrue="{!v.leadRecord.Lead_Status__c != null}">{!v.leadRecord.Lead_Status__c}</aura:if></td>
+                                </tr>
+                                <tr>
+                                    <td><b>Lead Source : </b><aura:if isTrue="{!v.leadRecord.Credit_Source__c != null}">{!v.leadRecord.Credit_Source__c}</aura:if></td>
+                                    <td><b>Sub Source : </b><aura:if isTrue="{!v.leadRecord.Credit_Sub_Source__c != null}">{!v.leadRecord.Credit_Sub_Source__c}</aura:if></td>
+                                </tr>
+                                <tr>
+                                    <td><b>Lead Stage : </b><aura:if isTrue="{!v.leadRecord.RecordType.Name != null}">{!v.leadRecord.RecordType.Name}</aura:if></td>
+                                    <td>
+                                        <aura:if isTrue="{!v.leadRecord.Credit_Sub_Source__c == 'Channel Partner'}">
+                                            <b>Channel Partner : </b>
+                                            <aura:if isTrue="{!v.leadRecord.Credit_Channel_Partner__c != null}">{!v.leadRecord.Credit_Channel_Partner__r.Name}</aura:if>
+                                        </aura:if>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="qr-footer">
+                            <lightning:icon iconName="utility:info" size="xx-small" class="slds-m-right_xx-small"/>
+                            <span>Use the <b>Update Site Visit</b> tab to continue (enabled automatically for active leads).</span>
+                        </div>
                     </aura:if>
                 </div>
             </lightning:tab>
