@@ -272,6 +272,7 @@
 
                     <!-- Lead Details (own UI in the QR tab, populated by the shared handleLeadResult flow) -->
                     <aura:if isTrue="{!v.showDetails == true}">
+                      <aura:if isTrue="{!v.otpStatus != 'No Lead Exists'}">
                         <div class="qr-section-title">
                             <span class="qr-section-icon"><lightning:icon iconName="utility:list" size="x-small" variant="inverse"/></span>
                             Lead Details
@@ -321,6 +322,16 @@
                             <lightning:icon iconName="utility:info" size="xx-small" class="slds-m-right_xx-small"/>
                             <span>Use the <b>Update Site Visit</b> tab to continue (enabled automatically for active leads).</span>
                         </div>
+                        <aura:set attribute="else">
+                            <div class="qr-empty">
+                                <span class="qr-empty-icon">
+                                    <lightning:icon iconName="utility:adduser" size="medium"/>
+                                </span>
+                                <div class="qr-empty-title">No lead found for this QR.</div>
+                                <div class="qr-empty-sub">Use the <b>Create New Lead</b> tab to create a walk-in lead.</div>
+                            </div>
+                        </aura:set>
+                      </aura:if>
                     </aura:if>
                 </div>
             </lightning:tab>

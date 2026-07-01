@@ -115,8 +115,24 @@ public without sharing class SiteVisitFormController {
     */
     @AuraEnabled
     public static String checkLeadFromScan(String scannedValue) {
-        Id leadId = getLeadIdFromScan(scannedValue);
-        List<Lead> leads = [SELECT Id, Name, Phone__c, Lead_Status__c FROM Lead WHERE Id = :leadId LIMIT 1];
+        // Mirror Search Lead: an invalid/garbage QR or a Site Visit / Lead that
+        // does not exist resolves to "No Lead Exists" (JSON), so the Create New
+        // Lead tab is enabled. Only an authorization failure is a hard error.
+        String svId = extractSiteVisitId(String.isBlank(scannedValue) ? '' : scannedValue.trim());
+        if (String.isBlank(svId)) {
+            return buildLeadJson(null);
+        }
+        List<Site_Visit__c> svs = [SELECT Id, SLead__c FROM Site_Visit__c WHERE Id = :svId LIMIT 1];
+        if (svs.isEmpty()) {
+            return buildLeadJson(null);
+        }
+        if (!SiteVisitQRController.isAuthorized(svId)) {
+            throw new AuraHandledException('Access to the record is prohibited.');
+        }
+        if (svs[0].SLead__c == null) {
+            return buildLeadJson(null);
+        }
+        List<Lead> leads = [SELECT Id, Name, Phone__c, Lead_Status__c FROM Lead WHERE Id = :svs[0].SLead__c LIMIT 1];
         return buildLeadJson(leads.isEmpty() ? null : leads[0]);
     }
 
