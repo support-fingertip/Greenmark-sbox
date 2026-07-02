@@ -114,3 +114,40 @@
     color: #3a4a5a;
     font-size: 0.85rem;
 }
+
+
+
+
+
+
+
+.THIS .qr-lead-table {
+    width: 100%;
+}
+
+.THIS .qr-lead-table td {
+    padding: 6px 8px;
+    vertical-align: top;
+}
+
+/* Mobile: stack every td into its own row */
+@media (max-width: 480px) {
+    .THIS .qr-lead-table,
+    .THIS .qr-lead-table tbody,
+    .THIS .qr-lead-table tr,
+    .THIS .qr-lead-table td {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .THIS .qr-lead-table tr {
+        border-bottom: 1px solid #e0e0e0;
+        padding-bottom: 4px;
+        margin-bottom: 4px;
+    }
+
+    .THIS .qr-lead-table td {
+        padding: 4px 8px;
+    }
+}
