@@ -25,6 +25,14 @@ public without sharing class SiteVisitFeedbackController {
 
     public Integer maxFeedbackLength { get { return MAX_FEEDBACK_LENGTH; } }
 
+    // Exposed for the page (ApexPages is not a Visualforce global merge variable).
+    public Boolean getHasMessages() {
+        return ApexPages.hasMessages();
+    }
+    public List<ApexPages.Message> getPageMessages() {
+        return ApexPages.getMessages();
+    }
+
     public SiteVisitFeedbackController() {
         this.recordFound = false;
         this.submitted = false;

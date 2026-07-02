@@ -66,8 +66,8 @@
                 <p class="gm-sub">Thank you for visiting us. Please take a few seconds to rate your
                    experience and share your feedback.</p>
 
-                <apex:outputPanel layout="block" styleClass="gm-msgs" rendered="{!ApexPages.hasMessages}">
-                    <apex:repeat value="{!ApexPages.messages}" var="m">
+                <apex:outputPanel layout="block" styleClass="gm-msgs" rendered="{!hasMessages}">
+                    <apex:repeat value="{!pageMessages}" var="m">
                         <div class="gm-error">{!m.detail}</div>
                     </apex:repeat>
                 </apex:outputPanel>
@@ -114,7 +114,7 @@
 
             <apex:outputPanel layout="block" styleClass="gm-msgs"
                               rendered="{!AND(NOT(recordFound), NOT(submitted))}">
-                <apex:repeat value="{!ApexPages.messages}" var="m">
+                <apex:repeat value="{!pageMessages}" var="m">
                     <div class="gm-error">{!m.detail}</div>
                 </apex:repeat>
             </apex:outputPanel>
