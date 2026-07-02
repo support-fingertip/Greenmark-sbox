@@ -7,11 +7,11 @@
                 var data = response.getReturnValue();
                 component.set("v.projects", data.projects);
                 component.set("v.siteVisitRatings", data.siteVisitRatings);
-                component.set("v.leadStageOptions", data.leadStages);
                 component.set("v.sourceToSubSoruce", data.sourceToSubSoruce);
                 component.set("v.sectionLabels", data.countryMap);
                 component.set("v.channelPartnerList", data.channelPatnerList);
                 component.set("v.cpExectiveList", data.CpUsersList);
+                component.set("v.salesUserList", data.salesUsersList);
             }
         });
         $A.enqueueAction(action);
@@ -35,60 +35,57 @@
         var action = component.get("c.checkLeadWithPhoneProject");
         action.setParams({ "project_name": selectedProject, "searchText": phone });
         action.setCallback(this, function(response) {
-            var state = response.getState();
-            if (state === "SUCCESS") {
-                var leadDetailsString = response.getReturnValue();
-                var leadDetails = JSON.parse(leadDetailsString);
-                var otpStatus = leadDetails.leadStatus;
-                component.set("v.leadName", leadDetails.leadname);
-                component.set("v.phonenumer", leadDetails.phone);
-                component.set("v.otpStatus", leadDetails.leadStatus);
-                component.set("v.leadId", leadDetails.leadId);
-                component.set("v.siteVisitComments", '');
-                component.set("v.selectedRating", 'None');
-                if(otpStatus == 'Active Lead Exist' || otpStatus == 'Lead exists but In-Active'){ 
-                    var action1 = component.get("c.getLead");
-                    action1.setParams({ "leadId": leadDetails.leadId});
-                    action1.setCallback(this, function(response) {
-                        var state = response.getState();
-                        if (state === "SUCCESS") {
-                             component.set("v.showDetails",true);
-                            component.set("v.isLoading", false);
-                            var returnValue = response.getReturnValue()
-                            component.set('v.leadRecord',returnValue.Lead);
-                            component.set('v.siteVisit',returnValue.siteVisit);
-                            if(returnValue.Lead && returnValue.Lead.RecordType){
-                                component.set("v.selectedLeadStage", returnValue.Lead.RecordType.Name);
-                            }
- 
-                            if(otpStatus == 'Active Lead Exist'){
-                                helper.toastMsg('Success','Lead Status','Active Lead Exist');
-                            }
-                            if (otpStatus == 'Lead exists but In-Active') {
-                                helper.toastMsg('Success', 'Lead Status', 'Lead exists but In-Active');
-                            }
-                            
-                        }
-                    });
-                    $A.enqueueAction(action1);
-                }
-                else if(otpStatus == 'No Lead Exists'){
-                     component.set("v.showDetails",true);
-                    component.set("v.isLoading", false);
-                    helper.toastMsg('Error','Lead Status','No Lead Exists');
-                }
+            if (response.getState() === "SUCCESS") {
+                helper.handleLeadResult(component, response.getReturnValue());
+            }
+        });
+        $A.enqueueAction(action);
+    },
+    // Parent-owned "Scan QR" button; triggers the Locker-exempt scanner child.
+    startQrScan : function(component, event, helper) {
+        component.set("v.qrError", null);
+        component.set("v.qrScanning", true);
+        var scanner = component.find("qrScannerCmp");
+        if (scanner) { scanner.startScan(); }
+    },
+    // "Search Lead with QR" tab: QR only replaces the input. Once the Lead is
+    // identified, run the identical Search Lead flow via helper.handleLeadResult.
+    handleQrScanned : function(component, event, helper) {
+        var status = event.getParam("status");
+        component.set("v.qrScanning", false);
+        if (status === "cancelled") {
+            component.set("v.qrError", "QR scan cancelled.");
+            return;
+        }
+        if (status === "error") {
+            component.set("v.qrError", event.getParam("message") || "Unable to scan the QR code.");
+            return;
+        }
+        component.set("v.qrError", null);
+        component.set("v.showDetails", false);
+        component.set("v.isLoading", true);
+        var action = component.get("c.checkLeadFromScan");
+        action.setParams({ "scannedValue": event.getParam("value") });
+        action.setCallback(this, function(response) {
+            if (response.getState() === "SUCCESS") {
+                // Same shared business logic as Search Lead; result renders in THIS (QR) tab.
+                helper.handleLeadResult(component, response.getReturnValue());
+            } else {
+                component.set("v.isLoading", false);
+                component.set("v.qrError", helper.errMsg(response, "Invalid QR Code."));
             }
         });
         $A.enqueueAction(action);
     },
     clearValues : function(component, event, helper) {
-        component.set("v.selectedProject",'None');
-        component.set("v.phone",'');
-        component.set("v.showDetails",false);
-        component.set("v.otpStatus",null);
-        component.set("v.siteVisitComments", '');
-        component.set("v.selectedRating", 'None');
-        component.set("v.selectedLeadStage", 'None');
+        helper.clearAll(component);
+    },
+    // Clear for the "Search Lead with QR" tab: same reset as Search Lead Clear,
+    // plus reset the scanner child back to its initial state.
+    clearQr : function(component, event, helper) {
+        helper.clearAll(component);
+        var scanner = component.find("qrScannerCmp");
+        if (scanner) { scanner.reset(); }
     },
     cancel : function(component, event, helper) {
         component.set("v.selectedProject",'None');
@@ -98,7 +95,9 @@
         component.set("v.otpStatus",null);
         component.set("v.siteVisitComments", '');
         component.set("v.selectedRating", 'None');
-        component.set("v.selectedLeadStage", 'None');
+        component.set("v.salesUserId", '');
+        component.set("v.salesUserSearchText", '');
+        component.set("v.searchedSalesUsers", []);
         component.set("v.tabId", "1");
         component.set("v.leadId",'');
     },
@@ -182,8 +181,9 @@
         
         var localitofCustomer = component.find("localitofCustomer").get("v.value");
         var companyNameOfCustomer = component.find("companyNameOfCustomer").get("v.value");
-        
-        
+        var salesUser = component.get("v.salesUserId");
+
+
         if(!pattern.test(leadName)|| !pattern.test(leadFirstName)) {
             component.set("v.isSubmitting", false);
             helper.toastMsg('Warning','Name','Please enter alphabets only in Name!');
@@ -197,7 +197,11 @@
         if (!siteVisitComments ) {
             helper.toastMsg('Error', 'Error', 'Please enter Site Visit Comments');
             return;
-        } 
+        }
+        if (!salesUser) {
+            helper.toastMsg('Error', 'Error', 'Please select a Sales Executive');
+            return;
+        }
         if ((!selectedRating || selectedRating =='None') && (otpStatus == "Active Lead Exist")) {
             helper.toastMsg('Error', 'Error', 'Please select Site Visit Rating');
             return;
@@ -225,15 +229,7 @@
             return;
         }
         
-        if(leadSource =='Channel Partner' )
-        {
-            var sourcingMember = component.find("sourcingMember").get("v.value");
-            if(!sourcingMember)
-            {
-                helper.toastMsg('Error', 'Sourcing Member', 'Please select sourcing member');
-                return;
-            }
-        }
+     
         if(leadSource =='Channel Partner')
         {
              var channelPartner = component.find("channelPartner").get("v.value");
@@ -274,12 +270,13 @@
         var myRecordId = record.id;
         var siteVisitComments = component.get("v.siteVisitComments");
         var selectedRating = component.get("v.selectedRating");
-        
+
         var action = component.get("c.leadNotExists");
         action.setParams({
             "leadId" : myRecordId,
             "selectedRating": selectedRating,
-            "remark": siteVisitComments
+            "remark": siteVisitComments,
+            "salesUser": component.get("v.salesUserId")
         });
         action.setCallback(this, function(response){
             var state = response.getState();
@@ -293,6 +290,9 @@
                 component.set("v.selectedProject",'None');
                 component.set("v.phone",'');
                 component.set("v.leadId",'');
+                component.set("v.salesUserId",'');
+                component.set("v.salesUserSearchText",'');
+                component.set("v.searchedSalesUsers",[]);
             }else{
                 helper.toastMsg('Error','Error','Something Went Wrong')
             }
@@ -308,7 +308,6 @@
         var siteVisitComments = component.get("v.siteVisitComments");
         var location = component.get("v.location");
         var selectedRating = component.get("v.selectedRating");
-        var selectedLeadStage = component.get("v.selectedLeadStage");
         var leadId = component.get("v.leadId");
         var selectedDateTime = new Date(dateValue);
         var now = new Date();
@@ -318,8 +317,7 @@
             helper.toastMsg('Error', 'Error', 'Please select Site Visit Date');
             return;
         } 
-
-        if (selectedDateTime.getTime() < now.getTime()) {
+        if (selectedDateTime.getTime() < now.getTime() - (5 * 60 * 1000)) {
             helper.toastMsg('Error', 'Error', 'Sv Scheduled Date & Time must be in the future.');
             return;
         }
@@ -331,14 +329,7 @@
             helper.toastMsg('Error', 'Error', 'Please enter Site Visit GRE Comments');
             return;
         } 
-        if (!location) {
-            helper.toastMsg('Error', 'Error', 'Please enter location');
-            return;
-        }
-        if (!selectedLeadStage || selectedLeadStage == 'None') {
-            helper.toastMsg('Error', 'Error', 'Please select Lead Stage');
-            return;
-        }
+     
         component.set("v.isLoading", true);
         // Apex call
         var action = component.get("c.createSv");
@@ -350,8 +341,8 @@
             "selectedRating": selectedRating,
             "sourcingMember": component.get("v.cpExecutiveId"),
             "channelPartner": component.get("v.channelPartnerId"),
-            "location":component.get("v.location"),
-            "leadStage": selectedLeadStage
+            "location":"",
+            "salesUser": component.get("v.salesUserId")
         });
         
         action.setCallback(this, function(response) {
@@ -450,6 +441,41 @@
         component.set('v.cpExeSearchText',Name);
         component.set('v.searchedcpExectives', []);
     },
-    
+
+    /**Search Sales Users **/
+    searchSalesUser: function (component, event, helper) {
+        var salesUsers = component.get("v.salesUserList");
+        var searchText = component.get('v.salesUserSearchText');
+
+        var matchSalesUsers = [];
+        if (searchText != '') {
+
+            for (var i = 0; i < salesUsers.length; i++) {
+
+                if (salesUsers[i].Name.toLowerCase().indexOf(searchText.toLowerCase()) != -1) {
+                    matchSalesUsers.push(salesUsers[i]);
+                }
+            }
+            if (matchSalesUsers.length > 0) {
+                component.set('v.searchedSalesUsers', matchSalesUsers);
+            }
+            else
+            {
+                component.set('v.searchedSalesUsers', []);
+            }
+        } else {
+            component.set('v.searchedSalesUsers', []);
+            component.set('v.salesUserSearchText', '');
+            component.set('v.salesUserId', '');
+        }
+    },
+    updateSalesUser: function (component, event, helper) {
+        var eid = event.currentTarget.dataset.id;
+        var Name = event.currentTarget.dataset.name;
+        component.set('v.salesUserId', eid);
+        component.set('v.salesUserSearchText',Name);
+        component.set('v.searchedSalesUsers', []);
+    },
+
 
 })

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>GRE_Restrict_Source_Edit</fullName>
+    <active>true</active>
+    <description>Prevents GRE users from editing the Source (Lead Source) on an existing Site Visit. Creation is unaffected (NOT ISNEW); leadNotExists sets Source__c only on insert.</description>
+    <errorConditionFormula>AND(
+    $Profile.Name = &quot;GRE&quot;,
+    NOT(ISNEW()),
+    ISCHANGED(Source__c)
+)</errorConditionFormula>
+    <errorMessage>You do not have access to edit the Source. Please contact your administrator.</errorMessage>
+</ValidationRule>

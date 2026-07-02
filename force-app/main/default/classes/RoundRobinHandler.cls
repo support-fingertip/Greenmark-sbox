@@ -5,170 +5,139 @@ public without sharing class RoundRobinHandler {
     public static void assignLead(List<Lead> leadList,boolean updateLeads,string usType){
         Datetime d = system.now();
         String dayOfWeek = d.format('EEEE');
-        Set<string>  projectinterested  = new Set<string>();
-        Map<string,List<Lead>>  projectLeadMap = new Map<string,List<Lead>>(); 
-        Map<id,user>  rrMemberMapToUpdate = new  Map<id,user> ();
-        for(Lead l:leadList){  
-            string project = l.Allocated_Project__c;
-            if(project != null && project != '' && l.Lead_Assigned__c != true && l.Delete_Lead__c != true){ 
-                projectinterested.add(project);
-                List<Lead>  projectQue = projectLeadMap.get(project); 
-                if(projectQue  == null){
-                    projectLeadMap.put(project, new   List<Lead>{l} );
+
+        // Collect the leads that still need assignment, plus the projects and sources they reference.
+        List<Lead> toAssign = new List<Lead>();
+        Set<String> projectinterested = new Set<String>();
+        Set<String> sourceinterested  = new Set<String>();
+        for(Lead l : leadList){
+            if(l.Lead_Assigned__c != true && l.Delete_Lead__c != true){
+                toAssign.add(l);
+                if(String.isNotBlank(l.Allocated_Project__c)) projectinterested.add(l.Allocated_Project__c);
+                if(String.isNotBlank(l.Source_Type__c))       sourceinterested.add(l.Source_Type__c);
+            }
+        }
+        if(toAssign.isEmpty()){
+            if(updateLeads) update leadList;
+            return;
+        }
+
+        // Active members (availability split is done in-memory by getEligibleQueue) keyed by routing key.
+        Map<String,List<Round_Robin_Member__c>> projectMembers = new Map<String,List<Round_Robin_Member__c>>();
+        Map<String,List<Round_Robin_Member__c>> sourceMembers  = new Map<String,List<Round_Robin_Member__c>>();
+        List<Round_Robin_Member__c> commonMembers = new List<Round_Robin_Member__c>();
+
+        // Priority 1 - Project round robins (also matches legacy records where the type is blank but a project is set).
+        if(!projectinterested.isEmpty()){
+            for(Round_Robin__c rr : [Select id,Project_Assigned__c,
+                                        (select Name,User__c,User__r.Availability__c from Round_Robin_Members__r
+                                         where Active__c = true AND user__r.isActive=true AND user__r.is_working__c=TRUE
+                                           AND User__r.Week_off_days__c excludes(:dayOfWeek) AND User_Type__c=:usType
+                                         order by Last_Assigned_Time__c,createddate asc nulls first)
+                                     from Round_Robin__c
+                                     where Active__c = true AND Project_Assigned__c in :projectinterested
+                                       AND (Round_Robin_Type__c = 'Project' OR Round_Robin_Type__c = null)]){
+                if(rr.Round_Robin_Members__r.size() > 0) projectMembers.put(rr.Project_Assigned__c, rr.Round_Robin_Members__r);
+            }
+        }
+
+        // Priority 2 - Source round robins.
+        if(!sourceinterested.isEmpty()){
+            for(Round_Robin__c rr : [Select id,Lead_Source_Type__c,
+                                        (select Name,User__c,User__r.Availability__c from Round_Robin_Members__r
+                                         where Active__c = true AND user__r.isActive=true AND user__r.is_working__c=TRUE
+                                           AND User__r.Week_off_days__c excludes(:dayOfWeek) AND User_Type__c=:usType
+                                         order by Last_Assigned_Time__c,createddate asc nulls first)
+                                     from Round_Robin__c
+                                     where Active__c = true AND Round_Robin_Type__c = 'Source'
+                                       AND Lead_Source_Type__c in :sourceinterested]){
+                if(rr.Round_Robin_Members__r.size() > 0) sourceMembers.put(rr.Lead_Source_Type__c, rr.Round_Robin_Members__r);
+            }
+        }
+
+        // Priority 3 - Common round robin (fallback for everyone).
+        for(Round_Robin__c rr : [Select id,
+                                    (select Name,User__c,User__r.Availability__c from Round_Robin_Members__r
+                                     where Active__c = true AND user__r.isActive=true AND user__r.is_working__c=TRUE
+                                       AND User__r.Week_off_days__c excludes(:dayOfWeek) AND User_Type__c=:usType
+                                     order by Last_Assigned_Time__c,createddate asc nulls first)
+                                 from Round_Robin__c
+                                 where Active__c = true AND Round_Robin_Type__c = 'Common' limit 1]){
+            commonMembers = rr.Round_Robin_Members__r;
+        }
+
+        Map<String,Integer> counters = new Map<String,Integer>();
+        Map<id,user> rrMemberMapToUpdate = new Map<id,user>();
+        Map<Id,Round_Robin_Member__c> memberUpdates = new Map<Id,Round_Robin_Member__c>(); // BRD 4.1.9 - member-level last-assigned time (ratio)
+
+        for(Lead l : toAssign){
+            List<Round_Robin_Member__c> queue = null;
+            String key = null;
+
+            // Project (1st) -> Source (2nd) -> Common (3rd)
+            if(String.isNotBlank(l.Allocated_Project__c) && projectMembers.containsKey(l.Allocated_Project__c)){
+                queue = getEligibleQueue(projectMembers.get(l.Allocated_Project__c));
+                key   = 'P-' + l.Allocated_Project__c;
+            }
+            if(queue == null && String.isNotBlank(l.Source_Type__c) && sourceMembers.containsKey(l.Source_Type__c)){
+                queue = getEligibleQueue(sourceMembers.get(l.Source_Type__c));
+                key   = 'S-' + l.Source_Type__c;
+            }
+            if(queue == null && !commonMembers.isEmpty()){
+                queue = getEligibleQueue(commonMembers);
+                key   = 'C';
+            }
+            if(queue == null || queue.isEmpty()) continue;
+
+            Integer counter = counters.containsKey(key) ? counters.get(key) : 0;
+            if(counter >= queue.size()) counter = 0;
+            Round_Robin_Member__c m = queue[counter];
+            if(m != null && m.User__c != null){
+                l.ownerId = m.User__c;
+                l.Lead_Assigned__c = true;
+                l.Lead_Assigned_Time__c = System.now();
+                if(usType == 'Pre Sales'){
+                    l.Pre_sales_user__c = m.User__c;
                 }else{
-                    projectQue.add(l);  
-                    projectLeadMap.put(project,  projectQue);
-                } 
-            }
-        }
-        system.debug('projectinterested'+ projectinterested.size());
-        Map<string,List<Round_Robin_Member__c>>  projectAvaliableQueMap = new Map<string,List<Round_Robin_Member__c>>();
-        Map<string,List<Round_Robin_Member__c>>  projectQueMap = new Map<string,List<Round_Robin_Member__c>>();
-        Map<string,string>  projectWithProjectHead = new Map<string,string>();
-        List<Round_Robin__c> RRAvaliablequeList=[Select id,Project_Assigned__c, Project_Head__c,
-                                                 
-                                                 (select Name,User__c from  Round_Robin_Members__r 
-                                                  where Active__c = true AND user__r.Availability__c=true 
-                                                  AND user__r.isActive=true AND user__r.is_working__c=TRUE AND
-                                                  User__r.Week_off_days__c excludes(:dayOfWeek) AND User_Type__c=:usType  order by 
-                                                  Last_Assigned_time_user__c,createddate asc nulls first )
-                                                 
-                                                 from Round_Robin__c where Project_Assigned__c in :projectinterested and 
-                                                 Active__c = true ];
-        
-        List<Round_Robin__c> RRqueList=[Select id,Project_Assigned__c,Project_Head__c,
-                                        
-                                        (select Name,User__c from  Round_Robin_Members__r  where Active__c =true AND 
-                                         user__r.isActive=true AND user__r.is_working__c=TRUE AND User__r.Week_off_days__c 
-                                         excludes ( :dayOfWeek) AND User_Type__c=:usType order by Last_Assigned_time_user__c,createddate	
-                                         asc nulls first  ) 
-                                        
-                                        from Round_Robin__c where Project_Assigned__c in :projectinterested and 
-                                        Active__c = true ];
-        
-        List<Round_Robin__c> RRqueProjectHeadList=[Select id,Project_Assigned__c,Project_Head__c
-                                                   from Round_Robin__c where Project_Assigned__c in :projectinterested and 
-                                                   Active__c = true ];
-        
-        if(RRAvaliablequeList.size()>0){
-            system.debug('Available Users There');
-            for(Round_Robin__c rr : RRAvaliablequeList){
-                if(rr.Round_Robin_Members__r.size()>0){
-                    projectAvaliableQueMap.put(rr.Project_Assigned__c,rr.Round_Robin_Members__r);
+                    l.Sales_User__c = m.User__c;
+                    l.SV_User__c    = m.User__c;
                 }
-               
+                l.Reassigned_By__c    = UserInfo.getUserId();
+                l.Re_assigned_date__c = system.now();
+                Long nowTime = system.now().getTime();
+                // Stamp the MEMBER row so a user added multiple times (ratio) rotates independently.
+                memberUpdates.put(m.Id, new Round_Robin_Member__c(Id = m.Id, Last_Assigned_Time__c = nowTime));
+                // Keep the user-level stamp too (backward compatible).
+                user u = new user();
+                u.Id = m.User__c;
+                u.LastAssignmentTime1__c = nowTime;
+                rrMemberMapToUpdate.put(m.User__c, u);
             }
-        }
-        if(RRqueList.size()>0){
-            system.debug('All are not Avaialble Users');
-            for(Round_Robin__c rr : RRqueList){
-                if(rr.Round_Robin_Members__r.size()>0){
-                    projectQueMap.put(rr.Project_Assigned__c,rr.Round_Robin_Members__r);
-                }
-            }
-        }
-        
-        if(RRqueProjectHeadList.size()>0){
-            system.debug('In project head list');
-            for(Round_Robin__c rr : RRqueProjectHeadList){
-                if(rr.Project_Head__c != null)
-                {
-                    projectWithProjectHead.put(rr.Project_Assigned__c,rr.Project_Head__c);
-                }
-            }
+            counter++;
+            counters.put(key, counter);
         }
 
-        for(string prj : projectinterested){
-            if(projectAvaliableQueMap.containskey(prj) && projectAvaliableQueMap.get(prj).size()>0){
-                system.debug('Entered the Available');
-                List<Round_Robin_Member__c>  projectQue = projectAvaliableQueMap.get(prj);  
-                integer counter = 0; 
-                for(Lead l : projectLeadMap.get(prj)){
-                    if(projectQue!=null && projectQue.size() > 0 && projectQue[counter] != null && projectQue[counter].user__c != null){
-                        system.debug('projectQue[counter].user__c: ' + projectQue[counter].user__c);
-                        l.ownerId = projectQue[counter].user__c;
-                        l.Lead_Assigned__c = true;
-                        if(usType =='Pre Sales'){
-                            l.Pre_sales_user__c =projectQue[counter].user__c;
-                        }else{
-                            l.Sales_User__c =projectQue[counter].user__c;
-                            
-                            l.SV_User__c=projectQue[counter].user__c; 
-                        }
-                        l.Reassigned_By__c = UserInfo.getUserId();
-                        l.Re_assigned_date__c = system.now();
-                        user u = new user();
-                        u.Id = projectQue[counter].user__c;
-                        u.LastAssignmentTime1__c = system.now().getTime(); 
-                        
-                        rrMemberMapToUpdate.put(projectQue[counter].user__c,u ) ; 
-                        counter ++; 
-                        if(projectQue.size() == counter  ){
-                            counter  =0; 
-                        } 
-                    }
-                }
-            }
-            else if(projectQueMap.containsKey(prj) && projectQueMap.get(prj).size()>0){
-                system.debug('Entered the Not Available');
-                List<Round_Robin_Member__c>  projectQue = projectQueMap.get(prj);  
-                integer counter = 0; 
-                for(Lead l : projectLeadMap.get(prj)){
-                    if(projectQue!=null && projectQue.size() > 0 && projectQue[counter] != null && projectQue[counter].user__c != null){
-                        system.debug('projectQue[counter].user__c: ' + projectQue[counter].user__c);
-                        l.ownerId = projectQue[counter].user__c;
-                        l.Lead_Assigned__c = true;
-                        if(usType =='Pre Sales'){
-                            l.Pre_sales_user__c =projectQue[counter].user__c;
-                        }else{
-                            l.Sales_User__c =projectQue[counter].user__c;
-                        }
-                        l.Re_assigned_date__c = system.now();
-                        user u = new user();
-                        u.Id = projectQue[counter].user__c;
-                        u.LastAssignmentTime1__c = system.now().getTime(); 
-                        
-                        rrMemberMapToUpdate.put(projectQue[counter].user__c,u ) ; 
-                        counter ++; 
-                        if(projectQue.size() == counter  ){
-                            counter  =0; 
-                        } 
-                    }
-                }
-            }
-            //If No Available and not acitive users we are assigning leads to Project Head
-            else if(projectWithProjectHead.containskey(prj))
-            {
-                system.debug('Entered the Project Head');
-                string projectHead = projectWithProjectHead.get(prj);
-                for(Lead l : projectLeadMap.get(prj)){
-                    l.ownerId = projectHead;
-                    l.Lead_Assigned__c = true;
-                    if(usType =='Pre Sales'){
-                        l.Pre_sales_user__c = projectHead;
-                    }
-                    else{
-                        l.Sales_User__c = projectHead;
-                        l.SV_User__c= projectHead; 
-                    }
-                    l.Reassigned_By__c = UserInfo.getUserId();
-                    l.Re_assigned_date__c = system.now();
-                    user u = new user();
-                    u.Id = projectHead;
-                    u.LastAssignmentTime1__c = system.now().getTime(); 
-                    rrMemberMapToUpdate.put(projectHead,u ) ; 
-                }
-            }
+        if(!memberUpdates.isEmpty()){
+            UPDATE memberUpdates.values();
         }
-
-        if(rrMemberMapToUpdate.values().size()>0){
+        if(rrMemberMapToUpdate.values().size() > 0){
             UPDATE rrMemberMapToUpdate.values();
             rrMemberMapToUpdate.clear();
         }
         if(updateLeads){
             Update leadList;
         }
-    } 
+    }
+
+    // Returns only the available members, or - if everyone is unavailable - the full active list
+    // (BRD 4.1.9: when all members are unavailable, leads still go to all active members).
+    private static List<Round_Robin_Member__c> getEligibleQueue(List<Round_Robin_Member__c> activeMembers){
+        List<Round_Robin_Member__c> available = new List<Round_Robin_Member__c>();
+        for(Round_Robin_Member__c m : activeMembers){
+            if(m.User__r != null && m.User__r.Availability__c == true) available.add(m);
+        }
+        return available.isEmpty() ? activeMembers : available;
+    }
     
     //Not In Use
     public static void siteVisitRoundRobin(List<Site_Visit__c> siteVisits){

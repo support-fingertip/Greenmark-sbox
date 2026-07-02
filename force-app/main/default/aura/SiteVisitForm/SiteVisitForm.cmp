@@ -6,6 +6,12 @@
     <aura:attribute name="siteVisitRatings" type="List" />
     <aura:attribute name="selectedProject" type="String" />
     <aura:attribute name="phone" type="String" />
+    <aura:attribute name="qrScanValue" type="String" />
+    <aura:attribute name="qrScanning" type="Boolean" default="false"/>
+    <aura:attribute name="qrShowDetails" type="Boolean" default="false"/>
+    <aura:attribute name="qrError" type="String" />
+    <aura:attribute name="qrScriptsReady" type="Boolean" default="false"/>
+    <aura:attribute name="qrInstance" type="Object" />
     <aura:attribute name="datevalue" type="datetime" />
     <aura:attribute name="leadName" type="String" />
     <aura:attribute name="phonenumer" type="String" />
@@ -23,8 +29,6 @@
     <aura:attribute name="visitType" type="string" />
     <aura:attribute name="leadRecordToSave" type="Lead"  default="{}"/>
     <aura:attribute name="selectedRating" type="String" />
-    <aura:attribute name="leadStageOptions" type="List" />
-    <aura:attribute name="selectedLeadStage" type="String" />
     <aura:attribute name="siteVisitComments" type="String" />
     <aura:attribute name="LeadComments" type="String" />
     <aura:attribute name="selectedSource" type="String" />
@@ -45,6 +49,11 @@
     <aura:attribute name="searchedcpExectives" type="Object[]" default="[]"/>
     <aura:attribute name="cpExeSearchText" type="String" />
     <aura:attribute name="cpExecutiveId" type="String" />
+
+    <aura:attribute name="salesUserList" type="Object[]" default="[]"/>
+    <aura:attribute name="searchedSalesUsers" type="Object[]" default="[]"/>
+    <aura:attribute name="salesUserSearchText" type="String" />
+    <aura:attribute name="salesUserId" type="String" />
     
     <aura:attribute name="autoMapSoucingMember" type="Boolean" default="false"/>
     <aura:attribute name="autoMapChannelPartner" type="Boolean" default="false"/>
@@ -215,6 +224,118 @@
                     <button class="slds-button slds-button_destructive" onclick="{!c.clearValues}">Clear</button>
                 </div>
             </lightning:tab>
+            <aura:if isTrue="{!$Browser.formFactor != 'DESKTOP'}">
+            <lightning:tab label="Search Lead with QR" id="4">
+                <div class="slds-scope slds-text-align_left qr-tab">
+                    <!-- Header -->
+                    <div class="qr-header">
+                        <span class="qr-header-icon">
+                            <lightning:icon iconName="utility:apps" size="small" variant="inverse"/>
+                        </span>
+                        <div>
+                            <div class="qr-header-title">Search Lead with QR</div>
+                            <div class="qr-header-sub">Scan the customer's Site Visit QR Code to fetch lead details.</div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="qr-actions">
+                        <lightning:button variant="brand" label="Scan QR" iconName="utility:touch_action" onclick="{!c.startQrScan}"/>
+                        <lightning:button class="slds-m-left_x-small" variant="destructive" label="Clear" iconName="utility:close" onclick="{!c.clearQr}"/>
+                    </div>
+
+                    <!-- Loading -->
+                    <aura:if isTrue="{!v.isLoading == true}">
+                        <div class="slds-m-vertical_small"><lightning:spinner alternativeText="Loading" size="small" variant="brand"/></div>
+                    </aura:if>
+
+                    <!-- Error message -->
+                    <aura:if isTrue="{!v.qrError != null}">
+                        <div class="slds-m-vertical_small slds-text-color_error slds-text-body_regular">{!v.qrError}</div>
+                    </aura:if>
+
+                    <!-- Native mobile QR scanner (Salesforce mobile app only) -->
+                    <c:qrScannerMobile aura:id="qrScannerCmp" onscanned="{!c.handleQrScanned}"/>
+
+                    <!-- Empty state: nothing scanned and not scanning -->
+                    <aura:if isTrue="{!v.showDetails == false}">
+                        <aura:if isTrue="{!v.qrScanning == false}">
+                            <div class="qr-empty">
+                                <span class="qr-empty-icon">
+                                    <lightning:icon iconName="utility:apps" size="medium"/>
+                                </span>
+                                <div class="qr-empty-title">No QR scanned yet.</div>
+                                <div class="qr-empty-sub">Click <b>"Scan QR"</b> to scan a customer's Site Visit QR Code.</div>
+                            </div>
+                        </aura:if>
+                    </aura:if>
+
+                    <!-- Lead Details (own UI in the QR tab, populated by the shared handleLeadResult flow) -->
+                    <aura:if isTrue="{!v.showDetails == true}">
+                      <aura:if isTrue="{!v.otpStatus != 'No Lead Exists'}">
+                        <div class="qr-section-title">
+                            <span class="qr-section-icon"><lightning:icon iconName="utility:list" size="x-small" variant="inverse"/></span>
+                            Lead Details
+                        </div>
+                        <div class="qr-lead-card">
+                            <table class="qr-lead-table">
+                                <tr>
+                                    <td>
+                                        <b>Lead Name : </b>
+                                        <aura:if isTrue="{!v.leadRecord.Name != null}">
+                                            <a href="javascript:void(0);" onclick="{!c.openLead}" data-id="{!v.leadId}">{!v.leadRecord.Name}</a>
+                                        </aura:if>
+                                    </td>
+                                    <td>
+                                        <b>Phone Number : </b>
+                                        <aura:if isTrue="{!v.leadRecord.Phone__c != null}">{!v.leadRecord.Phone__c}</aura:if>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><b>Lead Id : </b><aura:if isTrue="{!v.leadRecord.Lead_ID__c != null}">{!v.leadRecord.Lead_ID__c}</aura:if></td>
+                                    <td><b>Email : </b><aura:if isTrue="{!v.leadRecord.Email != null}">{!v.leadRecord.Email}</aura:if></td>
+                                </tr>
+                                <tr>
+                                    <td><b>Secondary Phone : </b><aura:if isTrue="{!v.leadRecord.Secondary_Phone__c != null}">{!v.leadRecord.Secondary_Phone__c}</aura:if></td>
+                                    <td><b>Secondary Email : </b><aura:if isTrue="{!v.leadRecord.Secondary_Email__c != null}">{!v.leadRecord.Secondary_Email__c}</aura:if></td>
+                                </tr>
+                                <tr>
+                                    <td><b>Lead Owner Name : </b><aura:if isTrue="{!v.leadRecord.Lead_Owner_Full_Name__c != null}">{!v.leadRecord.Lead_Owner_Full_Name__c}</aura:if></td>
+                                    <td><b>Lead Status : </b><aura:if isTrue="{!v.leadRecord.Lead_Status__c != null}">{!v.leadRecord.Lead_Status__c}</aura:if></td>
+                                </tr>
+                                <tr>
+                                    <td><b>Lead Source : </b><aura:if isTrue="{!v.leadRecord.Credit_Source__c != null}">{!v.leadRecord.Credit_Source__c}</aura:if></td>
+                                    <td><b>Sub Source : </b><aura:if isTrue="{!v.leadRecord.Credit_Sub_Source__c != null}">{!v.leadRecord.Credit_Sub_Source__c}</aura:if></td>
+                                </tr>
+                                <tr>
+                                    <td><b>Lead Stage : </b><aura:if isTrue="{!v.leadRecord.RecordType.Name != null}">{!v.leadRecord.RecordType.Name}</aura:if></td>
+                                    <td>
+                                        <aura:if isTrue="{!v.leadRecord.Credit_Sub_Source__c == 'Channel Partner'}">
+                                            <b>Channel Partner : </b>
+                                            <aura:if isTrue="{!v.leadRecord.Credit_Channel_Partner__c != null}">{!v.leadRecord.Credit_Channel_Partner__r.Name}</aura:if>
+                                        </aura:if>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="qr-footer">
+                            <lightning:icon iconName="utility:info" size="xx-small" class="slds-m-right_xx-small"/>
+                            <span>Use the <b>Update Site Visit</b> tab to continue (enabled automatically for active leads).</span>
+                        </div>
+                        <aura:set attribute="else">
+                            <div class="qr-empty">
+                                <span class="qr-empty-icon">
+                                    <lightning:icon iconName="utility:new" size="medium"/>
+                                </span>
+                                <div class="qr-empty-title">No lead found for this QR.</div>
+                                <div class="qr-empty-sub">Use the <b>Create New Lead</b> tab to create a walk-in lead.</div>
+                            </div>
+                        </aura:set>
+                      </aura:if>
+                    </aura:if>
+                </div>
+            </lightning:tab>
+            </aura:if>
             <aura:if isTrue="{!v.otpStatus == 'Active Lead Exist'}">
                 <lightning:tab label="Update Site Visit" id="2">
                     <lightning:card>
@@ -344,7 +465,7 @@
                                 </div>
                                 <div class="slds-grid slds-wrap slds-text-align_left">
                                     <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xx-small">
-                                        <lightning:input aura:id="field123" type="datetime" name="visitDate" label="SV Scheduled Date &amp; Time" value="{!v.datevalue}" required="true" />
+                                        <lightning:input aura:id="field123" type="datetime" name="visitDate" label="GRE Verified Date &amp; Time" value="{!v.datevalue}" required="true" />
                                     </div>
                                     <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xx-small">
                                         <lightning:textarea aura:id="field123" name="comments" label="Site Visit GRE Comments" value="{!v.siteVisitComments}" required="true" />
@@ -359,24 +480,67 @@
                                             </aura:iteration>
                                         </lightning:select>
                                     </div>
-                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xx-small">
+                                    <!-- Sales User can be assigned manually only when the lead is in Pre Sales stage -->
+                                    <aura:if isTrue="{!v.leadRecord.RecordType.Name == 'Pre Sales'}">
+                                        
+                                        <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xx-small">
+                                            <div class="slds-combobox_container">
+                                                <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" onchange="{!c.searchSalesUser}">
+                                                    <lightning:input
+                                                                     value="{!v.salesUserSearchText}"
+                                                                     aura:id="field1"
+                                                                     name="enter-search"
+                                                                     label="Sales User"
+                                                                     type="search"
+                                                                     required="true"
+                                                                     id="combobox-id-sales"
+                                                                     aria-autocomplete="list"
+                                                                     aria-controls="listbox-id-sales"
+                                                                     aria-expanded="false"
+                                                                     aria-haspopup="listbox"
+                                                                     autoComplete="off"
+                                                                     role="combobox"
+                                                                     placeholder="Search Sales User"/>
+                                                </div>
+                                                <div class="{!not(empty(v.searchedSalesUsers)) ? 'slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click slds-is-open' : 'slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click'}" aura:id="open">
+                                                    <div id="listbox-id-sales" class="slds-dropdown slds-dropdown_length-with-icon-7 slds-dropdown_fluid" role="listbox">
+                                                        <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                                            <aura:if isTrue="{!v.searchedSalesUsers}">
+                                                                <aura:iteration items="{!v.searchedSalesUsers}" var="item">
+                                                                    <a data-id="{!item.Id}" data-name="{!item.Name}" onclick="{!c.updateSalesUser}">
+                                                                        <li role="presentation" class="slds-listbox__item">
+                                                                            <div id="option1" class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+                                                                                <span class="slds-media__figure slds-listbox__option-icon">
+                                                                                    <span class="slds-icon_container slds-icon-standard-account">
+                                                                                        <lightning:icon iconName="standard:user" size="xx-small"/>&nbsp;
+                                                                                    </span>
+                                                                                </span>
+                                                                                <span class="slds-media__body">
+                                                                                    <div class="slds-lookup__result-text">
+                                                                                        <span class="slds-listbox__option-text slds-listbox__option-text_entity" style="white-space:normal">{!item.Name}</span>
+                                                                                    </div>
+                                                                                </span>
+                                                                            </div>
+                                                                        </li>
+                                                                    </a>
+                                                                </aura:iteration>
+                                                            </aura:if>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                    </aura:if>
+                                    <!--<div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xx-small">
                                         <lightning:input aura:id="field123" type="text" name="location" label="Location" value="{!v.location}" required="true" />
-                                    </div>
+                                    </div>-->
                                 </div>
-                                <div class="slds-grid slds-wrap slds-text-align_left">
-                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xx-small">
-                                        <lightning:select aura:id="field123" name="leadStage" label="Lead Stage" value="{!v.selectedLeadStage}" required="true">
-                                            <option value="None">--None--</option>
-                                            <aura:iteration items="{!v.leadStageOptions}" var="stage">
-                                                <option value="{!stage}">{!stage}</option>
-                                            </aura:iteration>
-                                        </lightning:select>
-                                    </div>
-                                </div>
+                               
                             </div>
 
                             <!-- Channel Partner Related Subsection -->
-                            <div class="slds-scope">
+                            <!--<div class="slds-scope">
                                 <div class="slds-text-heading_small slds-m-bottom_x-small slds-m-top_small">
                                     <b>Channel Partner Details</b>
                                 </div>
@@ -474,7 +638,7 @@
                                         </div> 
                                     </div>
                                 </div>
-                            </div>
+                            </div>-->
                             
                             <br />
                             <div style="display: flex; justify-content: center;">
@@ -619,9 +783,9 @@
                                                         <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xxx-small">
                                                             <lightning:inputField variant="label-stacked" aura:id="channelPartner" fieldName="Channel_Partner__c"  required='true'/>
                                                         </div>
-                                                        <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xxx-small">
+                                                        <!--<div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xxx-small">
                                                             <lightning:inputField variant="label-stacked" aura:id="sourcingMember" fieldName="Sourcing_Member__c"  required='true'/>
-                                                        </div>
+                                                        </div>-->
                                                     </div>
                                                 </div>
                                             </aura:if>
@@ -691,13 +855,64 @@
                                                         <lightning:inputField variant="label-stacked" fieldName="Designation_of_Customer__c" />
                                                     </div>
                                                     <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xx-small">
-                                                        <lightning:textArea aura:id="field123" type="text" name="comments" 
+                                                        <lightning:textArea aura:id="field123" type="text" name="comments"
                                                                             label="Site Visit GRE Comments" value="{!v.siteVisitComments}"
                                                                             required="true" />
                                                     </div>
                                                 </div>
                                             </div>
-               
+                                            <div class="slds-scope">
+                                                <div class="slds-grid slds-wrap slds-text-align_left">
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xxx-small">
+                                                        <div class="slds-combobox_container">
+                                                            <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" onchange="{!c.searchSalesUser}">
+                                                                <lightning:input
+                                                                                 value="{!v.salesUserSearchText}"
+                                                                                 aura:id="field1"
+                                                                                 name="enter-search-sales-new"
+                                                                                 label="Sales Executive"
+                                                                                 type="search"
+                                                                                 required="true"
+                                                                                 id="combobox-id-sales-new"
+                                                                                 aria-autocomplete="list"
+                                                                                 aria-controls="listbox-id-sales-new"
+                                                                                 aria-expanded="false"
+                                                                                 aria-haspopup="listbox"
+                                                                                 autoComplete="off"
+                                                                                 role="combobox"
+                                                                                 placeholder="Search Sales Executive"/>
+                                                            </div>
+                                                            <div class="{!not(empty(v.searchedSalesUsers)) ? 'slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click slds-is-open' : 'slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click'}" aura:id="open">
+                                                                <div id="listbox-id-sales-new" class="slds-dropdown slds-dropdown_length-with-icon-7 slds-dropdown_fluid" role="listbox">
+                                                                    <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                                                        <aura:if isTrue="{!v.searchedSalesUsers}">
+                                                                            <aura:iteration items="{!v.searchedSalesUsers}" var="item">
+                                                                                <a data-id="{!item.Id}" data-name="{!item.Name}" onclick="{!c.updateSalesUser}">
+                                                                                    <li role="presentation" class="slds-listbox__item">
+                                                                                        <div id="option1" class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+                                                                                            <span class="slds-media__figure slds-listbox__option-icon">
+                                                                                                <span class="slds-icon_container slds-icon-standard-account">
+                                                                                                    <lightning:icon iconName="standard:user" size="xx-small"/>&nbsp;
+                                                                                                </span>
+                                                                                            </span>
+                                                                                            <span class="slds-media__body">
+                                                                                                <div class="slds-lookup__result-text">
+                                                                                                    <span class="slds-listbox__option-text slds-listbox__option-text_entity" style="white-space:normal">{!item.Name}</span>
+                                                                                                </div>
+                                                                                            </span>
+                                                                                        </div>
+                                                                                    </li>
+                                                                                </a>
+                                                                            </aura:iteration>
+                                                                        </aura:if>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                             <!--Site Visit -->
                                             <!-- <div class="slds-scope">
                                                 <div class="slds-grid slds-wrap slds-text-align_left">

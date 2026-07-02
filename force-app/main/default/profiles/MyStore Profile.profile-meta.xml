@@ -193,6 +193,10 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>ChannelPartnerLeadInsertAPIController</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>ChannelPartnerRegistration</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -461,6 +465,22 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>KenytSiteVisitReminderScheduler</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>KenytSiteVisitReminderSchedulerTest</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>KenytWhatsAppService</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>KenytWhatsAppServiceTest</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>LeadDedupBatch</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -482,6 +502,14 @@
     </classAccesses>
     <classAccesses>
         <apexClass>LeadHistoryActivityControllerTest</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>LeadHistoryController</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>LeadHistoryControllerTest</apexClass>
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
@@ -801,6 +829,10 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>RoundRobinMemberTriggerHandlerTest</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>RoundRobinUsersView</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -877,6 +909,22 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>SiteVisitQRController</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>SiteVisitQRControllerTest</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>SiteVisitQRService</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>SiteVisitQRServiceTest</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>SiteVisitTriggerHandler</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -894,6 +942,14 @@
     </classAccesses>
     <classAccesses>
         <apexClass>SwappingUnitController</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>TATCalculationHelper</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>TATCalculationHelperTest</apexClass>
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
@@ -4105,6 +4161,61 @@
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>Kenyt_Setting__mdt.Auth_Token__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Kenyt_Setting__mdt.Base_URL__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Kenyt_Setting__mdt.Default_Bot_Id__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Kenyt_Setting__mdt.Organization_Id__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Kenyt_Template__mdt.Active__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Kenyt_Template__mdt.Argument_Fields__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Kenyt_Template__mdt.Attachment_Links__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Kenyt_Template__mdt.Bot_Id__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Kenyt_Template__mdt.Channel__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Kenyt_Template__mdt.Event__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Kenyt_Template__mdt.Template_Name__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Knowledge__kav.ArticleBody__c</field>
         <readable>true</readable>
@@ -4131,7 +4242,17 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Lead.Actual_Call_TAT_Hours__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Lead.Actual_Date__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Lead.Actual_Followup_TAT_Hours__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -4232,6 +4353,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Lead.CP_RM_PAN__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Lead.Call_TAT_Breached__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -4556,6 +4682,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Lead.First_Followup_Time__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Lead.First_Presales_Call_Date__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -4597,6 +4728,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Lead.Followup_Subject__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Lead.Followup_TAT_Breached__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -4812,6 +4948,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Lead.Lead_Age__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Lead.Lead_Assigned_Time__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -5727,6 +5868,21 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Lead_Unqualification__c.User__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Lead_Validity_Config__mdt.Executive_Validity_Days__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Lead_Validity_Config__mdt.Reopen_To_Same_Executive__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Lead_Validity_Config__mdt.Source_Validity_Days__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -7211,6 +7367,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Project__c.Pre_Sales_TAT_Hours__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Project__c.Project_Address__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -7276,7 +7437,17 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Project__c.Sales_Followup_TAT_Hours__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Project__c.Sales_Head__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Project__c.Sales_TAT_Hours__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -8621,6 +8792,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Round_Robin__c.Round_Robin_Type__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>SMS_Setting__mdt.Active__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -9715,6 +9891,12 @@
         <layout>Interest_Percentage__c-Interest Percentage Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
+        <layout>Kenyt_Setting__mdt-Kenyt Setting Layout</layout>
+    </layoutAssignments>
+    <layoutAssignments>
+        <layout>Kenyt_Template__mdt-Kenyt Template Layout</layout>
+    </layoutAssignments>
+    <layoutAssignments>
         <layout>Knowledge__kav-Knowledge Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
@@ -9728,6 +9910,9 @@
     </layoutAssignments>
     <layoutAssignments>
         <layout>Lead_Unqualification__c-Lead Lost History Layout</layout>
+    </layoutAssignments>
+    <layoutAssignments>
+        <layout>Lead_Validity_Config__mdt-Lead Validity Config Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>MCUBE_Object_Api__c-MCUBE Object Api Layout</layout>
@@ -9934,6 +10119,10 @@
         <enabled>false</enabled>
     </pageAccesses>
     <pageAccesses>
+        <apexPage>ChannelPartnerCreation</apexPage>
+        <enabled>false</enabled>
+    </pageAccesses>
+    <pageAccesses>
         <apexPage>CommunitiesLanding</apexPage>
         <enabled>true</enabled>
     </pageAccesses>
@@ -10118,6 +10307,10 @@
         <enabled>false</enabled>
     </pageAccesses>
     <pageAccesses>
+        <apexPage>SiteVisitQR</apexPage>
+        <enabled>false</enabled>
+    </pageAccesses>
+    <pageAccesses>
         <apexPage>StdExceptionTemplate</apexPage>
         <enabled>false</enabled>
     </pageAccesses>
@@ -10212,11 +10405,6 @@
     </recordTypeVisibilities>
     <recordTypeVisibilities>
         <default>false</default>
-        <recordType>Plot__c.Row_House</recordType>
-        <visible>false</visible>
-    </recordTypeVisibilities>
-    <recordTypeVisibilities>
-        <default>false</default>
         <recordType>Plot__c.Villa</recordType>
         <visible>false</visible>
     </recordTypeVisibilities>
@@ -10286,6 +10474,10 @@
     </tabVisibilities>
     <tabVisibilities>
         <tab>General_Settings__c</tab>
+        <visibility>Hidden</visibility>
+    </tabVisibilities>
+    <tabVisibilities>
+        <tab>Home_Custom</tab>
         <visibility>Hidden</visibility>
     </tabVisibilities>
     <tabVisibilities>

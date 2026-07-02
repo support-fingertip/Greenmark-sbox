@@ -1,0 +1,49 @@
+.header-title {
+    font-weight: 700;
+    color: #16325c;
+}
+
+.header-text {
+    min-width: 0;
+}
+
+/* One card per lead */
+.lead-card {
+    border: 1px solid #e5e9ef;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.lead-card__head {
+    margin-bottom: 0.35rem;
+    gap: 0.25rem;
+}
+
+.lead-name {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-weight: 600;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+.lead-field {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.1rem 0;
+    font-size: 0.8rem;
+    line-height: 1.35;
+}
+
+.lead-label {
+    flex: 0 0 4.25rem;
+    color: #5c6b7a;
+}
+
+.lead-value {
+    flex: 1 1 auto;
+    min-width: 0;
+    color: #16325c;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}

@@ -32,6 +32,11 @@
                 <label>Management User Rejected</label>
             </value>
             <value>
+                <fullName>Pending</fullName>
+                <default>false</default>
+                <label>Pending</label>
+            </value>
+            <value>
                 <fullName>Project Sales Head Approved</fullName>
                 <default>false</default>
                 <isActive>false</isActive>

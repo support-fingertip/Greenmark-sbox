@@ -3,6 +3,8 @@
     <fullName>All</fullName>
     <columns>NAME</columns>
     <columns>Project_Assigned__c</columns>
+    <columns>Round_Robin_Type__c</columns>
+    <columns>Lead_Source_Type__c</columns>
     <columns>Active__c</columns>
     <columns>CREATED_DATE</columns>
     <filterScope>Everything</filterScope>

@@ -480,26 +480,6 @@
             <fullName>None</fullName>
             <default>false</default>
         </values>
-        <values>
-            <fullName>Trifecta Minato</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>Trifecta Retto</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>Trifecta Vanto</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>Trifecta Veranza</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>Trifecta Verde En Resplandor</fullName>
-            <default>false</default>
-        </values>
     </picklistValues>
     <picklistValues>
         <picklist>Property_Type__c</picklist>

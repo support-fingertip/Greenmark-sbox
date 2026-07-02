@@ -20,6 +20,11 @@ trigger SLeadTrigger on Lead (before insert, after insert, before update, after 
                         {
                             led.Created_Date__c = system.now();
                         }
+                        //Lead Assigned Time - start point for TAT (Turnaround Time) calculation
+                        if(led.Lead_Assigned_Time__c == null)
+                        {
+                            led.Lead_Assigned_Time__c = system.now();
+                        }
                         if( led.Source_Type__c != null && led.Source_Type__c != '')
                         {
                               led.Credit_Source__c = led.Source_Type__c;
@@ -68,7 +73,7 @@ trigger SLeadTrigger on Lead (before insert, after insert, before update, after 
                                     WalkinLeads.add(ld); 
                                 }
                             }
-                            else if(ld.Channel_Partner__c != null && ld.Sourcing_Member__c != null)
+                            /*else if(ld.Channel_Partner__c != null && ld.Sourcing_Member__c != null)
                             {
                                 ld.Pre_sales_user__c = ld.Sourcing_Member__c;
                                 ld.OwnerId = ld.Sourcing_Member__c;
@@ -77,7 +82,7 @@ trigger SLeadTrigger on Lead (before insert, after insert, before update, after 
                                 ld.Lead_Assigned__c = true;
                                 ld.Lead_Transfered__c = true;
                                 ld.RecordTypeId=Schema.SObjectType.Lead.getRecordTypeInfosByName().get('Pre Sales').getRecordTypeId();
-                            }
+                            }*/
                             else{
                                 PreSalesLeads.add(ld);
                             }
@@ -328,9 +333,14 @@ trigger SLeadTrigger on Lead (before insert, after insert, before update, after 
                     if(label.Enable_whatsapp_notifications == 'TRUE'){
                         WhatsappController ctrl = new WhatsappController(newLeads,'1');
                         System.enqueueJob(ctrl);
-                        
+
                         SMSHandler ctrl2 = new SMSHandler(newLeads,'1');
                         System.enqueueJob(ctrl2);
+                    }
+
+                    // Kenyt.AI welcome message (BRD 4.12.2 #1) - no-op until template is configured/active
+                    if(!newLeads.isEmpty()){
+                        KenytWhatsAppService.send('LEAD_WELCOME', new Map<Id,Lead>(newLeads).keySet(), 'Lead');
                     }
                    
                 } 

@@ -4,14 +4,41 @@
     },
     selectChange:function(component, event, helper){
         var isAvailable = event.getSource().get("v.checked");
-        
+        var user=component.get('v.usr');
+
+        // Rule: cannot become "Available" while on "Leave" (not working). Revert and warn.
+        if(isAvailable && user.is_working__c !== true){
+            user.Availability__c = false;
+            component.set('v.usr', user);
+            component.set("v.toggleClass", "custom2-toggle-style"); // Red for offline
+            var toastEvent = $A.get("e.force:showToast");
+            toastEvent.setParams({
+                "title": "Not allowed",
+                "message": "You are on Leave. Please set Working before changing status to Available.",
+                "type" : "error"
+            });
+            toastEvent.fire();
+            return;
+        }
+
         // Set the CSS class dynamically based on the toggle state
         if(isAvailable) {
             component.set("v.toggleClass", "custom1-toggle-style"); // Green for available
         } else {
             component.set("v.toggleClass", "custom2-toggle-style"); // Red for offline
         }
-        var user=component.get('v.usr');
+        helper.onChange(component,event,'');
+    },
+    workingChange:function(component, event, helper){
+        var isWorking = event.getSource().get("v.checked");
+        var user = component.get('v.usr');
+        user.is_working__c = isWorking;
+        // Rule: if user marks "Leave" (not working), move Available status to "Unavailable".
+        if(!isWorking){
+            user.Availability__c = false;
+            component.set("v.toggleClass", "custom2-toggle-style"); // Red for offline
+        }
+        component.set('v.usr', user);
         helper.onChange(component,event,'');
     },
     closePopUP:function(component, event, helper){

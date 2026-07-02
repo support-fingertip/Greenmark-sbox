@@ -3,7 +3,6 @@ public without sharing class SiteVisitFormController {
     {
         @AuraEnabled public List<String> projects = new List<String> ();
         @AuraEnabled public List<String> siteVisitRatings = new List<String> ();
-        @AuraEnabled public List<String> leadStages = new List<String> ();
         @AuraEnabled public Map<String, String> countryMap = new Map<String, String> ();
         @AuraEnabled public Map<String, Map<String, String>> sourceToSubSoruce = new  Map<String, Map<String, String>>();
         @AuraEnabled public Lead Lead;
@@ -11,6 +10,7 @@ public without sharing class SiteVisitFormController {
         
         @AuraEnabled public list<Channel_Partner__c> channelPatnerList;
         @AuraEnabled public list<User> CpUsersList;
+        @AuraEnabled public list<User> salesUsersList;
         
         @AuraEnabled public boolean autoMapSoucingMember;
         @AuraEnabled public boolean autoMapChannelPartner;
@@ -20,7 +20,6 @@ public without sharing class SiteVisitFormController {
         DataBox dt = new DataBox();
         dt.projects = GetPicklistValues.extractPicklistValues('Lead','Allocated_Project__c');
         dt.siteVisitRatings = GetPicklistValues.extractPicklistValues('Site_Visit__c','Site_Visit_rating__c');
-        dt.leadStages = GetPicklistValues.extractPicklistValues('Site_Visit__c','Lead_Stage__c');
         Map<String, String> countryMap = new Map<String, String>();
         List<Country_Code_Mapping__mdt> countryMetadata = [SELECT Label, CountryCode__c FROM Country_Code_Mapping__mdt ];
         for (Country_Code_Mapping__mdt country : countryMetadata) {
@@ -30,6 +29,7 @@ public without sharing class SiteVisitFormController {
         dt.sourceToSubSoruce = getDependentMap(new Lead(), 'Source_Type__c', 'Lead_source__c');
         dt.channelPatnerList = [select Id,Name from Channel_Partner__c where Active__c = true];
         dt.CpUsersList = [select Id,Name from User where Profile.Name ='CP Sourcing Member'];
+        dt.salesUsersList = [SELECT Id, Name FROM User WHERE IsActive = true AND Availability__c = true AND Profile.Name = 'Sales' ORDER BY Name];
         return dt;
     }
     @AuraEnabled
@@ -57,55 +57,13 @@ public without sharing class SiteVisitFormController {
                                               PhoneProject__c,SecondaryPhoneProject__c
                                               FROM Related_Source__c WHERE 
                                               (PhoneProject__c = :searchTextProject or SecondaryPhoneProject__c =:searchTextProject) LIMIT 1 ];
-            String leadname;
-            String OwnerName;
-            String leadId;
-            String phone;
-            String leadStatus;
+            Lead matched;
             if (!leadList.isEmpty()) {
-                Lead ld = leadList[0];
-                leadname = ld.Name;
-                phone = ld.Phone__c;
-                leadId = ld.Id;
-                
-                if(ld.Lead_Status__c != 'Lead Lost' && ld.Lead_Status__c != 'Closed Lost'){
-                    leadStatus = 'Active Lead Exist';
-                    isLeadExists = true;
-                }
-                else{
-                    leadStatus = 'Lead exists but In-Active';
-                    isLeadExists = true;
-                }
+                matched = leadList[0];
+            } else if (!reList.isEmpty()) {
+                matched = reList[0].SLead__r;
             }
-            else if(!reList.isEmpty()){
-                Related_Source__c rd = reList[0];
-                leadname = rd.SLead__r.Name;
-                phone = rd.SLead__r.Phone__c;
-                leadId = rd.SLead__r.Id;
-                if(rd.SLead__r.Lead_Status__c != 'Lead Lost' || rd.SLead__r.Lead_Status__c != 'Closed Lost'){
-                    leadStatus = 'Active Lead Exist';
-                    isLeadExists = true;
-                }
-                else{
-                    leadStatus = 'Lead exists but In-Active';
-                    isLeadExists = true;
-                }
-            } 
-            else {
-                leadStatus = 'No Lead Exists';
-                isLeadExists = false;
-            }
-            jsonResponse = '{';
-            if(isLeadExists == true){
-                jsonResponse += '"leadId":"' + leadId + '",';
-                jsonResponse += '"leadname":"' + leadname + '",';
-                jsonResponse += '"phone":"' + phone + '",';
-                jsonResponse += '"leadStatus":"' + leadStatus + '"';
-            }
-            else{
-                jsonResponse += '"leadStatus":"' + leadStatus + '"';
-            }
-            jsonResponse += '}';
+            jsonResponse = buildLeadJson(matched);
         }
         return jsonResponse;
     }
@@ -124,6 +82,101 @@ public without sharing class SiteVisitFormController {
         return dt;
     }
     /**
+    * Resolves a scanned QR value (a Site Visit Id or the SiteVisitQR URL) to the
+    * related Lead Id, so the "Search Lead with QR" tab can reuse getLead().
+    */
+    @AuraEnabled
+    public static String getLeadIdFromScan(String scannedValue) {
+        if (String.isBlank(scannedValue)) {
+            throw new AuraHandledException('Invalid QR Code.');
+        }
+        String svId = extractSiteVisitId(scannedValue.trim());
+        if (String.isBlank(svId)) {
+            throw new AuraHandledException('Invalid QR Code.');
+        }
+        List<Site_Visit__c> svs = [SELECT Id, SLead__c FROM Site_Visit__c WHERE Id = :svId LIMIT 1];
+        if (svs.isEmpty()) {
+            throw new AuraHandledException('Site Visit not found.');
+        }
+        // Reuse the same owner / assigned-GRE / GRE-profile check as the QR redirect page.
+        if (!SiteVisitQRController.isAuthorized(svId)) {
+            throw new AuraHandledException('Access to the record is prohibited.');
+        }
+        if (svs[0].SLead__c == null) {
+            throw new AuraHandledException('Lead not found.');
+        }
+        return svs[0].SLead__c;
+    }
+
+    /**
+    * QR equivalent of checkLeadWithPhoneProject: resolves the scanned value to the
+    * Lead (reusing getLeadIdFromScan for SV resolution + owner/GRE authorization)
+    * and returns the SAME JSON, so the JS handleLeadResult path is identical.
+    */
+    @AuraEnabled
+    public static String checkLeadFromScan(String scannedValue) {
+        // Mirror Search Lead: an invalid/garbage QR or a Site Visit / Lead that
+        // does not exist resolves to "No Lead Exists" (JSON), so the Create New
+        // Lead tab is enabled. Only an authorization failure is a hard error.
+        String svId = extractSiteVisitId(String.isBlank(scannedValue) ? '' : scannedValue.trim());
+        if (String.isBlank(svId)) {
+            return buildLeadJson(null);
+        }
+        List<Site_Visit__c> svs = [SELECT Id, SLead__c FROM Site_Visit__c WHERE Id = :svId LIMIT 1];
+        if (svs.isEmpty()) {
+            return buildLeadJson(null);
+        }
+        if (!SiteVisitQRController.isAuthorized(svId)) {
+            throw new AuraHandledException('Access to the record is prohibited.');
+        }
+        if (svs[0].SLead__c == null) {
+            return buildLeadJson(null);
+        }
+        List<Lead> leads = [SELECT Id, Name, Phone__c, Lead_Status__c FROM Lead WHERE Id = :svs[0].SLead__c LIMIT 1];
+        return buildLeadJson(leads.isEmpty() ? null : leads[0]);
+    }
+
+    // Shared JSON builder for the lead-search flows (phone/email/leadId and QR scan).
+    private static String buildLeadJson(Lead ld) {
+        String jsonResponse = '{';
+        if (ld != null) {
+            String leadStatus = (ld.Lead_Status__c != 'Lead Lost' && ld.Lead_Status__c != 'Closed Lost')
+                ? 'Active Lead Exist' : 'Lead exists but In-Active';
+            jsonResponse += '"leadId":"' + ld.Id + '",';
+            jsonResponse += '"leadname":"' + ld.Name + '",';
+            jsonResponse += '"phone":"' + ld.Phone__c + '",';
+            jsonResponse += '"leadStatus":"' + leadStatus + '"';
+        } else {
+            jsonResponse += '"leadStatus":"No Lead Exists"';
+        }
+        jsonResponse += '}';
+        return jsonResponse;
+    }
+
+    // Extracts an 18/15-char Site Visit Id from a raw Id or a URL like ...?id=<id> or .../<id>
+    private static String extractSiteVisitId(String val) {
+        if (val.contains('id=')) {
+            val = val.substringAfter('id=');
+            if (val.contains('&')) {
+                val = val.substringBefore('&');
+            }
+        } else if (val.contains('/')) {
+            val = val.substringAfterLast('/');
+        }
+        if (val.length() == 15 || val.length() == 18) {
+            try {
+                Id parsed = (Id) val;
+                if (parsed.getSObjectType() == Site_Visit__c.SObjectType) {
+                    return val;
+                }
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /**
     * Creates or updates a Site Visit based on the provided details.
     * @param remark Notes or feedback for the visit.
     * @param svDate Date and time of the site visit.
@@ -132,24 +185,35 @@ public without sharing class SiteVisitFormController {
     * @param selectedUser (Optional) User ID who attended the visit.
     */
     @AuraEnabled
-    public static void createSv(String remark, Datetime svDate, String selectedProject, String leadId, String selectedRating,String sourcingMember, String channelPartner,String location, String leadStage) {
+    public static void createSv(String remark, Datetime svDate, String selectedProject, String leadId, String selectedRating,String sourcingMember, String channelPartner,String location, String salesUser) {
 
         System.debug('Input Params => Remark: ' + remark + ', SV Date: ' + svDate + ', Project: ' + selectedProject +
-                     ',leadId: ' + leadId + ', selectedRating: ' + selectedRating + ', leadStage: ' + leadStage);
+                     ',leadId: ' + leadId + ', selectedRating: ' + selectedRating + ', salesUser: ' + salesUser);
         //=====================
       	//Lead Pushing to Sales
       	//=====================
         Lead ld = [SELECT Id,Lead_Status__c,Pre_sales_user__c,OwnerId,Lead_Transfer_Note__c,RecordTypeId,Sales_user__c,
-                   Lead_Assigned__c,Allocated_Project__c,Pushed_On__c,Pushed_By__c,Lead_Owner_Profile__c,Push_To_Sales__c
+                   Lead_Assigned__c,Allocated_Project__c,Pushed_On__c,Pushed_By__c,Lead_Owner_Profile__c,Push_To_Sales__c,RecordType.Name
                    FROM Lead WHERE Id=:LeadId];
-        String stageRecordType = String.isBlank(leadStage) || leadStage == 'None' ? 'Sales' : leadStage;
-        ld.RecordTypeId = Schema.SObjectType.Lead.getRecordTypeInfosByName().get(stageRecordType).getRecordTypeId();
+        //Capture the lead's current stage before the record type is pushed to Sales.
+        //Only a Pre Sales lead may be manually re-assigned to a sales user.
+        Boolean isPreSales = (ld.RecordType.Name == 'Pre Sales');
+        ld.RecordTypeId = Schema.SObjectType.Lead.getRecordTypeInfosByName().get('Sales').getRecordTypeId();
         ld.Pushed_On__c = system.now();
         ld.Pushed_By__c = UserInfo.getUserId();
-        //If Lead is in Sales not Closed lost Stage if pre sales user also sales user 
+        //If a Sales User is selected manually on the GRE form (and the lead is in Pre Sales stage),
+        //assign the lead to that user directly. Otherwise fall back to the existing push-to-sales behavior.
+        if(String.isNotBlank(salesUser) && isPreSales)
+        {
+            ld.OwnerId = salesUser;
+            ld.Sales_User__c = salesUser;
+            ld.Lead_Assigned__c = true;
+            ld.Push_To_Sales__c = false;
+        }
+        //If Lead is in Sales not Closed lost Stage if pre sales user also sales user
         //then lead owner will become the sales user
         //if lead is in sales and closed lost or pre sales it will push to sales
-        if(ld.Lead_Owner_Profile__c == 'Sales' && ld.Lead_Status__c != 'Closed Lost')
+        else if(ld.Lead_Owner_Profile__c == 'Sales' && ld.Lead_Status__c != 'Closed Lost')
         {
             ld.Lead_Assigned__c = true;
             ld.Sales_User__c = ld.OwnerId;
@@ -223,7 +287,6 @@ public without sharing class SiteVisitFormController {
             visit.Comments__c = remark;
             visit.Project__c = selectedProject;
             visit.Location__c = location;
-            visit.Lead_Stage__c = stageRecordType;
             if(channelPartner != null && channelPartner != '')
             {
                 visit.Channel_Partner__c = channelPartner;
@@ -247,7 +310,6 @@ public without sharing class SiteVisitFormController {
             visit.Comments__c = remark;
             visit.Project__c = selectedProject;
             visit.Location__c = location;
-            visit.Lead_Stage__c = stageRecordType;
             if(channelPartner != null && channelPartner != '')
             {
                 visit.Channel_Partner__c = channelPartner;
@@ -278,7 +340,6 @@ public without sharing class SiteVisitFormController {
             newVisit.Project__c = selectedProject;
             newVisit.Comments__c = remark;
             newVisit.Location__c = location;
-            newVisit.Lead_Stage__c = stageRecordType;
             if(channelPartner != null && channelPartner != '')
             {
                 newVisit.Channel_Partner__c = channelPartner;
@@ -292,26 +353,43 @@ public without sharing class SiteVisitFormController {
         
     }
     @AuraEnabled
-    public static void leadNotExists(Id leadId,String selectedRating, String remark) {
-        //Once lead is created it will create new visit
-        Lead ld = [select id,name,Lead_source__c,Sub_Source__c,Pre_sales_user__c,Sales_user__c,Allocated_Project__c,OwnerId from Lead where Id =: leadId];
+    public static void leadNotExists(Id leadId,String selectedRating, String remark, String salesUser) {
+        //Once a walk-in lead is created, assign it to the selected sales executive
+        //and log a completed (SV Done) site visit.
+        Lead ld = [select id,name,Lead_source__c,Sub_Source__c,Pre_sales_user__c,Sales_user__c,Allocated_Project__c,
+                   OwnerId,RecordTypeId,Lead_Assigned__c,Push_To_Sales__c,Pushed_On__c,Pushed_By__c,IsPushed__c
+                   from Lead where Id =: leadId];
+
+        //Assign the new walk-in lead to the manually selected sales executive (push to sales)
+        if(String.isNotBlank(salesUser))
+        {
+            ld.OwnerId = salesUser;
+            ld.Sales_User__c = salesUser;
+            ld.Lead_Assigned__c = true;
+            ld.Push_To_Sales__c = false;
+            ld.RecordTypeId = Schema.SObjectType.Lead.getRecordTypeInfosByName().get('Sales').getRecordTypeId();
+            ld.Pushed_On__c = system.now();
+            ld.Pushed_By__c = UserInfo.getUserId();
+            ld.IsPushed__c = true;
+        }
+        ld.Lead_Status__c = 'SV Done';
+        ld.Site_Visit_Conducted_Date__c = system.now();
+        update ld;
+
+        //Auto-create the completed walk-in site visit
         Site_Visit__c sv = new Site_Visit__c();
         sv.SLead__c = ld.Id;
         sv.Date__c = Datetime.now().addMinutes(1);
         sv.Source__c = ld.Lead_source__c;
-        sv.OwnerId = ld.OwnerId;
+        sv.OwnerId = String.isNotBlank(salesUser) ? salesUser : ld.OwnerId;
         sv.Project__c = ld.Allocated_Project__c;
         sv.GRE_Verified_Time__c = Datetime.now().addMinutes(1);
         sv.Site_Visit_Entry_Time__c = Datetime.now().addMinutes(1);
-        sv.Status__c = 'Verified by GRE';
+        sv.SV_Completed_Date_Time__c = system.now();
+        sv.Site_Visit_Type__c = 'First Site Visit';
+        sv.Status__c = 'Completed';
         sv.Comments__c = remark;
         insert sv;
-        
-        //ld.OwnerId = ld.Sales_User__c;
-        //ld.Pre_sales_user__c = ld.Sales_User__c;
-        ld.Lead_Status__c = 'SV Scheduled';
-        ld.Site_Visit_Conducted_Date__c = system.now();
-        update ld;
     }
 
     

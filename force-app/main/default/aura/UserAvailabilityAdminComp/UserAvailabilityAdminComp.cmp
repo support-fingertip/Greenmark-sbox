@@ -39,9 +39,9 @@
             <lightning:select name="filter" aura:id="filter" label="Filter by Profile" value="{!v.selProfileFilter}" onchange="{! c.onChange }" >
                 <option value="Pre Sales">Pre Sales</option>
                 <option value="Sales">Sales</option>
-                <option value="Pre Sales TL">Pre Sales TL</option>
+                <!--<option value="Pre Sales TL">Pre Sales TL</option>-->
                 <option value="Project Sales Head">Project Sales Head</option>
-                <option value="CRM Executive">CRM Executive</option>
+                <!--<option value="CRM Executive">CRM Executive</option>-->
             </lightning:select>
         </div>
         <hr style="margin:0px"/>

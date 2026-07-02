@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Reopen_To_Same_Executive__c</fullName>
+    <defaultValue>true</defaultValue>
+    <description>If checked, a Re-Opened lead (previously Booked) is assigned back to the same executive. If unchecked, it goes through round robin. Default checked.</description>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>When ON, a Re-Opened lead of a previously Booked customer is assigned back to the same executive. When OFF, the Re-Opened lead is assigned via round robin. Default ON.</inlineHelpText>
+    <label>Reopen To Same Executive</label>
+    <type>Checkbox</type>
+</CustomField>

@@ -2,7 +2,7 @@ public class UserStatusController {
     
     @AuraEnabled
     public static User getUserRec(){
-        return [SELECT Id,Name,Availability__c FROM User Where id =:UserInfo.getUserId()];
+        return [SELECT Id,Name,Availability__c,is_working__c FROM User Where id =:UserInfo.getUserId()];
     }
     
     @AuraEnabled

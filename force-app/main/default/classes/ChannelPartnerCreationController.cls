@@ -49,7 +49,7 @@ global with sharing class ChannelPartnerCreationController {
             RestContext.response.statusCode = 200;
             RestContext.response.responseBody = Blob.valueOf(JSON.serialize(new Map<String, Object>{
                 'success' => true,
-                    'Salesforce LeadId' => cp.Id
+                    'Salesforce Id' => cp.Id
                     }));
            
         

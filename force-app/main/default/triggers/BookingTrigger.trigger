@@ -8,8 +8,10 @@ trigger BookingTrigger on Booking__c (after insert,before Insert, before update,
         else
         {
             BookingTriggerHandler.afterInsert(trigger.new);
+            // Kenyt.AI booking confirmation (BRD 4.12.2 #4) - no-op until template configured/active
+            KenytWhatsAppService.send('BOOKING_CONFIRMED', trigger.newMap.keySet(), 'Booking__c');
         }
-        
+
     }
     if(trigger.isUpdate)
     {

@@ -1,5 +1,5 @@
 <aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction"
-                access="global" 
+                access="global"
                 controller="UserStatusController">
     <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
     <aura:attribute name="usr" type="User"/>
@@ -8,25 +8,35 @@
     <aura:attribute name="label" type="string" default="Status "/>
     <aura:attribute name="isCti" type="boolean" default="false"/>
     <aura:attribute name="toggleClass" type="String" default="custom1-toggle-style"/>
-    <div class="slds-box slds-theme_shade">
-        <div class="slds-grid slds-wrap">
+
+    <div class="slds-card slds-p-around_medium">
+        <h2 class="slds-text-heading_small status-header slds-m-bottom_x-small">Status</h2>
+
+        <!-- Working / Leave -->
+        <div class="slds-grid slds-grid_vertical-align-center slds-border_top slds-p-vertical_small">
+            <div class="slds-col slds-size_6-of-12">
+                <div class="row-label">Working</div>
+                <div class="slds-text-body_small slds-text-color_weak">Toggle to mark Working or Leave</div>
+            </div>
             <div class="slds-col">
-                <div class="slds-grid slds-gutters">
-                    <div class="slds-col">
-                        <div class="slds-align_absolute-center">
-                            <aura:if isTrue="{!v.isCti}">
-                                {!v.label} &nbsp;
-                                <lightning:input class="slds-p-right_medium"  type="toggle" name="{!v.usr.id}"  checked="{!v.usr.Availability__c}" value="{!v.usr.Availability__c}" onchange="{!c.selectChange}" messageToggleActive="Available"  messageToggleInactive="Offline"/>
-                                <lightning:icon size="xx-small" iconName="{!v.usr.Availability__c ? 'action:approval' : 'action:close'}"/>  
-                                <aura:set attribute="else">
-                                    {!v.label} &nbsp;   <!--{!'slds-p-right_medium ' + v.toggleClass}-->
-                                    <lightning:input class="{!'slds-p-right_medium ' + v.toggleClass}" type="toggle" name="{!v.usr.id}"  checked="{!v.usr.Availability__c}" value="{!v.usr.Availability__c}" onchange="{!c.selectChange}" messageToggleActive="Available"  messageToggleInactive="Offline"/>
-                                    <lightning:icon size="xx-small" iconName="{!v.usr.Availability__c ? 'action:approval' : 'action:close'}"/>
-                                </aura:set>
-                            </aura:if>
-                        </div>
-                    </div>
-                </div>
+                <lightning:input type="toggle" variant="label-hidden" label="Working"
+                                 checked="{!v.usr.is_working__c}" value="{!v.usr.is_working__c}"
+                                 onchange="{!c.workingChange}"
+                                 messageToggleActive="Working" messageToggleInactive="Leave"/>
+            </div>
+        </div>
+
+        <!-- Availability / Unavailable -->
+        <div class="slds-grid slds-grid_vertical-align-center slds-border_top slds-p-vertical_small">
+            <div class="slds-col slds-size_6-of-12">
+                <div class="row-label">Availability</div>
+                <div class="slds-text-body_small slds-text-color_weak">Toggle to mark Available or Unavailable</div>
+            </div>
+            <div class="slds-col">
+                <lightning:input type="toggle" variant="label-hidden" label="Availability"
+                                 checked="{!v.usr.Availability__c}" value="{!v.usr.Availability__c}"
+                                 onchange="{!c.selectChange}"
+                                 messageToggleActive="Available" messageToggleInactive="Unavailable"/>
             </div>
         </div>
     </div>

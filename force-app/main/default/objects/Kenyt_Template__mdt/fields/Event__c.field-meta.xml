@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Event__c</fullName>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>Unique trigger key the Apex service looks up, e.g. LEAD_WELCOME, SV_CREATED, QUOTE_SENT, BOOKING_CONFIRMED, SV_REMINDER_1, SV_REMINDER_2, SV_POST.</inlineHelpText>
+    <label>Event</label>
+    <length>80</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

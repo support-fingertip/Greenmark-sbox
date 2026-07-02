@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Row_House</fullName>
-    <active>true</active>
+    <active>false</active>
     <label>Row House</label>
     <picklistValues>
         <picklist>BHK_Type__c</picklist>
@@ -534,6 +534,10 @@
         </values>
         <values>
             <fullName>Blocked by Management</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Blocked for Manager</fullName>
             <default>false</default>
         </values>
         <values>
