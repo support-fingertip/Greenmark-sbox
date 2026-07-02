@@ -78,3 +78,4 @@ private class SiteVisitFeedbackControllerTest {
         System.assert(ApexPages.hasMessages(ApexPages.Severity.ERROR), 'An error message should be shown');
     }
 }
+
