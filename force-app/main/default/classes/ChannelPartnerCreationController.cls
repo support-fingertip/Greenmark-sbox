@@ -30,7 +30,7 @@ global with sharing class ChannelPartnerCreationController {
             }
             
             Channel_Partner__c cp =new Channel_Partner__c();
-            //cp.Name= cpName;
+            cp.Name = cpName;
             cp.Registraction_No__c=registration;
             cp.ContactPerson__c =contactPerson;
             cp.Mobile_Number__c = mobile;
