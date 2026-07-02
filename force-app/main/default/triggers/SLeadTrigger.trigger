@@ -73,7 +73,7 @@ trigger SLeadTrigger on Lead (before insert, after insert, before update, after 
                                     WalkinLeads.add(ld); 
                                 }
                             }
-                            else if(ld.Channel_Partner__c != null && ld.Sourcing_Member__c != null)
+                            /*else if(ld.Channel_Partner__c != null && ld.Sourcing_Member__c != null)
                             {
                                 ld.Pre_sales_user__c = ld.Sourcing_Member__c;
                                 ld.OwnerId = ld.Sourcing_Member__c;
@@ -82,7 +82,7 @@ trigger SLeadTrigger on Lead (before insert, after insert, before update, after 
                                 ld.Lead_Assigned__c = true;
                                 ld.Lead_Transfered__c = true;
                                 ld.RecordTypeId=Schema.SObjectType.Lead.getRecordTypeInfosByName().get('Pre Sales').getRecordTypeId();
-                            }
+                            }*/
                             else{
                                 PreSalesLeads.add(ld);
                             }

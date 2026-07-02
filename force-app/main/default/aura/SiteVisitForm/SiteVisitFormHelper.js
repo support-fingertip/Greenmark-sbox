@@ -34,6 +34,8 @@
                     var returnValue = response.getReturnValue();
                     component.set("v.leadRecord", returnValue.Lead);
                     component.set("v.siteVisit", returnValue.siteVisit);
+                    var now = new Date();
+                    component.set("v.datevalue", now.toISOString());
                     if (otpStatus === 'Active Lead Exist') {
                         helper.toastMsg('Success', 'Lead Status', 'Active Lead Exist');
                     } else {

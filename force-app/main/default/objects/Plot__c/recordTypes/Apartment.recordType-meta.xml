@@ -537,6 +537,10 @@
             <default>false</default>
         </values>
         <values>
+            <fullName>Blocked for Manager</fullName>
+            <default>false</default>
+        </values>
+        <values>
             <fullName>Booked</fullName>
             <default>false</default>
         </values>

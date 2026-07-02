@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ListView xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>All</fullName>
+    <fullName>Project_Round_Robins</fullName>
     <columns>NAME</columns>
     <columns>Project_Assigned__c</columns>
     <columns>Round_Robin_Type__c</columns>
@@ -8,5 +8,10 @@
     <columns>Active__c</columns>
     <columns>CREATED_DATE</columns>
     <filterScope>Everything</filterScope>
-    <label>All</label>
+    <filters>
+        <field>Round_Robin_Type__c</field>
+        <operation>equals</operation>
+        <value>Project</value>
+    </filters>
+    <label>Project Round Robins</label>
 </ListView>

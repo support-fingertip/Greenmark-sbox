@@ -96,7 +96,7 @@
                                         <div class="slds-grid slds-wrap slds-text-align_left">
                                             <div class="slds-size_1-of-1 slds-max-small-size_1-of-1">
                                                 <lightning:inputField variant="label-stacked"
-                                                                      fieldName="Allocated_Project__c"  required='true'/>
+                                                                      fieldName="Allocated_Project__c"  />
                                             </div>
                                         </div>
                                     </div>
@@ -158,34 +158,13 @@
                                     <aura:if isTrue="{!v.leadSource == 'Channel Partner'}">
                                         <div class="slds-scope">
                                             <div class="slds-grid slds-wrap slds-text-align_left">
-                                                <aura:if isTrue="{!v.showSourcingMember}">
-                                                    <!-- When showSourcingMember = true -->
-                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1">
-                                                        <lightning:inputField
-                                                                              variant="label-stacked"
-                                                                              aura:id="channelPartnerid"
-                                                                              fieldName="Channel_Partner__c"
-                                                                              required="true"/>
-                                                    </div>
-                                                    
-                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1">
-                                                        <lightning:inputField
-                                                                              variant="label-stacked"
-                                                                              fieldName="Sourcing_Member__c"  aura:id="sourcingMember" required="true"/>
-                                                    </div>
-                                                    
-                                                    <!-- ELSE BLOCK -->
-                                                    <aura:set attribute="else">
-                                                        <div class="slds-size_1-of-1 slds-max-small-size_1-of-1">
-                                                            <lightning:inputField
-                                                                                  variant="label-stacked"
-                                                                                  fieldName="Channel_Partner__c"
-                                                                                  required="true"/>
-                                                        </div>
-                                                    </aura:set>
-                                                </aura:if>
+                                                <div class="slds-size_1-of-1 slds-max-small-size_1-of-1">
+                                                    <lightning:inputField
+                                                                          variant="label-stacked"
+                                                                          fieldName="Channel_Partner__c"
+                                                                          required="true"/>
+                                                </div>
                                             </div>
-                                            
                                         </div>
                                     </aura:if>
                                     <aura:if isTrue="{!v.leadSource == 'Employee Referral'}">

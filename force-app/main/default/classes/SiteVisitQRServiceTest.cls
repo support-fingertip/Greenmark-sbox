@@ -56,4 +56,3 @@ private class SiteVisitQRServiceTest {
         System.assert(threw, 'Missing lead email should throw');
     }
 }
-

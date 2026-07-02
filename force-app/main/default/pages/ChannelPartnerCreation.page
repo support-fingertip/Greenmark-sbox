@@ -1,0 +1,8 @@
+<apex:page showHeader="false" controller="ChannelPartnerCreationController">
+    <apex:form >
+        <apex:pageMessages />
+        <apex:outputPanel >
+            <apex:facet name="header">Response:</apex:facet>
+        </apex:outputPanel> 
+    </apex:form>
+</apex:page>

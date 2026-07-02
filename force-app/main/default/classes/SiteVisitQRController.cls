@@ -69,4 +69,3 @@ public with sharing class SiteVisitQRController {
         return !users.isEmpty() && users[0].Profile.Name == 'GRE';
     }
 }
-

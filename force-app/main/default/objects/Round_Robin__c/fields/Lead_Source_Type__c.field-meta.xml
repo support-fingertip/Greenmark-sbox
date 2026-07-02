@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Lead_Source_Type__c</fullName>
     <externalId>false</externalId>
-    <label>Lead Source Type</label>
+    <label>Lead Source</label>
     <required>false</required>
     <trackTrending>false</trackTrending>
     <type>Picklist</type>

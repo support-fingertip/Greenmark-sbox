@@ -69,4 +69,3 @@ private class SiteVisitQRControllerTest {
         System.assert(ctrl.message.contains('Invalid'), 'Missing id should produce an error message');
     }
 }
-

@@ -229,15 +229,7 @@
             return;
         }
         
-        if(leadSource =='Channel Partner' )
-        {
-            var sourcingMember = component.find("sourcingMember").get("v.value");
-            if(!sourcingMember)
-            {
-                helper.toastMsg('Error', 'Sourcing Member', 'Please select sourcing member');
-                return;
-            }
-        }
+     
         if(leadSource =='Channel Partner')
         {
              var channelPartner = component.find("channelPartner").get("v.value");
@@ -325,8 +317,7 @@
             helper.toastMsg('Error', 'Error', 'Please select Site Visit Date');
             return;
         } 
-
-        if (selectedDateTime.getTime() < now.getTime()) {
+        if (selectedDateTime.getTime() < now.getTime() - (5 * 60 * 1000)) {
             helper.toastMsg('Error', 'Error', 'Sv Scheduled Date & Time must be in the future.');
             return;
         }
@@ -338,10 +329,7 @@
             helper.toastMsg('Error', 'Error', 'Please enter Site Visit GRE Comments');
             return;
         } 
-        if (!location) {
-            helper.toastMsg('Error', 'Error', 'Please enter location');
-            return;
-        }
+     
         component.set("v.isLoading", true);
         // Apex call
         var action = component.get("c.createSv");
@@ -353,7 +341,7 @@
             "selectedRating": selectedRating,
             "sourcingMember": component.get("v.cpExecutiveId"),
             "channelPartner": component.get("v.channelPartnerId"),
-            "location":component.get("v.location"),
+            "location":"",
             "salesUser": component.get("v.salesUserId")
         });
         

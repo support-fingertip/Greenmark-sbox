@@ -52,9 +52,9 @@
                 <label>Commercial</label>
             </value>
             <value>
-                <fullName>Model Villa</fullName>
+                <fullName>Blocked for Manager</fullName>
                 <default>false</default>
-                <label>Model Villa</label>
+                <label>Blocked for Manager</label>
             </value>
         </valueSetDefinition>
     </valueSet>

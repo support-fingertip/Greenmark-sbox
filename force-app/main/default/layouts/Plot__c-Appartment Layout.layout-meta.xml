@@ -83,7 +83,7 @@
                 <field>Rate_per_sqft__c</field>
             </layoutItems>
             <layoutItems>
-                <behavior>Edit</behavior>
+                <behavior>Required</behavior>
                 <field>amenities_charges__c</field>
             </layoutItems>
             <layoutItems>
@@ -95,8 +95,8 @@
                 <field>Bescom__c</field>
             </layoutItems>
             <layoutItems>
-                <behavior>Required</behavior>
-                <field>Generator_Charges__c</field>
+                <behavior>Readonly</behavior>
+                <field>Floor_Rise_Charge__c</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns>
@@ -105,16 +105,16 @@
                 <field>Legal_Documentation_Charges__c</field>
             </layoutItems>
             <layoutItems>
-                <behavior>Readonly</behavior>
-                <field>Floor_Rise_Charge__c</field>
-            </layoutItems>
-            <layoutItems>
                 <behavior>Required</behavior>
                 <field>Car_Parking__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Required</behavior>
                 <field>GST1__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Required</behavior>
+                <field>Generator_Charges__c</field>
             </layoutItems>
         </layoutColumns>
         <style>TwoColumnsLeftToRight</style>
@@ -170,7 +170,7 @@
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
     <summaryLayout>
-        <masterLabel>00hC2000000x2nc</masterLabel>
+        <masterLabel>00h9I000003FM89</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
         <summaryLayoutStyle>Default</summaryLayoutStyle>
