@@ -30,4 +30,3 @@ public class SiteVisitEmailQueueable implements Queueable, Database.AllowsCallou
         }
     }
 }
-

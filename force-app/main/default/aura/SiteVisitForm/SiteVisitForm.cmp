@@ -107,11 +107,10 @@
                             <hr style="margin-top: 5px; border-top: 1px solid #ccc;"/>
                             <div style="text-align: left; padding-left: 20px;">
                                 <aura:if isTrue="{!v.otpStatus != 'No Lead Exists'}">
-                                    <table>
+                                    <table class="qr-lead-table">
                                         <tr>
-                                            <td width = "50%" style="font-size: 15px;">
+                                            <td style="font-size: 15px;">
                                                 <b>Lead Name : </b>
-                                           
                                                 <aura:if isTrue="{!v.leadRecord.Name != null}">
                                                     <a href="javascript:void(0);"
                                                        onclick="{!c.openLead}"
@@ -119,9 +118,8 @@
                                                         {!v.leadRecord.Name}
                                                     </a>
                                                 </aura:if>
-
                                             </td>
-                                            <td width = "50%" style="font-size: 15px;">
+                                            <td style="font-size: 15px;">
                                                 <b>Phone Number : </b>
                                                 <aura:if isTrue="{!v.leadRecord.Phone__c != null}">
                                                     {!v.leadRecord.Phone__c}
@@ -129,13 +127,13 @@
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td width = "50%" style="font-size: 15px;">
+                                            <td style="font-size: 15px;">
                                                 <b>Lead Id : </b>
                                                 <aura:if isTrue="{!v.leadRecord.Lead_ID__c != null}">
                                                     {!v.leadRecord.Lead_ID__c}
                                                 </aura:if>
                                             </td>
-                                            <td width = "50%" style="font-size: 15px;">
+                                            <td style="font-size: 15px;">
                                                 <b>Email : </b>
                                                 <aura:if isTrue="{!v.leadRecord.Email != null}">
                                                     {!v.leadRecord.Email}
@@ -143,20 +141,19 @@
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td width = "50%" style="font-size: 15px;">
+                                            <td style="font-size: 15px;">
                                                 <b>Secondary Phone : </b>
                                                 <aura:if isTrue="{!v.leadRecord.Secondary_Phone__c != null}">
                                                     {!v.leadRecord.Secondary_Phone__c}
                                                 </aura:if>
                                             </td>
-                                            <td width = "50%" style="font-size: 15px;">
+                                            <td style="font-size: 15px;">
                                                 <b>Secondary Email : </b>
                                                 <aura:if isTrue="{!v.leadRecord.Secondary_Email__c != null}">
                                                     {!v.leadRecord.Secondary_Email__c}
                                                 </aura:if>
                                             </td>
                                         </tr>
-                                        
                                         <tr>
                                             <td style="font-size: 15px;">
                                                 <b>Lead Owner Name : </b>
@@ -170,9 +167,8 @@
                                                     {!v.leadRecord.Lead_Status__c}
                                                 </aura:if>
                                             </td>
-                                            
                                         </tr>
-                                        <tr> 
+                                        <tr>
                                             <td style="font-size: 15px;">
                                                 <b>Lead Source : </b>
                                                 <aura:if isTrue="{!v.leadRecord.Credit_Source__c != null}">
@@ -180,12 +176,11 @@
                                                 </aura:if>
                                             </td>
                                             <td style="font-size: 15px;">
-                                                <b> Sub Source : </b>
+                                                <b>Sub Source : </b>
                                                 <aura:if isTrue="{!v.leadRecord.Credit_Sub_Source__c != null}">
                                                     {!v.leadRecord.Credit_Sub_Source__c}
                                                 </aura:if>
                                             </td>
-
                                         </tr>
                                         <tr>
                                             <td style="font-size: 15px;">
@@ -196,7 +191,7 @@
                                             </td>
                                         </tr>
                                         <aura:if isTrue="{!v.leadRecord.Credit_Sub_Source__c == 'Channel Partner'}">
-                                            <tr> 
+                                            <tr>
                                                 <td style="font-size: 15px;">
                                                     <b>Channel Partner : </b>
                                                     <aura:if isTrue="{!v.leadRecord.Credit_Channel_Partner__c != null}">
@@ -346,9 +341,9 @@
                                 <lightning:icon iconName="standard:lead_list" size="medium" alternativeText="Lead Icon" />
                                 <b><span style="margin-left: 5px; font-size: 20px;">Lead Details</span></b>
                             </div>
-                            <table>
+                            <table class="qr-lead-table">
                                 <tr>
-                                    <td width = "50%" style="font-size: 15px;">
+                                    <td style="font-size: 15px;">
                                         <b>Lead Name : </b>
                                         <aura:if isTrue="{!v.leadRecord.Name != null}">
                                             <a href="javascript:void(0);"
@@ -358,7 +353,7 @@
                                             </a>
                                         </aura:if>
                                     </td>
-                                    <td width = "50%" style="font-size: 15px;">
+                                    <td style="font-size: 15px;">
                                         <b>Phone Number : </b>
                                         <aura:if isTrue="{!v.leadRecord.Phone__c != null}">
                                             {!v.leadRecord.Phone__c}
@@ -366,13 +361,13 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td width = "50%" style="font-size: 15px;">
+                                    <td style="font-size: 15px;">
                                         <b>Lead Id : </b>
                                         <aura:if isTrue="{!v.leadRecord.Lead_ID__c != null}">
                                             {!v.leadRecord.Lead_ID__c}
                                         </aura:if>
                                     </td>
-                                    <td width = "50%" style="font-size: 15px;">
+                                    <td style="font-size: 15px;">
                                         <b>Email : </b>
                                         <aura:if isTrue="{!v.leadRecord.Email != null}">
                                             {!v.leadRecord.Email}
@@ -403,11 +398,9 @@
                                                                          month="2-digit"
                                                                          day="2-digit"
                                                                          hour="2-digit"
-                                                                         minute="2-digit"
-                                                                         />
+                                                                         minute="2-digit" />
                                         </aura:if>
                                     </td>
-                                    
                                     <td style="font-size: 15px;">
                                         <b>Site Visit Scheduled By: </b>
                                         <aura:if isTrue="{!v.siteVisit.Site_Visit_Create_Owner__c != null}">
@@ -415,7 +408,7 @@
                                         </aura:if>
                                     </td>
                                 </tr>
-                                <tr> 
+                                <tr>
                                     <td style="font-size: 15px;">
                                         <b>Lead Source : </b>
                                         <aura:if isTrue="{!v.leadRecord.Credit_Source__c != null}">
@@ -423,12 +416,11 @@
                                         </aura:if>
                                     </td>
                                     <td style="font-size: 15px;">
-                                        <b> Sub Source : </b>
+                                        <b>Sub Source : </b>
                                         <aura:if isTrue="{!v.leadRecord.Credit_Sub_Source__c != null}">
                                             {!v.leadRecord.Credit_Sub_Source__c}
                                         </aura:if>
                                     </td>
-
                                 </tr>
                                 <tr>
                                     <td style="font-size: 15px;">
@@ -439,7 +431,7 @@
                                     </td>
                                 </tr>
                                 <aura:if isTrue="{!v.leadRecord.Credit_Sub_Source__c == 'Channel Partner'}">
-                                    <tr> 
+                                    <tr>
                                         <td style="font-size: 15px;">
                                             <b>Channel Partner : </b>
                                             <aura:if isTrue="{!v.leadRecord.Credit_Channel_Partner__c != null}">
@@ -448,7 +440,6 @@
                                         </td>
                                     </tr>
                                 </aura:if>
-                                
                             </table>
                             <br />
                             <br />

@@ -7553,6 +7553,16 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Site_Visit__c.Customer_Feedback__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Site_Visit__c.Customer_Rating__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Site_Visit__c.Customer_Visit_Happened__c</field>
         <readable>true</readable>
     </fieldPermissions>
