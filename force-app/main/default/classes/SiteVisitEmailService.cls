@@ -99,7 +99,6 @@ public with sharing class SiteVisitEmailService {
             WHERE Id IN :svIds
         ];
 
-        String baseUrl = getFeedbackBaseUrl();
         OrgWideEmailAddress owa = getOrgWideAddress();
         List<Messaging.SingleEmailMessage> mails = new List<Messaging.SingleEmailMessage>();
 
@@ -108,7 +107,7 @@ public with sharing class SiteVisitEmailService {
                 continue;
             }
 
-            String feedbackUrl = baseUrl + '/apex/SiteVisitFeedback?id=' + sv.Id;
+            String feedbackUrl = buildFeedbackUrl(sv.Id);
             String customerName = String.isNotBlank(sv.SLead__r.Name) ? sv.SLead__r.Name : 'Customer';
 
             Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
@@ -134,13 +133,26 @@ public with sharing class SiteVisitEmailService {
     // Sentinel label value meaning "admin has not set a public Site URL yet".
     private static final String FEEDBACK_URL_UNSET = 'NOT_CONFIGURED';
 
-    /** Base URL for the feedback link: the configured label, else the org domain. */
-    private static String getFeedbackBaseUrl() {
+    /**
+     * Builds the customer feedback link for a Site Visit.
+     *
+     * When the Site_Visit_Feedback_Base_URL label is configured, it must hold the FULL public
+     * feedback page URL exposed by the Force.com / Experience Cloud Site
+     * (e.g. https://greenmark.my.salesforce-sites.com/SiteVisitFeedback) so the customer opens it
+     * WITHOUT logging in. We simply append the record id to that URL.
+     *
+     * When the label is unset, we fall back to the internal org VF URL (/apex/SiteVisitFeedback),
+     * which requires a Salesforce login - a safety net for admins/internal testing until the public
+     * Site URL is configured in the label.
+     */
+    @TestVisible
+    private static String buildFeedbackUrl(Id svId) {
         String labelUrl = Label.Site_Visit_Feedback_Base_URL;
         if (String.isNotBlank(labelUrl) && !FEEDBACK_URL_UNSET.equalsIgnoreCase(labelUrl)) {
-            return labelUrl.removeEnd('/');
+            String base = labelUrl.trim().removeEnd('/');
+            return base + (base.contains('?') ? '&' : '?') + 'id=' + svId;
         }
-        return URL.getOrgDomainUrl().toExternalForm();
+        return URL.getOrgDomainUrl().toExternalForm() + '/apex/SiteVisitFeedback?id=' + svId;
     }
 
     /** Best-effort org-wide sender address; null falls back to the running user. */

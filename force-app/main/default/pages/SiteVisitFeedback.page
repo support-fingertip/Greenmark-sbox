@@ -1,55 +1,167 @@
-<apex:page controller="SiteVisitFeedbackController"
+<apex:page controller="SiteVisitFeedbackController" docType="html-5.0"
            showHeader="false" sidebar="false" standardStylesheets="false"
-           title="Site Visit Feedback">
-    <apex:slds />
-    <div class="slds-scope">
-        <div class="slds-align_absolute-center" style="min-height: 90vh; flex-direction: column;">
-            <div class="slds-box slds-theme_default slds-p-around_large" style="max-width: 32rem; width: 100%;">
+           applyHtmlTag="false" applyBodyTag="false" title="Site Visit Feedback">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+               background: #eef1f6; color: #22303c; }
+        .gm-header { background: #14432c; padding: 18px 16px; text-align: center; }
+        .gm-brand { color: #ffffff; font-weight: 700; letter-spacing: 1px; font-size: 18px; }
+        .gm-brand .leaf { color: #5cc98a; margin-right: 6px; }
+        .gm-brand small { display: block; font-size: 9px; letter-spacing: 3px;
+                          color: #b9d7c5; font-weight: 600; margin-top: 2px; }
+        .gm-wrap { max-width: 680px; margin: 28px auto; padding: 0 16px; }
+        .gm-card { background: #ffffff; border-radius: 14px; padding: 36px 40px;
+                   box-shadow: 0 8px 30px rgba(20,67,44,0.08); }
+        .gm-icon { width: 64px; height: 64px; border-radius: 50%; background: #e7f4ec;
+                   display: flex; align-items: center; justify-content: center;
+                   margin: 0 auto 14px; font-size: 26px; }
+        .gm-title { text-align: center; color: #14432c; font-size: 24px; font-weight: 700;
+                    margin: 4px 0 10px; }
+        .gm-sub { text-align: center; color: #5b6b78; font-size: 14px; line-height: 1.5;
+                  margin: 0 auto 22px; max-width: 460px; }
+        .gm-rule { border: none; border-top: 1px solid #eceff3; margin: 22px 0; }
+        .gm-qlabel { font-weight: 700; color: #14432c; font-size: 15px; margin-bottom: 12px; }
+        .gm-req { color: #e0483d; }
+        .gm-stars { display: flex; gap: 18px; align-items: center; }
+        .gm-star { font-size: 40px; line-height: 1; color: #cfd6dd; cursor: pointer;
+                   transition: color .12s ease, transform .12s ease; user-select: none; }
+        .gm-star:hover { transform: scale(1.08); }
+        .gm-star.on { color: #f5b301; }
+        .gm-star-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .gm-star-cap { font-size: 11px; color: #8a97a3; height: 12px; }
+        .gm-ta { width: 100%; min-height: 118px; border: 1px solid #d5dbe1; border-radius: 8px;
+                 padding: 12px 14px; font-size: 14px; font-family: inherit; resize: vertical; color: #22303c; }
+        .gm-ta:focus { outline: none; border-color: #2f7d4f; box-shadow: 0 0 0 2px rgba(47,125,79,.15); }
+        .gm-counter { text-align: right; color: #9aa6b1; font-size: 12px; margin-top: 6px; }
+        .gm-help { text-align: center; color: #7c8894; font-size: 13px; margin: 22px 0 16px; }
+        .gm-btn { width: 100%; background: #14532d; color: #fff; border: none; border-radius: 8px;
+                  padding: 15px; font-size: 15px; font-weight: 700; cursor: pointer; }
+        .gm-btn:hover { background: #0f3d21; }
+        .gm-msgs { margin-bottom: 16px; }
+        .gm-error { background: #fdecea; border: 1px solid #f5c6c2; color: #b3261e;
+                    border-radius: 8px; padding: 10px 14px; font-size: 13px; margin-bottom: 10px; }
+        .gm-thanks { text-align: center; padding: 10px 0 4px; }
+        .gm-thanks .tick { font-size: 44px; color: #2f7d4f; }
+        .gm-thanks h2 { color: #14432c; margin: 10px 0 6px; }
+        .gm-thanks p { color: #5b6b78; font-size: 14px; }
+        .gm-footer { text-align: center; color: #8a97a3; font-size: 12px; padding: 22px 0 30px; }
+    </style>
+</head>
+<body>
+    <div class="gm-header">
+        <div class="gm-brand"><span class="leaf">&#127807;</span>GREENMARK<small>DEVELOPMENTS</small></div>
+    </div>
 
-                <h1 class="slds-text-heading_medium slds-text-align_center slds-p-bottom_medium">
-                    Site Visit Feedback
-                </h1>
+    <div class="gm-wrap">
+        <div class="gm-card">
 
-                <apex:pageMessages />
+            <apex:form rendered="{!AND(recordFound, NOT(submitted))}" id="fbForm">
+                <div class="gm-icon">&#128172;</div>
+                <div class="gm-title">We Value Your Feedback!</div>
+                <p class="gm-sub">Thank you for visiting us. Please take a few seconds to rate your
+                   experience and share your feedback.</p>
 
-                <!-- Thank-you state after a successful submit -->
-                <apex:outputPanel rendered="{!submitted}">
-                    <div class="slds-text-align_center">
-                        <p class="slds-text-heading_small slds-text-color_success slds-p-vertical_medium">
-                            Thank you! Your feedback has been submitted.
-                        </p>
-                    </div>
+                <apex:outputPanel layout="block" styleClass="gm-msgs" rendered="{!hasMessages}">
+                    <apex:repeat value="{!pageMessages}" var="m">
+                        <div class="gm-error">{!m.detail}</div>
+                    </apex:repeat>
                 </apex:outputPanel>
 
-                <!-- Feedback form -->
-                <apex:form rendered="{!AND(recordFound, NOT(submitted))}">
-                    <div class="slds-form-element slds-p-bottom_small">
-                        <label class="slds-form-element__label" for="rating">
-                            Customer Rating (1-5)
-                        </label>
-                        <div class="slds-form-element__control">
-                            <apex:inputField id="rating" value="{!siteVisit.Customer_Rating__c}"
-                                             styleClass="slds-input" />
-                        </div>
-                    </div>
+                <hr class="gm-rule" />
 
-                    <div class="slds-form-element slds-p-bottom_medium">
-                        <label class="slds-form-element__label" for="feedback">
-                            Customer Feedback
-                        </label>
-                        <div class="slds-form-element__control">
-                            <apex:inputField id="feedback" value="{!siteVisit.Customer_Feedback__c}"
-                                             styleClass="slds-textarea" />
-                        </div>
+                <div class="gm-qlabel">1. How would you rate your site visit experience? <span class="gm-req">*</span></div>
+                <div class="gm-stars" id="gmStars">
+                    <div class="gm-star-wrap">
+                        <span class="gm-star" data-val="1">&#9733;</span>
+                        <span class="gm-star-cap">1 - Poor</span>
                     </div>
-
-                    <div class="slds-text-align_center">
-                        <apex:commandButton action="{!submit}" value="Submit"
-                                            styleClass="slds-button slds-button_brand" />
+                    <div class="gm-star-wrap"><span class="gm-star" data-val="2">&#9733;</span><span class="gm-star-cap"></span></div>
+                    <div class="gm-star-wrap"><span class="gm-star" data-val="3">&#9733;</span><span class="gm-star-cap"></span></div>
+                    <div class="gm-star-wrap"><span class="gm-star" data-val="4">&#9733;</span><span class="gm-star-cap"></span></div>
+                    <div class="gm-star-wrap">
+                        <span class="gm-star" data-val="5">&#9733;</span>
+                        <span class="gm-star-cap">5 - Excellent</span>
                     </div>
-                </apex:form>
+                </div>
+                <apex:inputHidden value="{!ratingValue}" id="ratingField" />
 
-            </div>
+                <hr class="gm-rule" />
+
+                <div class="gm-qlabel">2. Your Feedback <span class="gm-req">*</span></div>
+                <apex:inputTextarea value="{!feedbackText}" id="feedbackField" styleClass="gm-ta"
+                                    html-maxlength="{!maxFeedbackLength}"
+                                    html-placeholder="Please share your feedback or comments..." />
+                <div class="gm-counter"><span id="gmCount">0</span> / {!maxFeedbackLength}</div>
+
+                <p class="gm-help">Your feedback helps us improve and serve you better.</p>
+
+                <apex:commandButton action="{!submit}" value="&#10148;  Submit Feedback" styleClass="gm-btn" />
+            </apex:form>
+
+            <apex:outputPanel layout="block" rendered="{!submitted}">
+                <div class="gm-thanks">
+                    <div class="gm-icon">&#127807;</div>
+                    <div class="tick">&#10003;</div>
+                    <h2>Thank you!</h2>
+                    <p>Your feedback has been submitted successfully.</p>
+                </div>
+            </apex:outputPanel>
+
+            <apex:outputPanel layout="block" styleClass="gm-msgs"
+                              rendered="{!AND(NOT(recordFound), NOT(submitted))}">
+                <apex:repeat value="{!pageMessages}" var="m">
+                    <div class="gm-error">{!m.detail}</div>
+                </apex:repeat>
+            </apex:outputPanel>
+
         </div>
+        <div class="gm-footer">&#169; 2024 Greenmark Developments. All rights reserved.</div>
     </div>
+
+    <script type="text/javascript">
+        (function () {
+            var ratingInput = document.querySelector('input[id$="ratingField"]');
+            var feedback = document.querySelector('textarea[id$="feedbackField"]');
+            var counter = document.getElementById('gmCount');
+            var stars = document.querySelectorAll('#gmStars .gm-star');
+            var maxLen = {!maxFeedbackLength};
+
+            function paint(val) {
+                for (var i = 0; i < stars.length; i++) {
+                    var v = parseInt(stars[i].getAttribute('data-val'), 10);
+                    if (v <= val) { stars[i].className = 'gm-star on'; }
+                    else { stars[i].className = 'gm-star'; }
+                }
+            }
+            for (var i = 0; i < stars.length; i++) {
+                (function (starEl) {
+                    starEl.addEventListener('click', function () {
+                        var val = parseInt(starEl.getAttribute('data-val'), 10);
+                        if (ratingInput) { ratingInput.value = val; }
+                        paint(val);
+                    });
+                })(stars[i]);
+            }
+            // Restore state on postback (e.g. validation error)
+            if (ratingInput && ratingInput.value) { paint(parseInt(ratingInput.value, 10)); }
+
+            function updateCount() {
+                if (!feedback || !counter) { return; }
+                if (feedback.value.length > maxLen) { feedback.value = feedback.value.substring(0, maxLen); }
+                counter.innerHTML = feedback.value.length;
+            }
+            if (feedback) {
+                feedback.addEventListener('input', updateCount);
+                feedback.addEventListener('keyup', updateCount);
+                updateCount();
+            }
+        })();
+    </script>
+</body>
+</html>
 </apex:page>
