@@ -19,8 +19,8 @@ private class SiteVisitFeedbackControllerTest {
         Test.startTest();
         SiteVisitFeedbackController ctrl = new SiteVisitFeedbackController();
         System.assert(ctrl.recordFound, 'Record should load');
-        ctrl.siteVisit.Customer_Rating__c = 4;
-        ctrl.siteVisit.Customer_Feedback__c = 'Great experience';
+        ctrl.ratingValue = '4';
+        ctrl.feedbackText = 'Great experience';
         ctrl.submit();
         Test.stopTest();
 
@@ -66,15 +66,57 @@ private class SiteVisitFeedbackControllerTest {
 
         Test.startTest();
         SiteVisitFeedbackController ctrl = new SiteVisitFeedbackController();
-        ctrl.siteVisit.Customer_Rating__c = 6; // out of 1-5
+        ctrl.feedbackText = 'Some feedback';
+
+        ctrl.ratingValue = '6'; // above range
         ctrl.submit();
         System.assert(!ctrl.submitted, 'Rating above 5 should be rejected');
 
-        ctrl.siteVisit.Customer_Rating__c = null; // missing
+        ctrl.ratingValue = null; // missing
+        ctrl.submit();
+        System.assert(!ctrl.submitted, 'Missing rating should be rejected');
+
+        ctrl.ratingValue = 'abc'; // non-numeric
         ctrl.submit();
         Test.stopTest();
 
-        System.assert(!ctrl.submitted, 'Missing rating should be rejected');
+        System.assert(!ctrl.submitted, 'Non-numeric rating should be rejected');
         System.assert(ApexPages.hasMessages(ApexPages.Severity.ERROR), 'An error message should be shown');
+    }
+
+    @isTest
+    static void blankFeedbackRejected() {
+        Site_Visit__c sv = makeSiteVisit();
+        Test.setCurrentPage(Page.SiteVisitFeedback);
+        ApexPages.currentPage().getParameters().put('id', sv.Id);
+
+        Test.startTest();
+        SiteVisitFeedbackController ctrl = new SiteVisitFeedbackController();
+        ctrl.ratingValue = '5';
+        ctrl.feedbackText = '';
+        ctrl.submit();
+        Test.stopTest();
+
+        System.assert(!ctrl.submitted, 'Blank feedback should be rejected');
+        System.assert(ApexPages.hasMessages(ApexPages.Severity.ERROR), 'An error message should be shown');
+    }
+
+    @isTest
+    static void longFeedbackIsTruncated() {
+        Site_Visit__c sv = makeSiteVisit();
+        Test.setCurrentPage(Page.SiteVisitFeedback);
+        ApexPages.currentPage().getParameters().put('id', sv.Id);
+
+        Test.startTest();
+        SiteVisitFeedbackController ctrl = new SiteVisitFeedbackController();
+        ctrl.ratingValue = '3';
+        ctrl.feedbackText = 'x'.repeat(SiteVisitFeedbackController.MAX_FEEDBACK_LENGTH + 50);
+        ctrl.submit();
+        Test.stopTest();
+
+        System.assert(ctrl.submitted, 'Submit should succeed');
+        Site_Visit__c saved = [SELECT Customer_Feedback__c FROM Site_Visit__c WHERE Id = :sv.Id];
+        System.assertEquals(SiteVisitFeedbackController.MAX_FEEDBACK_LENGTH, saved.Customer_Feedback__c.length(),
+            'Feedback should be truncated to the maximum length');
     }
 }
