@@ -70,31 +70,13 @@ global without sharing class ChannelPartnerLeadInsertAPIController {
             }
 
             /* ================= Lead Creation ================= */
-            Lead nld = new Lead();
-            nld.LastName = ldData.lastName;
-            nld.Lead_source__c = 'Channel Partner';
-            nld.Channel_Partner__c = cpLst[0].Id;
-            nld.Source_Type__c = 'Channel Partner';
-            nld.Sub_Source__c = cpLst[0].Name;
-            
-            nld.Country_Code__c = ldData.countryCode;
-            nld.Phone = (ldData.mobile != null && ldData.mobile.length() > 10)? ldData.mobile.substring(ldData.mobile.length() - 10): ldData.mobile;
-            nld.Phone__c = nld.Phone;
-            
-            nld.Email = ldData.email;
-            nld.Allocated_project__c = ldData.project;
-            nld.Last_Note__c = ldData.remarks;
-            nld.Description = ldData.description;
-            nld.Company = 'Greenmark Developers';
-            
-            /* ===== Newly Added Fields ===== */
-            nld.Country__c = ldData.country;
-            nld.State__c = ldData.state;
-            nld.City__c = ldData.city;
-            nld.Comments__c = ldData.comments;
-            
-            insert nld;
-            
+            // The Lead insert (and its downstream automation: round robin, owner
+            // assignment, related source, etc.) is handed to an asynchronous Queueable
+            // so it runs in system context. A public Site guest user cannot perform the
+            // owner reassignment / cross-object updates that the Lead triggers require,
+            // so doing this synchronously fails with INSUFFICIENT_ACCESS_ON_CROSS_REFERENCE_ENTITY.
+            System.enqueueJob(new LeadInsertQueueable(ldData, cpLst[0].Id, cpLst[0].Name));
+
             /* ================= Final Response ================= */
             if (String.isBlank(responseMessage)) {
                 responseMessage = 'The provided enquiry has been successfully registered. Credit for this lead will be given to the Channel Partner if it converts into a booking within 30 days.';
@@ -153,4 +135,48 @@ global without sharing class ChannelPartnerLeadInsertAPIController {
     }
     
     public class CustomException extends Exception {}
+
+    /**
+     * Inserts the Channel Partner lead asynchronously in system context so the
+     * Lead's downstream automation (round robin assignment, owner reassignment,
+     * related source creation) runs with full permissions rather than the limited
+     * permissions of the Site guest user that submitted the request.
+     */
+    public without sharing class LeadInsertQueueable implements Queueable {
+        private CpWrapper d;
+        private Id cpId;
+        private String cpName;
+
+        public LeadInsertQueueable(CpWrapper data, Id channelPartnerId, String channelPartnerName) {
+            this.d = data;
+            this.cpId = channelPartnerId;
+            this.cpName = channelPartnerName;
+        }
+
+        public void execute(QueueableContext ctx) {
+            Lead nld = new Lead();
+            nld.LastName = d.lastName;
+            nld.Lead_source__c = 'Channel Partner';
+            nld.Channel_Partner__c = cpId;
+            nld.Source_Type__c = 'Channel Partner';
+            nld.Sub_Source__c = cpName;
+
+            nld.Country_Code__c = d.countryCode;
+            nld.Phone = (d.mobile != null && d.mobile.length() > 10) ? d.mobile.substring(d.mobile.length() - 10) : d.mobile;
+            nld.Phone__c = nld.Phone;
+
+            nld.Email = d.email;
+            nld.Allocated_project__c = d.project;
+            nld.Last_Note__c = d.remarks;
+            nld.Description = d.description;
+            nld.Company = 'Greenmark Developers';
+
+            nld.Country__c = d.country;
+            nld.State__c = d.state;
+            nld.City__c = d.city;
+            nld.Comments__c = d.comments;
+
+            insert nld;
+        }
+    }
 }
