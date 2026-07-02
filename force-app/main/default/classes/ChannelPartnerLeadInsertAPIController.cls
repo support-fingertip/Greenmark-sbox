@@ -20,11 +20,11 @@ global without sharing class ChannelPartnerLeadInsertAPIController {
             List<Channel_Partner__c> cpLst = [select id,name,Mobile_Number__c,Approval_Status__c from Channel_Partner__c where name =: ldData.CPID limit 1];
             
             if(cpLst.IsEmpty()){
-                throw new CustomException('Channel Partner Does Not Exists !!');
+                throw new CustomException('Channel Partner not found. Please complete your registration and get approval before submitting leads.');
             }
             else{
                 if(cpLst[0].Approval_Status__c != 'Approved'){
-                    throw new CustomException('Channel Partner not allowed to insert Lead Yet !!');
+                    throw new CustomException('Your Channel Partner account is pending approval. You will be able to submit leads once your account is approved.');
                 }
             }
             /* ================= Duplicate Check ================= */
@@ -38,13 +38,13 @@ global without sharing class ChannelPartnerLeadInsertAPIController {
                 
                 if (!ldLst[0].Site_visit__r.isEmpty()) {
                     responseMessage =
-                        'The provided enquiry already exists in our database, indicating that the site visit has been completed and is currently under follow-up.';
+                        'This enquiry already exists in our database. A site visit has already been completed and the lead is currently under follow-up. As this is a duplicate enquiry, no credit will be given.';
                 } else {
                     responseMessage =
-                        'The provided enquiry is already present in our database, indicating that the site visit has not yet been conducted and is currently under follow-up.';
+                        'This enquiry already exists in our database. A site visit has not yet been conducted and the lead is currently under follow-up. As this is a duplicate enquiry, no credit will be given.';
                 }
-                
-            } 
+
+            }
             
             else if (!rsLst.isEmpty()) {
                 
@@ -52,10 +52,10 @@ global without sharing class ChannelPartnerLeadInsertAPIController {
                 
                 if (!linkedLead.isEmpty() && !linkedLead[0].Site_visit__r.isEmpty()) {
                     responseMessage =
-                        'The provided enquiry already exists in our database, indicating that the site visit has been completed and is currently under follow-up.';
+                        'This enquiry already exists in our database. A site visit has already been completed and the lead is currently under follow-up. As this is a duplicate enquiry, no credit will be given.';
                 } else {
                     responseMessage =
-                        'The provided enquiry is already present in our database, indicating that the site visit has not yet been conducted and is currently under follow-up.';
+                        'This enquiry already exists in our database. A site visit has not yet been conducted and the lead is currently under follow-up. As this is a duplicate enquiry, no credit will be given.';
                 }
             }
             
@@ -87,7 +87,7 @@ global without sharing class ChannelPartnerLeadInsertAPIController {
             
             /* ================= Final Response ================= */
             if (String.isBlank(responseMessage)) {
-                responseMessage = 'The Provided Enquiry is successfully registered.';
+                responseMessage = 'The provided enquiry has been successfully registered. Credit for this lead will be given to the Channel Partner if it converts into a booking within 30 days.';
             }
             
             log.Response__c = responseMessage;
