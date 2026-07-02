@@ -28,37 +28,47 @@ global without sharing class ChannelPartnerLeadInsertAPIController {
                 }
             }
             /* ================= Duplicate Check ================= */
+            // Detect a duplicate enquiry (same mobile). Queries are wrapped so that limited
+            // access contexts (e.g. a Site guest user) degrade gracefully to lead creation
+            // instead of hard-failing. The child sub-query on Site Visit is avoided because
+            // guest users cannot traverse the Site_visit__r relationship; Site Visit is
+            // queried separately and defensively.
             String responseMessage = '';
-            
-            List<Lead> ldLst = [ SELECT Id, (SELECT Id FROM Site_visit__r WHERE Status__c = 'Completed') FROM Lead WHERE Phone__c = :ldData.mobile OR Secondary_Phone__c = :ldData.mobile LIMIT 1];
 
-            List<Related_Source__c> rsLst = [SELECT Id, Slead__c FROM Related_Source__c WHERE Phone__c = :ldData.mobile OR Secondary_Phone__c = :ldData.mobile LIMIT 1 ];
-            
-            if (!ldLst.isEmpty()) {
-                
-                if (!ldLst[0].Site_visit__r.isEmpty()) {
-                    responseMessage =
-                        'This enquiry already exists in our database. A site visit has already been completed and the lead is currently under follow-up. As this is a duplicate enquiry, no credit will be given.';
+            try {
+                Id existingLeadId = null;
+
+                List<Lead> ldLst = [SELECT Id FROM Lead WHERE Phone__c = :ldData.mobile OR Secondary_Phone__c = :ldData.mobile LIMIT 1];
+                if (!ldLst.isEmpty()) {
+                    existingLeadId = ldLst[0].Id;
                 } else {
-                    responseMessage =
-                        'This enquiry already exists in our database. A site visit has not yet been conducted and the lead is currently under follow-up. As this is a duplicate enquiry, no credit will be given.';
+                    List<Related_Source__c> rsLst = [SELECT Id, Slead__c FROM Related_Source__c WHERE Phone__c = :ldData.mobile OR Secondary_Phone__c = :ldData.mobile LIMIT 1];
+                    if (!rsLst.isEmpty()) {
+                        existingLeadId = rsLst[0].Slead__c;
+                    }
                 }
 
-            }
-            
-            else if (!rsLst.isEmpty()) {
-                
-                List<Lead> linkedLead = [SELECT Id,(SELECT Id FROM Site_visit__r WHERE Status__c = 'Completed') FROM Lead WHERE Id = :rsLst[0].Slead__c LIMIT 1];
-                
-                if (!linkedLead.isEmpty() && !linkedLead[0].Site_visit__r.isEmpty()) {
-                    responseMessage =
-                        'This enquiry already exists in our database. A site visit has already been completed and the lead is currently under follow-up. As this is a duplicate enquiry, no credit will be given.';
-                } else {
-                    responseMessage =
-                        'This enquiry already exists in our database. A site visit has not yet been conducted and the lead is currently under follow-up. As this is a duplicate enquiry, no credit will be given.';
+                if (existingLeadId != null) {
+                    Boolean svCompleted = false;
+                    try {
+                        svCompleted = ![SELECT Id FROM Site_Visit__c WHERE SLead__c = :existingLeadId AND Status__c = 'Completed' LIMIT 1].isEmpty();
+                    } catch (Exception svEx) {
+                        svCompleted = false; // Site Visit not accessible in this context
+                    }
+
+                    if (svCompleted) {
+                        responseMessage =
+                            'This enquiry already exists in our database. A site visit has already been completed and the lead is currently under follow-up. As this is a duplicate enquiry, no credit will be given.';
+                    } else {
+                        responseMessage =
+                            'This enquiry already exists in our database. A site visit has not yet been conducted and the lead is currently under follow-up. As this is a duplicate enquiry, no credit will be given.';
+                    }
                 }
+            } catch (Exception dupEx) {
+                // Duplicate detection could not run in this context - proceed to create the lead.
+                responseMessage = '';
             }
-            
+
             /* ================= Lead Creation ================= */
             Lead nld = new Lead();
             nld.LastName = ldData.lastName;
