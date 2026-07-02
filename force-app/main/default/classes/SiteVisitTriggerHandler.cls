@@ -15,6 +15,10 @@ public  without sharing class SiteVisitTriggerHandler {
     }
     public static void afterInsert(List<Site_Visit__c> newSiteVisits)
     {
+       // Status-driven customer emails (Scheduled QR). Completed feedback fires only on a
+       // status transition, so it is intentionally not sent on insert (see sendStatusEmails).
+       sendStatusEmails(newSiteVisits, null);
+
        list<Site_Visit__c> verifiedbyGRESitevisits = new list<Site_Visit__c> ();
         // Collect Lead Ids
         Set<Id> leadIds = new Set<Id>();
@@ -126,7 +130,9 @@ public  without sharing class SiteVisitTriggerHandler {
     }  
     public static void AfterUpdate(List<Site_Visit__c> newList, Map<Id, Site_Visit__c> oldMap)
     {
-        
+        // Status-driven customer emails (Scheduled QR + Completed feedback).
+        sendStatusEmails(newList, oldMap);
+
         Set<Id> leadsForStatusUpdate = new Set<Id>();
         Set<Id> leadsForVisitRecalc  = new Set<Id>();
         list<Site_Visit__c> verifiedbyGRESitevisits = new list<Site_Visit__c> ();
@@ -345,6 +351,49 @@ public  without sharing class SiteVisitTriggerHandler {
         
         if (!leadsToUpdate.isEmpty()) {
             update leadsToUpdate;
+        }
+    }
+
+    /**
+     * Method Name : sendStatusEmails
+     * Description : Enqueues the customer emails based on the Site Visit Status. Bulk-safe: builds Id
+     *               sets and enqueues at most one async job per email type (no SOQL/DML/callout here).
+     *               Duplicate prevention: emails fire only when the status actually reaches the target.
+     *                 - Scheduled QR email: on insert OR on a status change to 'Scheduled'.
+     *                 - Completed feedback email: only on a status TRANSITION to 'Completed'
+     *                   (never when a record is inserted already 'Completed').
+     * Parameters  : newList - Trigger.new ; oldMap - Trigger.oldMap (null on insert).
+     */
+    public static void sendStatusEmails(List<Site_Visit__c> newList, Map<Id, Site_Visit__c> oldMap)
+    {
+        if (newList == null || newList.isEmpty()) {
+            return;
+        }
+
+        Boolean isInsert = (oldMap == null);
+        Set<Id> scheduledIds = new Set<Id>();
+        Set<Id> completedIds = new Set<Id>();
+
+        for (Site_Visit__c sv : newList) {
+            Boolean statusChanged = !isInsert
+                && oldMap.get(sv.Id).Status__c != sv.Status__c;
+
+            // Scheduled QR email: on create or on a change into 'Scheduled'.
+            if ((isInsert || statusChanged) && sv.Status__c == 'Scheduled') {
+                scheduledIds.add(sv.Id);
+            }
+
+            // Completed feedback email: transition only (excludes insert-as-Completed).
+            if (statusChanged && sv.Status__c == 'Completed') {
+                completedIds.add(sv.Id);
+            }
+        }
+
+        if (!scheduledIds.isEmpty()) {
+            System.enqueueJob(new SiteVisitEmailQueueable(scheduledIds, SiteVisitEmailQueueable.MODE_SCHEDULED));
+        }
+        if (!completedIds.isEmpty()) {
+            System.enqueueJob(new SiteVisitEmailQueueable(completedIds, SiteVisitEmailQueueable.MODE_COMPLETED));
         }
     }
 }
