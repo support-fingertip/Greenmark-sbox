@@ -131,10 +131,13 @@ public with sharing class SiteVisitEmailService {
         sendEmails(mails);
     }
 
+    // Sentinel label value meaning "admin has not set a public Site URL yet".
+    private static final String FEEDBACK_URL_UNSET = 'NOT_CONFIGURED';
+
     /** Base URL for the feedback link: the configured label, else the org domain. */
     private static String getFeedbackBaseUrl() {
         String labelUrl = Label.Site_Visit_Feedback_Base_URL;
-        if (String.isNotBlank(labelUrl)) {
+        if (String.isNotBlank(labelUrl) && !FEEDBACK_URL_UNSET.equalsIgnoreCase(labelUrl)) {
             return labelUrl.removeEnd('/');
         }
         return URL.getOrgDomainUrl().toExternalForm();

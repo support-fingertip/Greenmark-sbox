@@ -6,6 +6,6 @@
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>Site Visit Feedback Base URL</shortDescription>
-        <value></value>
+        <value>NOT_CONFIGURED</value>
     </labels>
 </CustomLabels>
