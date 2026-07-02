@@ -124,3 +124,4 @@ private class SiteVisitEmailServiceTest {
         System.assert(Limits.getEmailInvocations() >= 0, 'Queueable executed without error');
     }
 }
+

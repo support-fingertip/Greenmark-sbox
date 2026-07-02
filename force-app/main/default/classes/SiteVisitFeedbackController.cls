@@ -73,3 +73,4 @@ public without sharing class SiteVisitFeedbackController {
         ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, message));
     }
 }
+
