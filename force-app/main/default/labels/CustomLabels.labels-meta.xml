@@ -6,7 +6,7 @@
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>Site Visit Feedback Base URL</shortDescription>
-        <value>NOT_CONFIGURED</value>
+        <value>https://ability-site-3859--sandbox1.sandbox.my.salesforce-sites.com/customerfeedback</value>
     </labels>
 </CustomLabels>
 
