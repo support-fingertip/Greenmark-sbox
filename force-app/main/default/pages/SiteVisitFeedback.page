@@ -1,0 +1,55 @@
+<apex:page controller="SiteVisitFeedbackController"
+           showHeader="false" sidebar="false" standardStylesheets="false"
+           title="Site Visit Feedback">
+    <apex:slds />
+    <div class="slds-scope">
+        <div class="slds-align_absolute-center" style="min-height: 90vh; flex-direction: column;">
+            <div class="slds-box slds-theme_default slds-p-around_large" style="max-width: 32rem; width: 100%;">
+
+                <h1 class="slds-text-heading_medium slds-text-align_center slds-p-bottom_medium">
+                    Site Visit Feedback
+                </h1>
+
+                <apex:pageMessages />
+
+                <!-- Thank-you state after a successful submit -->
+                <apex:outputPanel rendered="{!submitted}">
+                    <div class="slds-text-align_center">
+                        <p class="slds-text-heading_small slds-text-color_success slds-p-vertical_medium">
+                            Thank you! Your feedback has been submitted.
+                        </p>
+                    </div>
+                </apex:outputPanel>
+
+                <!-- Feedback form -->
+                <apex:form rendered="{!AND(recordFound, NOT(submitted))}">
+                    <div class="slds-form-element slds-p-bottom_small">
+                        <label class="slds-form-element__label" for="rating">
+                            Customer Rating (1-5)
+                        </label>
+                        <div class="slds-form-element__control">
+                            <apex:inputField id="rating" value="{!siteVisit.Customer_Rating__c}"
+                                             styleClass="slds-input" />
+                        </div>
+                    </div>
+
+                    <div class="slds-form-element slds-p-bottom_medium">
+                        <label class="slds-form-element__label" for="feedback">
+                            Customer Feedback
+                        </label>
+                        <div class="slds-form-element__control">
+                            <apex:inputField id="feedback" value="{!siteVisit.Customer_Feedback__c}"
+                                             styleClass="slds-textarea" />
+                        </div>
+                    </div>
+
+                    <div class="slds-text-align_center">
+                        <apex:commandButton action="{!submit}" value="Submit"
+                                            styleClass="slds-button slds-button_brand" />
+                    </div>
+                </apex:form>
+
+            </div>
+        </div>
+    </div>
+</apex:page>
