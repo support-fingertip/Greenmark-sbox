@@ -24,7 +24,7 @@
         <inputParameters>
             <name>emailSubject</name>
             <value>
-                <stringValue>Your Channel Partner registration has been approved</stringValue>
+                <stringValue>Your Channel Partner registration has been approved - GreenMark Developers</stringValue>
             </value>
         </inputParameters>
         <inputParameters>
@@ -70,9 +70,17 @@
         <isViewedAsPlainText>true</isViewedAsPlainText>
         <text>Dear {!$Record.ContactPerson__c},
 
-Your Channel Partner account with GreenMark Developers has been approved. You can now submit leads through the lead submission form.
+Congratulations! Your Channel Partner account with GreenMark Developers has been approved.
 
-Regards,
+Your Channel Partner ID (CP ID): {!$Record.Name}
+
+You can now start submitting leads to GreenMark Developers. When you submit a lead, please use the Channel Partner ID shown above so that every lead is correctly credited to you.
+
+Please note: credit for a lead is given only if it converts into a booking within 30 days. Duplicate enquiries already present in our system will not be credited.
+
+For any assistance, please reach out to the GreenMark Developers team.
+
+Warm regards,
 GreenMark Developers</text>
     </textTemplates>
 </Flow>
